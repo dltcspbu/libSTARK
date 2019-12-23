@@ -19,7 +19,7 @@ using Algebra::xFE;
 
 
 	//MachineInstruction::MachineInstruction(const Opcode& opcode, const bool arg2isImmediate,
-	//	const size_t destIdx, const size_t arg1Idx, const size_t arg2IdxOrImmediate) :
+	//	const uint64_t destIdx, const uint64_t arg1Idx, const uint64_t arg2IdxOrImmediate) :
 	//	opcode_(opcode), arg2isImmediate_(arg2isImmediate), destIdx_(destIdx), arg1Idx_(arg1Idx),
 	//	arg2IdxOrImmediate_(arg2IdxOrImmediate){}
 

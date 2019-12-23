@@ -68,7 +68,7 @@ TEST(ConstraintsLib,LD2_AND_Gadget) {
 }
 
 
-void andGadgetExhaustiveTest(ProtoboardPtr pb, size_t n); // Forward declaration
+void andGadgetExhaustiveTest(ProtoboardPtr pb, uint64_t n); // Forward declaration
 
 TEST(ConstraintsLib,R1P_ANDGadget_Exhaustive) {
     initPublicParamsFromEdwardsParam();
@@ -110,7 +110,7 @@ TEST(ConstraintsLib,BinaryAND_Gadget) {
     ASSERT_EQ(pb->val(result), 1);
 }
 
-void orGadgetExhaustiveTest(ProtoboardPtr pb, size_t n); // Forward declaration
+void orGadgetExhaustiveTest(ProtoboardPtr pb, uint64_t n); // Forward declaration
 
 TEST(ConstraintsLib,R1P_ORGadget_Exhaustive) {
     initPublicParamsFromEdwardsParam();
@@ -155,17 +155,17 @@ TEST(ConstraintsLib,BinaryOR_Gadget) {
 
 TEST(ConstraintsLib,R1P_InnerProductGadget_Exhaustive) {
     initPublicParamsFromEdwardsParam();
-    const size_t n = EXHAUSTIVE_N;
+    const uint64_t n = EXHAUSTIVE_N;
     auto pb = Protoboard::create(R1P);
     VariableArray A(n, "A");
     VariableArray B(n, "B");
     Variable result("result");
     auto g = InnerProduct_Gadget::create(pb, A, B, result);
     g->generateConstraints();
-    for (size_t i = 0; i < 1u<<n; ++i) {
-        for (size_t j = 0; j < 1u<<n; ++j) {
-            size_t correct = 0;
-            for (size_t k = 0; k < n; ++k) {
+    for (uint64_t i = 0; i < 1u<<n; ++i) {
+        for (uint64_t j = 0; j < 1u<<n; ++j) {
+            uint64_t correct = 0;
+            for (uint64_t k = 0; k < n; ++k) {
                 pb->val(A[k]) = i & (1u<<k) ? 1 : 0;
                 pb->val(B[k]) = j & (1u<<k) ? 1 : 0;
                 correct += (i & (1u<<k)) && (j & (1u<<k)) ? 1 : 0;
@@ -182,7 +182,7 @@ TEST(ConstraintsLib,R1P_InnerProductGadget_Exhaustive) {
 
 TEST(ConstraintsLib,LD2_InnerProductGadget_Exhaustive) {
     initPublicParamsFromEdwardsParam();
-    const size_t n = EXHAUSTIVE_N > 1 ? EXHAUSTIVE_N -1 : EXHAUSTIVE_N;
+    const uint64_t n = EXHAUSTIVE_N > 1 ? EXHAUSTIVE_N -1 : EXHAUSTIVE_N;
     for(int len = 1; len <= n; ++len) {
         auto pb = Protoboard::create(LD2);
         VariableArray a(len, "a");
@@ -236,7 +236,7 @@ TEST(ConstraintsLib,LD2_InnerProductGadget_Exhaustive) {
 
 TEST(ConstraintsLib,R1P_LooseMUX_Gadget_Exhaustive) {
 initPublicParamsFromEdwardsParam();
-const size_t n = EXHAUSTIVE_N;
+const uint64_t n = EXHAUSTIVE_N;
     auto pb = Protoboard::create(R1P);
     VariableArray arr(1<<n, "arr");
     Variable index("index");
@@ -244,7 +244,7 @@ const size_t n = EXHAUSTIVE_N;
     Variable success_flag("success_flag");
     auto g = LooseMUX_Gadget::create(pb, arr, index, result, success_flag);
     g->generateConstraints();
-    for (size_t i = 0; i < 1u<<n; ++i) {
+    for (uint64_t i = 0; i < 1u<<n; ++i) {
         pb->val(arr[i]) = (19*i) % (1u<<n);
     }
     for (int idx = -1; idx <= (1<<n); ++idx) {
@@ -314,7 +314,7 @@ TEST(ConstraintsLib,LD2_CompressionPacking_Gadget) {
     unpackingGadget->generateConstraints();
     for(int i = 0; i < 1u<<n; ++i) {
         ::std::vector<int> bits(n);
-        size_t packedGF2X = 0;
+        uint64_t packedGF2X = 0;
         for(int j = 0; j < n; ++j) {
             bits[j] = i & 1u<<j ? 1 : 0 ;
             packedGF2X |= bits[j]<<j;
@@ -379,7 +379,7 @@ TEST(ConstraintsLib, LD2_CompressionPacking_Gadget_largeNums) {
     unpackingGadget->generateConstraints();
 
     vector<int> bits(unpackedSize);
-    vector<size_t> packedGF2X(packedSize,0);
+    vector<uint64_t> packedGF2X(packedSize,0);
     for(int j = 0; j < unpackedSize; ++j) {
         bits[j] = packingVal[j / IRR_DEGREE] & 1ul<<(j % IRR_DEGREE) ? 1 : 0;
         packedGF2X[j / IRR_DEGREE] |=  bits[j]<<(j % IRR_DEGREE);
@@ -465,13 +465,13 @@ TEST(ConstraintsLib,LogicImplication_Gadget) {
     ASSERT_TRUE(pb->isSatisfied(PrintOptions::DBG_PRINT_IF_NOT_SATISFIED));
 }
 
-void andGadgetExhaustiveTest(ProtoboardPtr pb, size_t n) {
+void andGadgetExhaustiveTest(ProtoboardPtr pb, uint64_t n) {
     VariableArray inputs(n, "inputs");
     Variable output("output");
     auto andGadget = AND_Gadget::create(pb, inputs, output);
     andGadget->generateConstraints();
-    for (size_t curInput = 0; curInput < 1u<<n; ++curInput) {
-        for (size_t maskBit = 0; maskBit < n; ++maskBit) {
+    for (uint64_t curInput = 0; curInput < 1u<<n; ++curInput) {
+        for (uint64_t maskBit = 0; maskBit < n; ++maskBit) {
             pb->val(inputs[maskBit]) = (curInput & (1u<<maskBit)) ? 1 : 0;
         }
         andGadget->generateWitness();
@@ -489,13 +489,13 @@ void andGadgetExhaustiveTest(ProtoboardPtr pb, size_t n) {
     }
 }
 
-void orGadgetExhaustiveTest(ProtoboardPtr pb, size_t n) {
+void orGadgetExhaustiveTest(ProtoboardPtr pb, uint64_t n) {
     VariableArray inputs(n, "inputs");
     Variable output("output");
     auto orGadget = OR_Gadget::create(pb, inputs, output);
     orGadget->generateConstraints();
-    for (size_t curInput = 0; curInput < 1u<<n; ++curInput) {
-        for (size_t maskBit = 0; maskBit < n; ++maskBit) {
+    for (uint64_t curInput = 0; curInput < 1u<<n; ++curInput) {
+        for (uint64_t maskBit = 0; maskBit < n; ++maskBit) {
             pb->val(inputs[maskBit]) = (curInput & (1u<<maskBit)) ? 1 : 0;
         }
         orGadget->generateWitness();

@@ -1,0 +1,1 @@
+-std=c++11 -fmessage-length=0 -O3

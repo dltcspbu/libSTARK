@@ -49,8 +49,8 @@ public:
      * @brief   The constructor
      * @param   n boundary of indexes that can be mapped to different constant elements (namely \f$len\f$)
      */
-    expliciteSequence(size_t n, const generateElement<image_t>& gen,const image_t& rest):order_(n),rest_(rest){
-        for (size_t i=0; i<order_.size(); i++){
+    expliciteSequence(uint64_t n, const generateElement<image_t>& gen,const image_t& rest):order_(n),rest_(rest){
+        for (uint64_t i=0; i<order_.size(); i++){
             order_[i] = gen();
         }
     }
@@ -87,7 +87,7 @@ private:
 
 class randomColorGen : public generateElement<BairWitness::color_t> {
 public:
-    randomColorGen(size_t len):len_(len){};
+    randomColorGen(uint64_t len):len_(len){};
     BairWitness::color_t operator()() const{
         BairWitness::color_t color;
         for (unsigned int i=0; i< len_; i++){
@@ -96,12 +96,12 @@ public:
         return color;
     }
 private:
-    size_t len_;
+    uint64_t len_;
 };
 
 class randomColoring : public expliciteSequence<BairWitness::color_t> {
 public:
-    randomColoring(size_t n, size_t vec_len):
+    randomColoring(uint64_t n, uint64_t vec_len):
         expliciteSequence<BairWitness::color_t>(n,randomColorGen(vec_len), randomColorGen(vec_len)()){};
 };
 
@@ -113,32 +113,32 @@ public:
  * Random permutation
  *******************/
 
-class randOrderGen : public generateElement<size_t> {
+class randOrderGen : public generateElement<uint64_t> {
     public:
-        randOrderGen(size_t numElements): available(numElements){
-            for(size_t i=0; i < numElements; i++) available[i] = i;
+        randOrderGen(uint64_t numElements): available(numElements){
+            for(uint64_t i=0; i < numElements; i++) available[i] = i;
         }
-        size_t operator()() const{
+        uint64_t operator()() const{
             assert(!available.empty());
-            size_t elementIndex = rand() % available.size();
-            size_t retElement = available[elementIndex];
+            uint64_t elementIndex = rand() % available.size();
+            uint64_t retElement = available[elementIndex];
             available.erase( available.begin() + elementIndex );
             return retElement;
         }
     private:
-        mutable vector<size_t> available;
+        mutable vector<uint64_t> available;
 };
 
-class randPermutation : public expliciteSequence<size_t> {
+class randPermutation : public expliciteSequence<uint64_t> {
 public:
-    randPermutation(size_t numElements):
-        expliciteSequence<size_t>(numElements,randOrderGen(numElements),0){};
+    randPermutation(uint64_t numElements):
+        expliciteSequence<uint64_t>(numElements,randOrderGen(numElements),0){};
 };
 
-class plusOneSequence : public Sequence<size_t>{
+class plusOneSequence : public Sequence<uint64_t>{
     public:
     
-		size_t getElementByIndex(Sequence<size_t>::index_t index)const {
+		uint64_t getElementByIndex(Sequence<uint64_t>::index_t index)const {
         return index+1;
     }
 };
@@ -146,7 +146,7 @@ class plusOneSequence : public Sequence<size_t>{
 /****************************************************************
  *               Random padding for permutation
  ****************************************************************/
-vector<FieldElement> getRandomPadding(const size_t& vectorLen){
+vector<FieldElement> getRandomPadding(const uint64_t& vectorLen){
     vector<FieldElement> res(vectorLen);
     for(auto& x : res) x = generateRandom();
 
@@ -162,15 +162,15 @@ vector<FieldElement> getRandomPadding(const size_t& vectorLen){
  *******************/
 class allwaysSatisfiedSystem : public ConstraintSys{
 public:
-    allwaysSatisfiedSystem(size_t numVars):
+    allwaysSatisfiedSystem(uint64_t numVars):
         numVars_(numVars), 
         firstUsed_(numVars==2){};
-    size_t numVars() const {return numVars_;}
+    uint64_t numVars() const {return numVars_;}
     allwaysSatisfiedSystem* clone()const{
         return new allwaysSatisfiedSystem(numVars_);
     }
     const polySet_t& constraints() const {return noPolys_;}
-    bool varUsed(const size_t varId) const { 
+    bool varUsed(const uint64_t varId) const { 
         //verify the case where first var is
         //not routed, is handled
         if((varId ==0) && !firstUsed_) return false;
@@ -190,7 +190,7 @@ public:
         return (varId <= (numVars_*0.75));
     }
 private:
-    size_t numVars_;
+    uint64_t numVars_;
     const polySet_t noPolys_; //empty set
     const bool firstUsed_;
 };
@@ -198,14 +198,14 @@ private:
 class settingSaticfyingSystem : public ConstraintSys {
 public:
     settingSaticfyingSystem(
-        size_t numVars,
-        size_t domainSize,
+        uint64_t numVars,
+        uint64_t domainSize,
         const BairWitness& witness,
         const BairWitness::permutation_t& permutation,
         bool makeIncomplete = false)
         : numVars_(numVars) {
             for (unsigned int i=0; i < domainSize; i++){
-                size_t perm_img = permutation.getElementByIndex(i);
+                uint64_t perm_img = permutation.getElementByIndex(i);
                 BairWitness::color_t c1 = witness.get_color(i);
                 BairWitness::color_t c2 = witness.get_color(perm_img);
                 vector<FieldElement> assignment(c1);
@@ -215,8 +215,8 @@ public:
             if (makeIncomplete){
             //remove one root, so the system
             //won't be satisfied by current setting
-                size_t i = rand() % (domainSize-1);
-                size_t perm_img = permutation.getElementByIndex(i);
+                uint64_t i = rand() % (domainSize-1);
+                uint64_t perm_img = permutation.getElementByIndex(i);
                 BairWitness::color_t c1 = witness.get_color(i);
                 BairWitness::color_t c2 = witness.get_color(perm_img);
                 vector<FieldElement> assignment(c1);
@@ -225,7 +225,7 @@ public:
             }
            generatePolysFromTrie();
         }
-    size_t numVars() const {return numVars_;}
+    uint64_t numVars() const {return numVars_;}
     settingSaticfyingSystem* clone()const{
         return new settingSaticfyingSystem(*this);
     }
@@ -234,7 +234,7 @@ public:
         for(auto node : rootsTrie_) delete node;
     }
 private:
-    size_t numVars_;
+    uint64_t numVars_;
     polySet_t polys_;
 
     settingSaticfyingSystem(const settingSaticfyingSystem& ref){
@@ -285,7 +285,7 @@ private:
 
         //find if prefix is in trie
         //if found, remove it
-        for(size_t i=0; i< currLevel.size(); i++){
+        for(uint64_t i=0; i< currLevel.size(); i++){
             assert(currLevel[i] != NULL);
             //if the suffix is found, remove it from the trie
             if((currLevel[i]->val == *start) && removeRootFromTrie_rec(start+1,end,currLevel[i]->next)){
@@ -313,7 +313,7 @@ private:
         removeRootFromTrie_rec(assignment.begin(), assignment.end(), firstList);
     }
 
-    void generatePolysFromTrie_rec(const lightCircPoly& selector, const vector<struct trieNode*>& currLevel, const size_t currLevelIndex){
+    void generatePolysFromTrie_rec(const lightCircPoly& selector, const vector<struct trieNode*>& currLevel, const uint64_t currLevelIndex){
         //recursion end
         if(currLevelIndex >= numVars_) return;
         
@@ -333,7 +333,7 @@ private:
         selectorForCurrNode.multiplyDistinct(vanishesOnCurrElem);
 
         //extend to fit the amount of variable
-        vector<size_t> originalVarsLocations;
+        vector<uint64_t> originalVarsLocations;
         for(unsigned int i=0; i<= currLevelIndex; i++){
             originalVarsLocations.push_back(i);
         }
@@ -345,7 +345,7 @@ private:
         //option prefix, but that value.
         //This polynomial would be a factor of a polynomial
         //that would vanish only on possible values for the next variable
-        for(size_t currIndex = 0; currIndex < currLevel.size(); currIndex++){
+        for(uint64_t currIndex = 0; currIndex < currLevel.size(); currIndex++){
             
             //gather roots
             elementsSet_t roots;
@@ -385,7 +385,7 @@ private:
         const lightCircPoly vanishesOnFirstElem(uniPoly);
 
         //extend to fit the amount of variable
-        vector<size_t> originalVarsLocations;
+        vector<uint64_t> originalVarsLocations;
         originalVarsLocations.push_back(0);
         polys_.push_back(polyPtr_t(new lightCircPoly(vanishesOnFirstElem,numVars_,originalVarsLocations)));
         }
@@ -395,7 +395,7 @@ private:
         //option, but that value.
         //This polynomial would be a factor of a polynomial
         //that would vanish only on possible values for the next variable
-        for(size_t currIndex = 0; currIndex < firstList.size(); currIndex++){
+        for(uint64_t currIndex = 0; currIndex < firstList.size(); currIndex++){
             
             //gather roots
             elementsSet_t roots;
@@ -426,10 +426,10 @@ private:
 pair<BairInstance,BairWitness> generate_valid_boundary(){
 
     /** constants **/
-    const size_t vectorLen = 3;
+    const uint64_t vectorLen = 3;
     const short domainSizeIndicator = 3;
-    const size_t domainSize = POW2(domainSizeIndicator) - 1;
-    const size_t boundary_len = rand() % domainSize;
+    const uint64_t domainSize = POW2(domainSizeIndicator) - 1;
+    const uint64_t boundary_len = rand() % domainSize;
 
     /** construct witness **/
     BairWitness::assignment_ptr assignment(new randomColoring(domainSize,vectorLen));
@@ -444,7 +444,7 @@ pair<BairInstance,BairWitness> generate_valid_boundary(){
     
     //random boundary constraints
     BairInstance::boundaryConstraints_t boundaryConstraints;
-    for(size_t i=0; i<boundary_len ; i++){
+    for(uint64_t i=0; i<boundary_len ; i++){
         const BairInstance::point_t location(rand()%domainSize , rand()% vectorLen);
         const FieldElement val = witness.get_color(location.first)[location.second];
         boundaryConstraints[location] = val;
@@ -467,10 +467,10 @@ pair<BairInstance,BairWitness> generate_valid_boundary(){
 pair<BairInstance,BairWitness> generate_invalid_boundary(){
 
     /** constants **/
-    const size_t vectorLen = 3;
+    const uint64_t vectorLen = 3;
     const short domainSizeIndicator = 3;
-    const size_t domainSize = POW2(domainSizeIndicator) - 1;
-    const size_t boundary_len = 10 + rand() % domainSize;
+    const uint64_t domainSize = POW2(domainSizeIndicator) - 1;
+    const uint64_t boundary_len = 10 + rand() % domainSize;
 
     /** construct witness **/
     BairWitness::assignment_ptr assignment(new randomColoring(domainSize,vectorLen));
@@ -485,7 +485,7 @@ pair<BairInstance,BairWitness> generate_invalid_boundary(){
     
     //random boundary constraints
     BairInstance::boundaryConstraints_t boundaryConstraints;
-    for(size_t i=0; i<boundary_len ; i++){
+    for(uint64_t i=0; i<boundary_len ; i++){
         const BairInstance::point_t location(rand()%domainSize , rand()% vectorLen);
         const FieldElement val = witness.get_color(location.first)[location.second];
         boundaryConstraints[location] = val + one();
@@ -510,9 +510,9 @@ pair<BairInstance,BairWitness> generate_invalid_boundary(){
 pair<BairInstance,BairWitness> generate_valid_permutations(){
 
     /** constants **/
-    const size_t vectorLen = 3;
+    const uint64_t vectorLen = 3;
     const short domainSizeIndicator = 7;
-    const size_t domainSize = POW2(domainSizeIndicator) - 1;
+    const uint64_t domainSize = POW2(domainSizeIndicator) - 1;
 
     /** construct witness **/
     BairWitness::assignment_ptr assignment(new randomColoring(domainSize,vectorLen));
@@ -544,9 +544,9 @@ pair<BairInstance,BairWitness> generate_valid_permutations(){
 pair<BairInstance,BairWitness> generate_valid_pair(){
 
     /** constants **/
-    const size_t vectorLen = 2+rand()%10;
+    const uint64_t vectorLen = 2+rand()%10;
     const short domainSizeIndicator = 3;
-    const size_t domainSize = POW2(domainSizeIndicator) - 1;
+    const uint64_t domainSize = POW2(domainSizeIndicator) - 1;
 
     /** construct witness **/
     BairWitness::assignment_ptr assignment(new randomColoring(domainSize,vectorLen));
@@ -582,9 +582,9 @@ pair<BairInstance,BairWitness> generate_valid_pair(){
 pair<BairInstance,BairWitness> generate_invalid_permutations(){
 
     /** constants **/
-    const size_t vectorLen = 3;
+    const uint64_t vectorLen = 3;
     const short domainSizeIndicator = 7;
-    const size_t domainSize = POW2(domainSizeIndicator) - 1;
+    const uint64_t domainSize = POW2(domainSizeIndicator) - 1;
 
     /** construct witness **/
     BairWitness::assignment_ptr assignment(new randomColoring(domainSize,vectorLen));
@@ -626,9 +626,9 @@ pair<BairInstance,BairWitness> generate_invalid_permutations(){
 pair<BairInstance,BairWitness> generate_valid_constraints(){
 
     /** constants **/
-    const size_t vectorLen = 3;
+    const uint64_t vectorLen = 3;
     const short domainSizeIndicator = 3;
-    const size_t domainSize = POW2(domainSizeIndicator) - 1;
+    const uint64_t domainSize = POW2(domainSizeIndicator) - 1;
 
     /** construct witness **/
     BairWitness::assignment_ptr assignment(new randomColoring(domainSize,vectorLen));
@@ -675,9 +675,9 @@ pair<BairInstance,BairWitness> generate_valid_constraints(){
 pair<BairInstance,BairWitness> generate_invalid_constraints_Assignment(){
 
     /** constants **/
-    const size_t vectorLen = 3;
+    const uint64_t vectorLen = 3;
     const short domainSizeIndicator = 4;
-    const size_t domainSize = POW2(domainSizeIndicator) - 1;
+    const uint64_t domainSize = POW2(domainSizeIndicator) - 1;
 
     /** construct witness **/
     BairWitness::assignment_ptr assignment(new randomColoring(domainSize,vectorLen));
@@ -724,9 +724,9 @@ pair<BairInstance,BairWitness> generate_invalid_constraints_Assignment(){
 pair<BairInstance,BairWitness> generate_invalid_constraints_Permutation(){
 
     /** constants **/
-    const size_t vectorLen = 3;
+    const uint64_t vectorLen = 3;
     const short domainSizeIndicator = 4;
-    const size_t domainSize = POW2(domainSizeIndicator) - 1;
+    const uint64_t domainSize = POW2(domainSizeIndicator) - 1;
 
     /** construct witness **/
     BairWitness::assignment_ptr assignment(new randomColoring(domainSize,vectorLen));
@@ -773,9 +773,9 @@ pair<BairInstance,BairWitness> generate_invalid_constraints_Permutation(){
 pair<BairInstance,BairWitness> generate_invalid_constraints_both(){
 
     /** constants **/
-    const size_t vectorLen = 3;
+    const uint64_t vectorLen = 3;
     const short domainSizeIndicator = 4;
-    const size_t domainSize = POW2(domainSizeIndicator) - 1;
+    const uint64_t domainSize = POW2(domainSizeIndicator) - 1;
 
     /** construct witness **/
     BairWitness::assignment_ptr assignment(new randomColoring(domainSize,vectorLen));

@@ -92,7 +92,7 @@ void lightCircuit::embedCircuit(const lightCircuit& embedded, const vector<light
 
 	_COMMON_ASSERT(embInputGates.size() <= inputGates.size(), "It is imposible to embed more inputs in less");
 
-    for(size_t i=0; i < embInputGates.size(); i++){
+    for(uint64_t i=0; i < embInputGates.size(); i++){
 		addressMapping.emplace(&(embInputGates[i]),inputGates[i]);
 	}
 	}
@@ -105,7 +105,7 @@ void lightCircuit::embedCircuit(const lightCircuit& embedded, const vector<light
 
 	_COMMON_ASSERT(embOutputGates.size() <= outputGates.size(), "It is imposible to embed more outputs in less");
 
-    for(size_t i=0; i< embOutputGates.size(); i++){
+    for(uint64_t i=0; i< embOutputGates.size(); i++){
 
 		/**
 		 * There might be an InputAsOutput gate, check it by checking
@@ -168,7 +168,7 @@ void lightCircuit::embedCircuit(const lightCircuit& embedded, const vector<light
  * is a path connecting the input gate in
  * the selected index to some output gate.
  */	
-bool lightCircuit::isInputEffective(const size_t inputIndex)const{
+bool lightCircuit::isInputEffective(const uint64_t inputIndex)const{
     
 	typedef lightCircGate src_gate;
 	typedef vector<src_gate*> src_gateVec;
@@ -244,7 +244,7 @@ bool lightCircuit::isInputEffective(const size_t inputIndex)const{
 FieldElement lightCircuit::evaluateCircuitSingleOutput_threadSafe(const vector<FieldElement>& inputValues)const {
 	/** Add to evaluation mapping only a mapping from circuit input gates */
 	lightCircGate::evaluationMap_t evaluations;
-    for (size_t i=0; i < inputValues.size(); i++){
+    for (uint64_t i=0; i < inputValues.size(); i++){
         evaluations[&(m_inputs[i])] = inputValues[i];
     }
 	/** Evaluate the output gate */
@@ -254,7 +254,7 @@ FieldElement lightCircuit::evaluateCircuitSingleOutput_threadSafe(const vector<F
 PolynomialDegree lightCircuit::getDegree_threadSafe(const vector<PolynomialDegree>& inputDegrees)const {
 	/** Add to degrees mapping only a mapping from circuit input gates */
 	lightCircGate::degreeCalcMap_t degrees;
-    for (size_t i=0; i < inputDegrees.size(); i++){
+    for (uint64_t i=0; i < inputDegrees.size(); i++){
         degrees.insert(std::pair<const lightCircGate*,PolynomialDegree>(&(m_inputs[i]),inputDegrees[i]));
     }
 	/** Evaluate the output gate */

@@ -482,8 +482,8 @@ namespace {
 		standAlone_ = true;
 		GadgetPtr SHLGadget = ALU_SHL_Gadget::create(pb, aluInput, aluOutput);
 		SHLGadget->generateConstraints();
-		for (size_t i = 65000; i < 65000+ROUNDS; i++){
-			for (size_t j = 0; j < 10*ROUNDS; j++){
+		for (uint64_t i = 65000; i < 65000+ROUNDS; i++){
+			for (uint64_t j = 0; j < 10*ROUNDS; j++){
 				pb->val(aluInput.arg1_val_) = mapIntegerToFieldElement(0, trRegisterLen, i);
 				pb->val(aluInput.arg2_val_) = mapIntegerToFieldElement(0, trRegisterLen, j);
 				SHLGadget->generateWitness();
@@ -505,8 +505,8 @@ namespace {
 		standAlone_ = true;
 		GadgetPtr SHRGadget = ALU_SHR_Gadget::create(pb, aluInput, aluOutput);
 		SHRGadget->generateConstraints();
-		for (size_t i = 0; i < ROUNDS; i++){
-			for (size_t j = 0; j < 10*ROUNDS; j++){
+		for (uint64_t i = 0; i < ROUNDS; i++){
+			for (uint64_t j = 0; j < 10*ROUNDS; j++){
 				pb->val(aluInput.arg1_val_) = mapIntegerToFieldElement(0, trRegisterLen, i);
 				pb->val(aluInput.arg2_val_) = mapIntegerToFieldElement(0, trRegisterLen, j);
 				SHRGadget->generateWitness();

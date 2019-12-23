@@ -65,8 +65,8 @@ public:
 	 * @brief   The constructor
 	 * @param   n boundary of indexes that can be mapped to different constant elements (namely \f$len\f$)
 	 */
-	expliciteSequence(size_t n, const generateElement<image_t>& gen,const image_t& rest):order_(n),rest_(rest){
-		for (size_t i=0; i<order_.size(); i++){
+	expliciteSequence(uint64_t n, const generateElement<image_t>& gen,const image_t& rest):order_(n),rest_(rest){
+		for (uint64_t i=0; i<order_.size(); i++){
 			order_[i] = gen();
 		}
 	}
@@ -105,35 +105,35 @@ vector<dataID_t> generateRandomData(const labelID_t& height){
  * Random permutation
  *******************/
 
-class randOrderGen : public generateElement<size_t> {
+class randOrderGen : public generateElement<uint64_t> {
 	public:
-		randOrderGen(size_t numElements): availabel(numElements){
-			for(size_t i=0; i < numElements; i++) availabel[i] = i;
+		randOrderGen(uint64_t numElements): availabel(numElements){
+			for(uint64_t i=0; i < numElements; i++) availabel[i] = i;
 		}
-		size_t operator()() const{
+		uint64_t operator()() const{
 			assert(!availabel.empty());
-			size_t elementIndex = rand() % availabel.size();
-			size_t retElement = availabel[elementIndex];
+			uint64_t elementIndex = rand() % availabel.size();
+			uint64_t retElement = availabel[elementIndex];
 			availabel.erase( availabel.begin() + elementIndex );
 			return retElement;
 		}
 	private:
-		mutable vector<size_t> availabel;
+		mutable vector<uint64_t> availabel;
 };
 
-class randPermutation : public expliciteSequence<size_t> {
+class randPermutation : public expliciteSequence<uint64_t> {
 public:
-	randPermutation(size_t numElements):
-		expliciteSequence<size_t>(numElements,randOrderGen(numElements),0){};
+	randPermutation(uint64_t numElements):
+		expliciteSequence<uint64_t>(numElements,randOrderGen(numElements),0){};
 };
 
 /************************
  * Identity permutation
  * **********************/
 
-class identityPermutation : public Sequence<size_t> {
+class identityPermutation : public Sequence<uint64_t> {
 public:
-	size_t getElementByIndex(Sequence<size_t>::index_t index)const {
+	uint64_t getElementByIndex(Sequence<uint64_t>::index_t index)const {
 		return index;
 	}
 };
@@ -339,7 +339,7 @@ TEST(RoutingNetworks,BitReverseButterflies){
 	//verify it is the bit reverse permutation
 	const layerID_t lastLayer = net.width()-1;
 	for (labelID_t w=0; w < net.height(); w++){
-		for(size_t i=0; i<k ; i++){
+		for(uint64_t i=0; i<k ; i++){
 			const labelID_t mask1 = 1<<i;
 			const labelID_t mask2 = 1<<(k-i-1);
 			const labelID_t bit1 = (w&mask1)>>i;

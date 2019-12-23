@@ -6,7 +6,7 @@
 
 #ifndef DEFINITIONS_H_
 #define DEFINITIONS_H_
-#include <omp.h>
+// #include <omp.h>
 
 #define __PARALLEL__
 //#define __GPU

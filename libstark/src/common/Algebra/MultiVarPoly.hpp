@@ -86,7 +86,7 @@ public:
 		return unique_ptr<PolynomialInterface>(new MultiVarPoly(*this));
 	}
 
-	bool isEffectiveInput(const size_t varId)const{
+	bool isEffectiveInput(const uint64_t varId)const{
 
 		for (const auto& prod : monomials){
 			for (const auto& varId_ : prod.vars){

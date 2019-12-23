@@ -181,15 +181,15 @@ void DoubleUnpack_Gadget::generateConstraints(){
 }
 
 void DoubleUnpack_Gadget::generateWitness(){
-	const size_t n1 = unpacked1_.size();
-	const size_t n2 = unpacked2_.size();
-	const size_t bitsPerFieldElem = Algebra::ExtensionDegree;
-	const size_t v = Algebra::mapFieldElementToInteger(0, bitsPerFieldElem, pb_->val(packed_));
-	for (size_t i = 0; i < bitsPerFieldElem && i < n1; ++i) {
-		pb_->val(unpacked1_[i]) = (v & (size_t(1) << i)) ? Algebra::one() : Algebra::zero();
+	const uint64_t n1 = unpacked1_.size();
+	const uint64_t n2 = unpacked2_.size();
+	const uint64_t bitsPerFieldElem = Algebra::ExtensionDegree;
+	const uint64_t v = Algebra::mapFieldElementToInteger(0, bitsPerFieldElem, pb_->val(packed_));
+	for (uint64_t i = 0; i < bitsPerFieldElem && i < n1; ++i) {
+		pb_->val(unpacked1_[i]) = (v & (uint64_t(1) << i)) ? Algebra::one() : Algebra::zero();
 	}
-	for (size_t i = 0; i + n1 < bitsPerFieldElem && i < n2; ++i) {
-		pb_->val(unpacked2_[i]) = (v & ((size_t(1) << n1) << i)) ? Algebra::one() : Algebra::zero();
+	for (uint64_t i = 0; i + n1 < bitsPerFieldElem && i < n2; ++i) {
+		pb_->val(unpacked2_[i]) = (v & ((uint64_t(1) << n1) << i)) ? Algebra::one() : Algebra::zero();
 	}
 }
 
@@ -224,7 +224,7 @@ GadgetPtr Addition_Gadget::create(ProtoboardPtr pb,
 void Addition_Gadget::init(){}
 
 void Addition_Gadget::generateConstraints(){
-	size_t wordLength = result_.size();
+	uint64_t wordLength = result_.size();
 	const Algebra::Variable a = input1_[0];
 	const Algebra::Variable b = input2_[0];
 	const Algebra::Variable d = result_[0];
@@ -242,7 +242,7 @@ void Addition_Gadget::generateConstraints(){
 }
 
 void Addition_Gadget::generateWitness(){
-	size_t wordLength = result_.size();
+	uint64_t wordLength = result_.size();
 	pb_->val(result_[0]) = pb_->val(input1_[0]) + pb_->val(input2_[0]);
 	pb_->val(carry_[1]) = pb_->val(input1_[0]) * pb_->val(input2_[0]);
 	for (unsigned int i = 1; i < wordLength; ++i){

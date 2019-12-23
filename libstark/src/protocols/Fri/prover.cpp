@@ -37,13 +37,13 @@ struct queryInfo_t{
     const dataWithCommitment* proof;
     const rawQuery_t* rawQueries;
     vector<hashDigest_t>* results;
-    size_t depth;
+    uint64_t depth;
 
     queryInfo_t(
             const dataWithCommitment& proof_,
             const rawQuery_t& rawQueries_,
             vector<hashDigest_t>& results_,
-            const size_t depth_):
+            const uint64_t depth_):
             proof(&proof_),
             rawQueries(&rawQueries_),
             results(&results_),
@@ -54,7 +54,7 @@ vector<queryInfo_t> serializeQueries(
     const state_t<unique_ptr<dataWithCommitment>>& currState,
     const rawQueries_t& rawQueries,
     state_t<vector<hashDigest_t>>& rawResults,
-    const size_t depth){
+    const uint64_t depth){
 
     vector<queryInfo_t> SerialQueries;
 
@@ -119,8 +119,8 @@ hashDigest_t addSubproof(
         const unsigned short logNumSigments = getL1Basis(basisForColumnsProof,L0isMSB).size(); 
         const unsigned short logSigmentsInBlock = std::min((unsigned short)10,logNumSigments);
         
-        const size_t sigmentLen = POW2(logSigmentLen);
-        const size_t sigmentsInBlock = POW2(logSigmentsInBlock);
+        const uint64_t sigmentLen = POW2(logSigmentLen);
+        const uint64_t sigmentsInBlock = POW2(logSigmentsInBlock);
 
         ///
         /// The following is a trick for faster evaluation
@@ -148,7 +148,7 @@ hashDigest_t addSubproof(
         ///
 
         // global auxiliary values        
-        const size_t L0_size = POW2(BasisL0.size());
+        const uint64_t L0_size = POW2(BasisL0.size());
         vector<FieldElement> spaceElements(L0_size);
         for(unsigned int i=0; i<L0_size; i++){
             spaceElements[i] = getSpaceElementByIndex(BasisL0,Algebra::zero(),i);
@@ -173,20 +173,20 @@ hashDigest_t addSubproof(
         }
 
         
-        const auto sigmentConstructor = [&](const size_t sigmentsBlockIdx, FieldElement* res){
+        const auto sigmentConstructor = [&](const uint64_t sigmentsBlockIdx, FieldElement* res){
             
             vector<FieldElement> vecToInveresePointwise(sigmentsInBlock*sigmentLen*L0_size);
 
             for(unsigned int localSigmentIdx = 0; localSigmentIdx < sigmentsInBlock; localSigmentIdx++){  
-                const size_t sigmentIdx = sigmentsBlockIdx*sigmentsInBlock + localSigmentIdx;
+                const uint64_t sigmentIdx = sigmentsBlockIdx*sigmentsInBlock + localSigmentIdx;
 
                 for(unsigned int i=0; i< sigmentLen; i++){
-                    const size_t globalIndex = sigmentIdx * sigmentLen + i;
+                    const uint64_t globalIndex = sigmentIdx * sigmentLen + i;
                     const FieldElement currOffset = getSpaceElementByIndex(BasisL1,zero(),globalIndex);
                     
-                    for(size_t j=0; j< L0_size; j++){
+                    for(uint64_t j=0; j< L0_size; j++){
                         const FieldElement alpha = spaceElements[j];
-                        const size_t elementIndex = localSigmentIdx*sigmentLen*L0_size + i*L0_size + j;
+                        const uint64_t elementIndex = localSigmentIdx*sigmentLen*L0_size + i*L0_size + j;
                         vecToInveresePointwise[elementIndex] = ((currWay+currOffset)-alpha)*C_alpha[j];
                     }
                 }
@@ -195,20 +195,20 @@ hashDigest_t addSubproof(
             const vector<FieldElement> denuminators = Algebra::invertPointwise(vecToInveresePointwise);
 
             for(unsigned int localSigmentIdx = 0; localSigmentIdx < sigmentsInBlock; localSigmentIdx++){  
-                const size_t sigmentIdx = sigmentsBlockIdx*sigmentsInBlock + localSigmentIdx;
+                const uint64_t sigmentIdx = sigmentsBlockIdx*sigmentsInBlock + localSigmentIdx;
                 FieldElement* currSigRes = res + localSigmentIdx*sigmentLen;
 
                 for(unsigned int i=0; i< sigmentLen; i++){
-                    const size_t globalIndex = sigmentIdx * sigmentLen + i;
+                    const uint64_t globalIndex = sigmentIdx * sigmentLen + i;
                     const FieldElement currOffset = getSpaceElementByIndex(BasisL1,zero(),globalIndex);
                     
                     currSigRes[i] = Algebra::zero();
-                    for(size_t j=0; j< L0_size; j++){
-                        const size_t currElemIdx = getBasisLIndex_byL0L1indices(evaluationBasis,j,globalIndex,L0isMSB);
+                    for(uint64_t j=0; j< L0_size; j++){
+                        const uint64_t currElemIdx = getBasisLIndex_byL0L1indices(evaluationBasis,j,globalIndex,L0isMSB);
                         const FieldElement alpha = spaceElements[j];
                         const FieldElement currVal = currState.localState->getElement(currElemIdx);
                         
-                        const size_t elementIndex = localSigmentIdx*sigmentLen*L0_size + i*L0_size + j;
+                        const uint64_t elementIndex = localSigmentIdx*sigmentLen*L0_size + i*L0_size + j;
                         currSigRes[i] += currVal * denuminators[elementIndex];
                     }
                     currSigRes[i] *= Z_L0.eval(currWay+currOffset);
@@ -277,10 +277,10 @@ vector<hashDigest_t> prover_t::constructProofs(const vector<subproofLocation_t>&
     //
     // Start by sorting requests by layers
     //
-    map<size_t,vector<size_t>> requestsByLayer;
+    map<uint64_t,vector<uint64_t>> requestsByLayer;
     {
         for(unsigned int i=0; i < proofsList.size(); i++){
-            const size_t currPathLenght = proofsList[i].size();
+            const uint64_t currPathLenght = proofsList[i].size();
             requestsByLayer[currPathLenght].push_back(i);
         }
     }
@@ -294,7 +294,7 @@ vector<hashDigest_t> prover_t::constructProofs(const vector<subproofLocation_t>&
     {
         if(requestsByLayer.count(0) > 0){
             const auto rootCommitment = state_.localState->getCommitment();
-            for(const size_t resIdx : requestsByLayer.at(0)){
+            for(const uint64_t resIdx : requestsByLayer.at(0)){
                 result[resIdx] = rootCommitment;
             }
         }
@@ -327,7 +327,7 @@ rawResults_t prover_t::responceToDataQueries(const rawQueries_t& queries)const{
     { 
         auto serialQueries = serializeQueries(state_, queries, results, 0);
 
-#pragma omp parallel for
+// #pragma omp parallel for
         for(ploopinttype i=0; i<serialQueries.size(); i++){
             auto currQ = serialQueries[i];
             

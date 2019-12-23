@@ -20,9 +20,9 @@
 
 namespace FFF {
 
-	const unsigned int max_threads_machine = omp_get_max_threads();
+	const unsigned int max_threads_machine = 1; // omp_get_max_threads();
 #ifdef __PARALLEL__
-	unsigned int omp_max_threads = omp_get_max_threads();
+	unsigned int omp_max_threads = 1; // omp_get_max_threads();
 #else
 	unsigned int omp_max_threads = 1;
 #endif

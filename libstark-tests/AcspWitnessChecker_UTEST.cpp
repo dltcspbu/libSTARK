@@ -153,7 +153,7 @@ public:
 	return false;
 	}
 
-	size_t size()const {return elements_.size();}
+	uint64_t size()const {return elements_.size();}
 	
 	virtual const UnivariatePolynomialGeneral& vanishingPoly()const{
         return vanishingPoly_; 
@@ -555,7 +555,7 @@ static pair<AcspInstance,AcspWitness> boundary_generate_invalid_pair(){
  */
 static pair<AcspInstance,AcspWitness> generate_valid_pair_most_in_witness(){
 
-	const size_t vanishingSpaceDegree = 3;
+	const uint64_t vanishingSpaceDegree = 3;
 
 	/**
 	 * Construct vanishing set - affine
@@ -602,7 +602,7 @@ static pair<AcspInstance,AcspWitness> generate_valid_pair_most_in_witness(){
  * @return  The pair
  */
 static pair<AcspInstance,AcspWitness> generate_valid_pair_all_in_constraintsPoly(){
-	const size_t vanishingSpaceDegree = 3;
+	const uint64_t vanishingSpaceDegree = 3;
 
 	/**
 	 * Construct vanishing set - affine
@@ -646,7 +646,7 @@ static pair<AcspInstance,AcspWitness> generate_valid_pair_all_in_constraintsPoly
  */
 static pair<AcspInstance,AcspWitness> generate_valid_pair_all_in_neighbor(){
 
-	const size_t vanishingSpaceDegree = 3;
+	const uint64_t vanishingSpaceDegree = 3;
 
 	/**
 	 * Construct vanishing set - affine
@@ -684,7 +684,7 @@ static pair<AcspInstance,AcspWitness> generate_valid_pair_all_in_neighbor(){
 //In this test the constraint polynomial is x+y. There is one neighbour that's the identity, and the constraint poly is Z_H, i.e.,
 //the vanishing space subspace poly. The witness poly is the identity x
 static pair<AcspInstance, AcspWitness> generate_valid_pair_all_in_constraintsPoly2(){
-	const size_t vanishingSpaceDegree = 3;
+	const uint64_t vanishingSpaceDegree = 3;
 
 	/**
 	* Construct vanishing set - affine

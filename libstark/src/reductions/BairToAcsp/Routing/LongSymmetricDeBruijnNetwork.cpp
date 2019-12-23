@@ -42,13 +42,13 @@ dataID_t LongSymmetricDeBruijnNetwork::getDataID(const layerID_t& l, const label
     if ( l < halfWidth_){
         //first half, extension
         //rout as reverse DeBruijn
-        const size_t shift_size = l-k_;
+        const uint64_t shift_size = l-k_;
         baseLabel = ((w>>shift_size) | (w<<(k_-shift_size))) & mask;
     }
     else{
         //second half, extension
         //rout as straight DeBruijn
-        const size_t shift_size = width()-(k_+1)-l;
+        const uint64_t shift_size = width()-(k_+1)-l;
         baseLabel = ((w>>shift_size) | (w<<(k_-shift_size))) & mask;
     }
 

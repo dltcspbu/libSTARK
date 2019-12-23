@@ -36,7 +36,7 @@ typedef ::std::shared_ptr<Protoboard> ProtoboardPtr;
 typedef ::std::shared_ptr<const ProtoboardParams> ProtoboardParamsCPtr;
 typedef ::std::vector<Algebra::Variable> BoundaryVariables;
 typedef ::std::vector<Algebra::FieldElement> BoundaryAssignments;
-typedef ::std::vector<size_t> BoundaryTimestamps;
+typedef ::std::vector<uint64_t> BoundaryTimestamps;
 
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -51,8 +51,8 @@ private:
 	ConstraintSystem constraintSystem_; // General Constraints
 	std::vector<ConstraintSystem> opcodeConstraintSystem_;  // Constraints for each opcode
 	Algebra::VariableAssignment assignment_;
-	size_t numInputs_;
-	size_t numConstratins_;
+	uint64_t numInputs_;
+	uint64_t numConstratins_;
     ProtoboardParamsCPtr pParams_; // TODO try to refactor this out 
 
 	// We translate between my indices to Michaels
@@ -85,7 +85,7 @@ private:
         pParams_(pParams) {};
 
 	void addBoundaryVariable(const Algebra::Variable& var) { boundaryVariables_.emplace_back(var); }
-	void addBoundaryTimestamp(const size_t timeStamp) { boundaryTimestamps_.emplace_back(timeStamp); }
+	void addBoundaryTimestamp(const uint64_t timeStamp) { boundaryTimestamps_.emplace_back(timeStamp); }
 	void addBoundaryAssignment(const Algebra::FElem& assignment) { boundaryAssignments_.emplace_back(assignment); }
 
 public:
@@ -122,7 +122,7 @@ public:
 	BoundaryVariables boundaryVariables() const { return boundaryVariables_; }
 	BoundaryAssignments boundaryAssignments() const { return boundaryAssignments_; }
 	BoundaryTimestamps boundaryTimestamps() const { return boundaryTimestamps_; }
-	void addBoundaryConstraint(const Algebra::Variable& var, const size_t timeStamp, const Algebra::FElem& assignment);
+	void addBoundaryConstraint(const Algebra::Variable& var, const uint64_t timeStamp, const Algebra::FElem& assignment);
 };
 /***********************************/
 /***   END OF CLASS DEFINITION   ***/
@@ -156,26 +156,26 @@ public:
 //class TinyRAMProtoboardParams : public ProtoboardParams {
 //private:
 //	TinyRAMArchParams archParams_;
-//	size_t opcodeWidth_;
-//	size_t timeBound_;
-//	size_t pcIncrement_;
+//	uint64_t opcodeWidth_;
+//	uint64_t timeBound_;
+//	uint64_t pcIncrement_;
 //public:
 //	TinyRAMProtoboardParams(unsigned int numRegisters, unsigned int registerLength,
-//		size_t opcodeWidth, size_t timeBound, size_t pcIncrement)
+//		uint64_t opcodeWidth, uint64_t timeBound, uint64_t pcIncrement)
 //		: archParams_(TinyRAMArchParams{ numRegisters, registerLength }),
 //		opcodeWidth_(opcodeWidth),
 //		timeBound_(timeBound), pcIncrement_(pcIncrement) {}
 //	TinyRAMProtoboardParams()
 //		: archParams_(TinyRAMArchParams{ 0, 0 }), opcodeWidth_(0), timeBound_(0), pcIncrement_(0) {}
 //	TinyRAMArchParams archParams() const { return archParams_; }
-//	size_t opcodeWidth() const { return opcodeWidth_; }
-//	size_t numRegisters() const { return archParams_.numRegisters; }
-//	size_t registerLength() const { return archParams_.registerLength; }
-//	size_t registerIndexLength() const { return Log2ceil(numRegisters()); }
-//	size_t arg2length() const { return std::max({ registerIndexLength(), registerLength() }); }
-//	size_t numOpcodes() const { return 1u << (opcodeWidth()); }
-//	size_t timeBound() const { return timeBound_; }
-//	size_t pcIncrement() const { return pcIncrement_; }
+//	uint64_t opcodeWidth() const { return opcodeWidth_; }
+//	uint64_t numRegisters() const { return archParams_.numRegisters; }
+//	uint64_t registerLength() const { return archParams_.registerLength; }
+//	uint64_t registerIndexLength() const { return Log2ceil(numRegisters()); }
+//	uint64_t arg2length() const { return std::max({ registerIndexLength(), registerLength() }); }
+//	uint64_t numOpcodes() const { return 1u << (opcodeWidth()); }
+//	uint64_t timeBound() const { return timeBound_; }
+//	uint64_t pcIncrement() const { return pcIncrement_; }
 //}; // class TinyRAMProtoboardParams
 //
 } // namespace gadgetlib

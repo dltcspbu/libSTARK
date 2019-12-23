@@ -76,8 +76,8 @@ public:
 	friend FieldElement power(const FieldElement&, long exponent);
 	friend std::ostream& operator<<(std::ostream&, const FieldElement&);
     friend bool compareFieldElements(const FieldElement& e1, const FieldElement& e2);
-	friend FieldElement mapIntegerToFieldElement(const size_t shift, const size_t numBits, size_t numToWrite);
-	friend size_t mapFieldElementToInteger(const size_t shift, const size_t numBits, const FieldElement& e);
+	friend FieldElement mapIntegerToFieldElement(const uint64_t shift, const uint64_t numBits, uint64_t numToWrite);
+	friend uint64_t mapFieldElementToInteger(const uint64_t shift, const uint64_t numBits, const FieldElement& e);
 
 	/**
 	* element_ as string
@@ -200,11 +200,11 @@ std::vector<FieldElement> getStandartOrderedBasis(const unsigned short basisSize
  * as a polynomial over GF(2) might be represented as:
  * \f$ x^{s} b_0 + x^{s+1} b_1 + \dots x^{s+n-1} b_{n-1} \f$
  **/
-inline FieldElement mapIntegerToFieldElement(const size_t shift, const size_t numBits, size_t numToWrite){
+inline FieldElement mapIntegerToFieldElement(const uint64_t shift, const uint64_t numBits, uint64_t numToWrite){
 	FieldElement res;
-	size_t numToWrite_masked = numToWrite;
+	uint64_t numToWrite_masked = numToWrite;
 	if (numBits < 64){
-		const size_t mask = (size_t(1) << numBits) - 1;
+		const uint64_t mask = (uint64_t(1) << numBits) - 1;
 		numToWrite_masked = numToWrite & mask;
 	}
 	res.element_.c[0] = (numToWrite_masked) << shift;
@@ -221,10 +221,10 @@ inline FieldElement mapIntegerToFieldElement(const size_t shift, const size_t nu
 
  **/
 
-inline size_t mapFieldElementToInteger(const size_t shift, const size_t numBits, const FieldElement& e){
-    size_t result = (e.element_.c[0]>>shift);
+inline uint64_t mapFieldElementToInteger(const uint64_t shift, const uint64_t numBits, const FieldElement& e){
+    uint64_t result = (e.element_.c[0]>>shift);
 	if (numBits < 64){
-		const size_t mask = (size_t(1) << numBits) - 1;
+		const uint64_t mask = (uint64_t(1) << numBits) - 1;
 		result &=  mask;
 	}
 
@@ -257,7 +257,7 @@ FieldElement generateRandom();
  * This mapping maps the integer \f$ \sum_{i=0}^n b_i \cdot 2^i \f$ where \f$ \forall i : b_i \in \{0,1\} \f$
  * to the element \f$ S + \sum_{i=0}^n b_i \cdot B_i \f$
  */
-FieldElement getSpaceElementByIndex(const std::vector<FieldElement>& orderedBasis, const FieldElement& affineShift, const size_t index);
+FieldElement getSpaceElementByIndex(const std::vector<FieldElement>& orderedBasis, const FieldElement& affineShift, const uint64_t index);
 
 /**
  * Let \f$ B=(B_0, B_1, \dots , B_n) \f$ be the ordered basis
@@ -265,7 +265,7 @@ FieldElement getSpaceElementByIndex(const std::vector<FieldElement>& orderedBasi
  * This mapping maps the element \f$ S + \sum_{i=0}^n b_i \cdot B_i \f$ where \f$ \forall i : b_i \in \{0,1\} \f$
  * to the integer \f$ \sum_{i=0}^n b_i \cdot 2^i \f$
  */
-size_t getSpaceIndexOfElement(const std::vector<FieldElement>& orderedBasis, const FieldElement& affineShift, const FieldElement& e);
+uint64_t getSpaceIndexOfElement(const std::vector<FieldElement>& orderedBasis, const FieldElement& affineShift, const FieldElement& e);
 
 } //namespace Algebra
 

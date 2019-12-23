@@ -24,7 +24,7 @@ using std::vector;
 using std::pair;
 using std::max;
 
-void RS_result::init(const vector<FieldElement>& basis, const size_t degBound){
+void RS_result::init(const vector<FieldElement>& basis, const uint64_t degBound){
     results.resize(POW2(basis.size()));
     basis_ = basis;
     degBound_ = degBound;
@@ -153,20 +153,20 @@ bool ConsistencyPath_result::verify()const{
 
 namespace{
 
-void addRandomComitmentPath(const short degBound_logCeil, const vector<FieldElement>& evaluationBasis, RS_queriesTree& queries, RS_result& results, const size_t depth, const bool L0isMSB){
+void addRandomComitmentPath(const short degBound_logCeil, const vector<FieldElement>& evaluationBasis, RS_queriesTree& queries, RS_result& results, const uint64_t depth, const bool L0isMSB){
 
     //
     //Global constants
     //
-    const size_t MIN_DEPTH = 0;
+    const uint64_t MIN_DEPTH = 0;
 
     //
     // If in minimal depth, query the polynomial
     //
     if(depth <= MIN_DEPTH){
         results.init(evaluationBasis,POW2(degBound_logCeil));
-        for(size_t i=0; i< POW2(evaluationBasis.size()); i++){
-            auto query_iter = queries.localState.insert(pair<size_t,ResultLocation>(i,ResultLocation())).first;
+        for(uint64_t i=0; i< POW2(evaluationBasis.size()); i++){
+            auto query_iter = queries.localState.insert(pair<uint64_t,ResultLocation>(i,ResultLocation())).first;
             query_iter->second.addAnswerPtr(&(results.results[i]));
         }
         return;
@@ -181,8 +181,8 @@ void addRandomComitmentPath(const short degBound_logCeil, const vector<FieldElem
     addRandomComitmentPath(curr_degree_log,basisForColumnsProof,queries.subproofs[columnId],results,depth-1, L0isMSB);
 }
 
-FieldElement getSubproofKeyByIndex(const RS_queriesTree& t, const size_t idx){
-    size_t i =0;
+FieldElement getSubproofKeyByIndex(const RS_queriesTree& t, const uint64_t idx){
+    uint64_t i =0;
     for(const auto& e : t.subproofs){
         if(i++ == idx){
             return e.first;
@@ -193,10 +193,10 @@ FieldElement getSubproofKeyByIndex(const RS_queriesTree& t, const size_t idx){
 }
 
 void addRandomQueryPath(RS_queriesTree& commitedTree,
-    std::map<size_t,std::vector<Algebra::FieldElement*>>& univariate,
+    std::map<uint64_t,std::vector<Algebra::FieldElement*>>& univariate,
     const vector<FieldElement>& evaluationBasis,
-    const size_t sigmentIdx,
-    Consistency_path_t& results, const size_t depth, const bool L0isMSB){
+    const uint64_t sigmentIdx,
+    Consistency_path_t& results, const uint64_t depth, const bool L0isMSB){
     
     // the base case, got to deepest point
     if(commitedTree.subproofs.empty()){
@@ -205,7 +205,7 @@ void addRandomQueryPath(RS_queriesTree& commitedTree,
     }
 
     // draw a random committed column
-    const size_t columnIndex = std::rand() % commitedTree.subproofs.size();
+    const uint64_t columnIndex = std::rand() % commitedTree.subproofs.size();
     const FieldElement columnId = getSubproofKeyByIndex(commitedTree, columnIndex);
 
     // calculate curr sigment data
@@ -219,7 +219,7 @@ void addRandomQueryPath(RS_queriesTree& commitedTree,
     {
         const auto nextColumnBasis = getColumnBasis(evaluationBasis, L0isMSB);
         const auto nextSigmentDim = getL0Basis(nextColumnBasis, L0isMSB).size();
-        const size_t nextSigmentIdx = sigmentIdx >> nextSigmentDim;
+        const uint64_t nextSigmentIdx = sigmentIdx >> nextSigmentDim;
 
         addRandomQueryPath(commitedTree.subproofs[columnId], univariate, nextColumnBasis, nextSigmentIdx, results, depth+1, L0isMSB);
     }
@@ -231,9 +231,9 @@ void addRandomQueryPath(RS_queriesTree& commitedTree,
 
         commitedTree.subproofs[columnId].localState[sigmentIdx].addAnswerPtr(&currRes.columnPointData);
 
-        const size_t currSigmentSize = POW2(currSigmentBasis.size());
-        for(size_t i=0; i< currSigmentSize; i++){
-            const size_t currGlobalIdx = getBasisLIndex_byL0L1indices(evaluationBasis,i,sigmentIdx, L0isMSB);
+        const uint64_t currSigmentSize = POW2(currSigmentBasis.size());
+        for(uint64_t i=0; i< currSigmentSize; i++){
+            const uint64_t currGlobalIdx = getBasisLIndex_byL0L1indices(evaluationBasis,i,sigmentIdx, L0isMSB);
             if(depth > 0){
                 commitedTree.localState[currGlobalIdx].addAnswerPtr(&currRes.L0Data[i]);
             }
@@ -246,13 +246,13 @@ void addRandomQueryPath(RS_queriesTree& commitedTree,
 
 }
 
-void addRandomComitmentPath(const short degBound_logCeil, const vector<FieldElement>& evaluationBasis, RS_queries& queries, RS_result& results, const size_t depth, const bool L0isMSB){
+void addRandomComitmentPath(const short degBound_logCeil, const vector<FieldElement>& evaluationBasis, RS_queries& queries, RS_result& results, const uint64_t depth, const bool L0isMSB){
     addRandomComitmentPath(degBound_logCeil, evaluationBasis, queries.proof, results, depth, L0isMSB);
 }
 
 void addRandomQueryPath(RS_queries& queries, const vector<FieldElement>& evaluationBasis, Consistency_path_t& results, const bool L0isMSB){
-    const size_t numOfSigments = POW2(getL1Basis(evaluationBasis, L0isMSB).size());
-    const size_t sigmentIdx = rand() % numOfSigments;
+    const uint64_t numOfSigments = POW2(getL1Basis(evaluationBasis, L0isMSB).size());
+    const uint64_t sigmentIdx = rand() % numOfSigments;
     addRandomQueryPath(queries.proof,queries.univariate,evaluationBasis, sigmentIdx, results, 0, L0isMSB);
 }
 

@@ -48,9 +48,9 @@ public:
     virtual bool doneInteracting()const=0;
     virtual bool verify()const=0;
 
-    virtual size_t expectedCommitedProofBytes()const = 0;
-    virtual size_t expectedSentProofBytes()const = 0;
-    virtual size_t expectedQueriedDataBytes()const = 0;
+    virtual uint64_t expectedCommitedProofBytes()const = 0;
+    virtual uint64_t expectedSentProofBytes()const = 0;
+    virtual uint64_t expectedQueriedDataBytes()const = 0;
     
     virtual void fillResultsAndCommitmentRandomly()=0;
 };
@@ -63,7 +63,7 @@ public:
 // The verifier first interacts with the prover,
 // and after that reads from the input.
 //
-typedef std::map<size_t,std::vector<Algebra::FieldElement*>> queriesToInp_t;
+typedef std::map<uint64_t,std::vector<Algebra::FieldElement*>> queriesToInp_t;
 class IOPP_verifierInterface : public verifierInterface{
 public:
     virtual ~IOPP_verifierInterface(){};

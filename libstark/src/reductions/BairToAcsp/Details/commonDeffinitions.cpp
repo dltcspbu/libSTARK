@@ -39,11 +39,11 @@ namespace BairToAcsp{
     {
     bairVarLocation_.resize(instance.vectorsLen());
 
-    for(size_t i=0; i<variablesPerm_.size() ; i++){
+    for(uint64_t i=0; i<variablesPerm_.size() ; i++){
         bairVarLocation_[variablesPerm_[i]] = {true,i};
     }
 
-    for(size_t i=0; i<variablesNonPerm_.size() ; i++){
+    for(uint64_t i=0; i<variablesNonPerm_.size() ; i++){
         bairVarLocation_[variablesNonPerm_[i]] = {false,i};
     }
     }
@@ -64,18 +64,18 @@ namespace BairToAcsp{
     const double spaceWidth = POW2(widthSpaceDimension_);
     {
     const double totalConstraintsAmount = 1 + 1;//instance.constraintsAssignment().constraints().size() + instance.constraintsPermutation().constraints().size();
-    const size_t vanishingLayersConstraints = ceil(totalConstraintsAmount/spaceWidth);
+    const uint64_t vanishingLayersConstraints = ceil(totalConstraintsAmount/spaceWidth);
     vanishingLayersSpaceDimension_ = ceil(Log2(amountOfPermutationLayers_ + vanishingLayersConstraints));
     }
 
     {
-        const size_t numOfVariablesLayers = ceil(double(variablesNonPerm_.size())/double(spaceWidth));
+        const uint64_t numOfVariablesLayers = ceil(double(variablesNonPerm_.size())/double(spaceWidth));
         numOfWitnessLayers_ = amountOfPermutationLayers_ + numOfVariablesLayers;
     }
 
     {
-    const size_t spaceWidth = POW2(widthSpaceDimension_);
-    const size_t witnessDegreeFactor = (SUPPORT_ZK?2:1);
+    const uint64_t spaceWidth = POW2(widthSpaceDimension_);
+    const uint64_t witnessDegreeFactor = (SUPPORT_ZK?2:1);
     witnessDegreeBound_ = vector<PolynomialDegree>(numOfWitnessLayers_,PolynomialDegree(witnessDegreeFactor*POW2(heightSpaceDimension_)*spaceWidth-1));
     }
 }
@@ -85,7 +85,7 @@ PolynomialDegree commonDeffinitions::getMaxTestDegree(const BairInstance& instan
     // initialize a vector of zeros as input degrees,
     // for checking the maximal degree of a polynomial
     // in each constraint system
-    const size_t assignmetnSize = 2*instance.vectorsLen();
+    const uint64_t assignmetnSize = 2*instance.vectorsLen();
     vector<PolynomialDegree> inputDegrees(assignmetnSize,ascpWitnessDegreeBound);
    
     // find maximal degree in constraint system tests
@@ -103,15 +103,15 @@ PolynomialDegree commonDeffinitions::getMaxTestDegree(const BairInstance& instan
 
 
 // Routing
-vector<size_t> commonDeffinitions::getRoutedIndexes(const BairInstance& instance){
+vector<uint64_t> commonDeffinitions::getRoutedIndexes(const BairInstance& instance){
     const auto vecLen = instance.vectorsLen();
     const auto& CSystemPermutation = instance.constraintsPermutation();
 
-    vector<size_t> usedIndexes;
+    vector<uint64_t> usedIndexes;
     //Push only the indexes that must be routed
     //meaning, only those that the constraints system uses
     //from the second vector
-    for(size_t i=vecLen; i< 2*vecLen; i++){
+    for(uint64_t i=vecLen; i< 2*vecLen; i++){
         if(CSystemPermutation.varUsed(i)){
             usedIndexes.push_back(i-vecLen);
         }
@@ -120,15 +120,15 @@ vector<size_t> commonDeffinitions::getRoutedIndexes(const BairInstance& instance
     return usedIndexes;
 }
 
-pair<vector<size_t>,vector<unique_ptr<PolynomialInterface>>> commonDeffinitions::getUnroutedIndexes_and_ConstraintsChi(const BairInstance& instance, const vector<FieldElement>& coeffs){
+pair<vector<uint64_t>,vector<unique_ptr<PolynomialInterface>>> commonDeffinitions::getUnroutedIndexes_and_ConstraintsChi(const BairInstance& instance, const vector<FieldElement>& coeffs){
     const auto vecLen = instance.vectorsLen();
     const auto& CSystemPermutation = instance.constraintsPermutation();
 
-    vector<size_t> unusedIndexes;
+    vector<uint64_t> unusedIndexes;
     //Push only the indexes that are not routed
     //meaning, only those that the constraints system does not use
     //from the second vector
-    for(size_t i=vecLen; i< 2*vecLen; i++){
+    for(uint64_t i=vecLen; i< 2*vecLen; i++){
         if(!CSystemPermutation.varUsed(i)){
             unusedIndexes.push_back(i-vecLen);
         }
@@ -137,14 +137,14 @@ pair<vector<size_t>,vector<unique_ptr<PolynomialInterface>>> commonDeffinitions:
     //if there are any univariate constraints,
     //reorder the variable, so those used by the most
     //common univariate constraints are all at the beginning
-    vector<size_t> reorderedUnusedIndexes;
+    vector<uint64_t> reorderedUnusedIndexes;
     vector<unique_ptr<PolynomialInterface>> reorderedConstraints;
     reorderedUnusedIndexes = unusedIndexes;
     {
         reorderedConstraints.push_back(unique_ptr<PolynomialInterface>(instance.constraintsAssignment().getLinearComb(coeffs)));
     }
 
-    return pair<vector<size_t>,vector<unique_ptr<PolynomialInterface>>>(reorderedUnusedIndexes,move(reorderedConstraints));
+    return pair<vector<uint64_t>,vector<unique_ptr<PolynomialInterface>>>(reorderedUnusedIndexes,move(reorderedConstraints));
 }
 
 } //namespace BairToAcsp

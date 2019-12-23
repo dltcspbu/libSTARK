@@ -36,7 +36,7 @@ public:
         vector<FieldElement> assignment;
         assignment.push_back(x);
         
-        for(size_t wIndex = 0; wIndex < witness_.size(); wIndex++){
+        for(uint64_t wIndex = 0; wIndex < witness_.size(); wIndex++){
             for(const auto& n : instance_.neighborPolys()[wIndex]){
                 assignment.push_back(witness_[wIndex]->eval(n->eval(x)));
             }
@@ -80,7 +80,7 @@ bool AcspWitnessChecker::verify_witness_degree(const AcspInstance& instance, con
     
     bool isOK = true;
 
-    for(size_t wIndex = 0; wIndex < witness.assignmentPolys().size(); wIndex++){
+    for(uint64_t wIndex = 0; wIndex < witness.assignmentPolys().size(); wIndex++){
         isOK &= !(instance.witnessDegreeBound()[wIndex] < witness.assignmentPolys()[wIndex]->getDegree());
     }
 
@@ -90,7 +90,7 @@ bool AcspWitnessChecker::verify_witness_degree(const AcspInstance& instance, con
 bool AcspWitnessChecker::verify_boundary(const AcspInstance& instance, const AcspWitness& witness){
 	TASK("Tests boundary constraints");
 
-    for(size_t wIndex = 0; wIndex < witness.assignmentPolys().size(); wIndex++){
+    for(uint64_t wIndex = 0; wIndex < witness.assignmentPolys().size(); wIndex++){
         const AcspWitness::polynomial& assignment = *(witness.assignmentPolys()[wIndex]);
 
         for(const auto& p : instance.boundaryConstraints()[wIndex]){

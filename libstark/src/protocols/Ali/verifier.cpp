@@ -73,7 +73,7 @@ verifier_t::verifier_t(const BairInstance& bairInstance, const RS_verifierFactor
 
     //composition
     {
-        const size_t basisPCPP_size = Ali::details::PCP_common::basisForConsistency(*(instance_[0])).basis.size();
+        const uint64_t basisPCPP_size = Ali::details::PCP_common::basisForConsistency(*(instance_[0])).basis.size();
         const short logSizeBytes =  basisPCPP_size + Log2(sizeof(FieldElement));
 
         //ZK_Composition_mask
@@ -203,8 +203,8 @@ void verifier_t::digestQueries(const vector<const queriesToInp_t*>& queriesToInp
     TASK("Verifier digests queries");
 
     const auto basisPCPP(Ali::details::PCP_common::basisForWitness(*(instance_[0])));
-    const size_t numWitnesses = instance_[0]->witnessDegreeBound().size();
-    const size_t numWitnessColumns = Infrastructure::POW2(Ali::details::PCP_common::boundaryPolysMatrix_logWidth(*(instance_[0]), combSoundness_.size()));
+    const uint64_t numWitnesses = instance_[0]->witnessDegreeBound().size();
+    const uint64_t numWitnessColumns = Infrastructure::POW2(Ali::details::PCP_common::boundaryPolysMatrix_logWidth(*(instance_[0]), combSoundness_.size()));
     
     //
     // Digest queries made to univariate of Witness PCPP
@@ -225,7 +225,7 @@ void verifier_t::digestQueries(const vector<const queriesToInp_t*>& queriesToInp
         for(unsigned int ldeCombinationId =0; ldeCombinationId< queriesToInput_witness.size(); ldeCombinationId++){
             for(const auto& q : *(queriesToInput_witness[ldeCombinationId])){
 
-                const size_t x = q.first;
+                const uint64_t x = q.first;
                 const auto& resultsAddressList = q.second;
 
                 auto& currComb = linearComb_witness_[combIdx++];
@@ -238,9 +238,9 @@ void verifier_t::digestQueries(const vector<const queriesToInp_t*>& queriesToInp
 
                 {
                     {
-                        const size_t zkMaskColumnIdx = numWitnesses + ldeCombinationId; //The zk mask of the i'th LDE is the i'th poly after witness
-                        const size_t x_matrix = (x*numWitnessColumns) + zkMaskColumnIdx;
-                        const size_t blockIndex_matrix = CryptoCommitment::getBlockIndex(x_matrix);
+                        const uint64_t zkMaskColumnIdx = numWitnesses + ldeCombinationId; //The zk mask of the i'th LDE is the i'th poly after witness
+                        const uint64_t x_matrix = (x*numWitnessColumns) + zkMaskColumnIdx;
+                        const uint64_t blockIndex_matrix = CryptoCommitment::getBlockIndex(x_matrix);
                         const short offsetInBlock_matrix = CryptoCommitment::getOffsetInBlock(x_matrix);
                         auto setValFunc = [&](const FieldElement& res){ currComb.ZK_mask_res = res; };
 
@@ -249,9 +249,9 @@ void verifier_t::digestQueries(const vector<const queriesToInp_t*>& queriesToInp
 
                     {
                         currComb.boundaryEval_res.resize(numWitnesses);
-                        for(size_t wIdx = 0; wIdx < numWitnesses; wIdx++){
-                            const size_t x_matrix = (x*numWitnessColumns) + wIdx;
-                            const size_t blockIndex_matrix = CryptoCommitment::getBlockIndex(x_matrix);
+                        for(uint64_t wIdx = 0; wIdx < numWitnesses; wIdx++){
+                            const uint64_t x_matrix = (x*numWitnessColumns) + wIdx;
+                            const uint64_t blockIndex_matrix = CryptoCommitment::getBlockIndex(x_matrix);
                             const short offsetInBlock_matrix = CryptoCommitment::getOffsetInBlock(x_matrix);
 
                             auto setValFunc = [=,&currComb](const FieldElement& res){ currComb.boundaryEval_res[wIdx] = res; };
@@ -280,13 +280,13 @@ void verifier_t::digestQueries(const vector<const queriesToInp_t*>& queriesToInp
             }
             polyEvaluation_composition_.resize(numLinearCombinations);
         }
-        size_t currCombIdx = 0;
+        uint64_t currCombIdx = 0;
         
         for(unsigned int ldeCombinationId =0; ldeCombinationId< queriesToInput_composition.size(); ldeCombinationId++){
             for(const auto& q : *(queriesToInput_composition[ldeCombinationId])){
-                const size_t x = q.first;
+                const uint64_t x = q.first;
                 const FieldElement alpha = getSpaceElementByIndex(consistencySpace.basis, consistencySpace.shift, x);
-                const size_t blockIndex = CryptoCommitment::getBlockIndex(x);
+                const uint64_t blockIndex = CryptoCommitment::getBlockIndex(x);
                 const short offsetInBlock = CryptoCommitment::getOffsetInBlock(x);
                 const auto& resultsAddressList = q.second;
 
@@ -308,18 +308,18 @@ void verifier_t::digestQueries(const vector<const queriesToInp_t*>& queriesToInp
                     //Witness polys
                     {
 
-                        for (size_t wIndex = 0; wIndex < numWitnesses; wIndex++){
+                        for (uint64_t wIndex = 0; wIndex < numWitnesses; wIndex++){
 
                             const auto& neighbours = instance_[0]->neighborPolys()[wIndex];
-                            size_t nsize = neighbours.size();
+                            uint64_t nsize = neighbours.size();
 
                             for (unsigned int affine_num = 0; affine_num < nsize; affine_num++){
                                 const FieldElement currNeighborVal = neighbours[affine_num]->eval(alpha);
 
                                 { 
-                                    const size_t neighborValIndex = mapFieldElementToInteger(0,basisPCPP.basis.size(), currNeighborVal + basisPCPP.shift);//getSpaceIndexOfElement(basisPCPP.basis,basisPCPP.shift,currNeighborVal);
-                                    const size_t x_matrix = (neighborValIndex*numWitnessColumns) + wIndex;
-                                    const size_t blockIndex_matrix = CryptoCommitment::getBlockIndex(x_matrix);
+                                    const uint64_t neighborValIndex = mapFieldElementToInteger(0,basisPCPP.basis.size(), currNeighborVal + basisPCPP.shift);//getSpaceIndexOfElement(basisPCPP.basis,basisPCPP.shift,currNeighborVal);
+                                    const uint64_t x_matrix = (neighborValIndex*numWitnessColumns) + wIndex;
+                                    const uint64_t blockIndex_matrix = CryptoCommitment::getBlockIndex(x_matrix);
                                     const short offsetInBlock_matrix = CryptoCommitment::getOffsetInBlock(x_matrix);
 
                                     auto setValFunc = [=,&currComb](const FieldElement& res){ currComb.boundaryPoly_res[wIndex][affine_num] = res; };
@@ -524,7 +524,7 @@ void verifier_t::generateRandomCoefficients(Ali::details::randomCoeffsSet_t& ran
 
     //boundary witnesses
     const auto& degBounds = Ali::details::PCP_common::witness_div_Z_Boundery_degreeBound(*(instance_[0]));
-    for(size_t wIndex =0 ; wIndex < instance_[0]->witnessDegreeBound().size(); wIndex++){
+    for(uint64_t wIndex =0 ; wIndex < instance_[0]->witnessDegreeBound().size(); wIndex++){
 
         Protocols::Ali::details::randomCoeefs currCoeffs;
 
@@ -538,7 +538,7 @@ void verifier_t::generateRandomCoefficients(Ali::details::randomCoeffsSet_t& ran
         currCoeffs.coeffShifted.resize(combSoundness_.size());
 
         //fill random coefficients
-        for(size_t combId=0; combId < combSoundness_.size(); combId++){
+        for(uint64_t combId=0; combId < combSoundness_.size(); combId++){
             currCoeffs.coeffUnshifted[combId] = Algebra::generateRandom();
             currCoeffs.coeffShifted[combId] = Algebra::generateRandom();
         }
@@ -578,36 +578,36 @@ bool verifier_t::doneInteracting()const{
     return phase_ == Ali::details::phase_t::DONE;
 }
 
-size_t verifier_t::expectedCommitedProofBytes()const{
-    const size_t basisPCPP_size = Ali::details::PCP_common::basisForWitness(*(instance_[0])).basis.size();
-    const size_t evaluationBytes = Infrastructure::POW2(basisPCPP_size) * sizeof(FieldElement);
-    const size_t evaluationWithCommitmentBytes = 2UL * evaluationBytes;
+uint64_t verifier_t::expectedCommitedProofBytes()const{
+    const uint64_t basisPCPP_size = Ali::details::PCP_common::basisForWitness(*(instance_[0])).basis.size();
+    const uint64_t evaluationBytes = Infrastructure::POW2(basisPCPP_size) * sizeof(FieldElement);
+    const uint64_t evaluationWithCommitmentBytes = 2UL * evaluationBytes;
     
     // *2 for merkle 
-    const size_t witnessMatrixSize = 2UL*Infrastructure::POW2(Ali::details::PCP_common::boundaryPolysMatrix_logNumElements(*(instance_[0]), combSoundness_.size())) * sizeof(FieldElement);
+    const uint64_t witnessMatrixSize = 2UL*Infrastructure::POW2(Ali::details::PCP_common::boundaryPolysMatrix_logNumElements(*(instance_[0]), combSoundness_.size())) * sizeof(FieldElement);
     
     //Witness matrix + witness ZK mask
-    const size_t localProofsBytes = evaluationWithCommitmentBytes + witnessMatrixSize;
-    size_t RS_proximityProofBytes_witness = 0;
+    const uint64_t localProofsBytes = evaluationWithCommitmentBytes + witnessMatrixSize;
+    uint64_t RS_proximityProofBytes_witness = 0;
     for (const auto& v : RS_verifier_witness_){
         RS_proximityProofBytes_witness += v->expectedCommitedProofBytes();
     }
     
-    size_t RS_proximityProofBytes_composition = 0;
+    uint64_t RS_proximityProofBytes_composition = 0;
     for (const auto& v : RS_verifier_composition_){
         RS_proximityProofBytes_composition += v->expectedCommitedProofBytes();
     }
     
-    const size_t evaluationWithCommitmentBytes_composition = 2UL * evaluationBytes;
+    const uint64_t evaluationWithCommitmentBytes_composition = 2UL * evaluationBytes;
     
-    const size_t localProofsBytes_composition = evaluationWithCommitmentBytes_composition * 2UL; //1 for composition and 1 for ZK mask
+    const uint64_t localProofsBytes_composition = evaluationWithCommitmentBytes_composition * 2UL; //1 for composition and 1 for ZK mask
 
     return localProofsBytes + localProofsBytes_composition + RS_proximityProofBytes_witness + RS_proximityProofBytes_composition;
 }
 
-size_t verifier_t::expectedSentProofBytes()const{
+uint64_t verifier_t::expectedSentProofBytes()const{
 
-    size_t numExpectedHashes = 0;
+    uint64_t numExpectedHashes = 0;
 
     {
         //Adding 1 for the commitments
@@ -617,13 +617,13 @@ size_t verifier_t::expectedSentProofBytes()const{
         numExpectedHashes += 1UL + state_.boundaryPolysMatrix.expectedResultsLenght();
     }
 
-    const size_t localBytes = numExpectedHashes * sizeof(CryptoCommitment::hashDigest_t);
-    size_t RS_proximityBytes_witness = 0;
+    const uint64_t localBytes = numExpectedHashes * sizeof(CryptoCommitment::hashDigest_t);
+    uint64_t RS_proximityBytes_witness = 0;
     for(const auto& v : RS_verifier_witness_){
         RS_proximityBytes_witness += v->expectedSentProofBytes();
     }
     
-    size_t RS_proximityBytes_composition = 0;
+    uint64_t RS_proximityBytes_composition = 0;
     for(const auto& v : RS_verifier_composition_){
         RS_proximityBytes_composition += v->expectedSentProofBytes();
     }
@@ -631,9 +631,9 @@ size_t verifier_t::expectedSentProofBytes()const{
     return localBytes + RS_proximityBytes_witness + RS_proximityBytes_composition;
 }
 
-size_t verifier_t::expectedQueriedDataBytes()const{
+uint64_t verifier_t::expectedQueriedDataBytes()const{
 
-    size_t numExpectedHashes = 0;
+    uint64_t numExpectedHashes = 0;
 
     {
         for (const auto& v : state_.ZK_mask_composition){
@@ -642,13 +642,13 @@ size_t verifier_t::expectedQueriedDataBytes()const{
         numExpectedHashes += state_.boundaryPolysMatrix.expectedQueriedFieldElementsNum();
     }
     
-    const size_t localBytes = numExpectedHashes * sizeof(FieldElement);
-    size_t RS_proximityBytes_witness =0;
+    const uint64_t localBytes = numExpectedHashes * sizeof(FieldElement);
+    uint64_t RS_proximityBytes_witness =0;
     for(const auto& v : RS_verifier_witness_){
         RS_proximityBytes_witness += v->expectedQueriedDataBytes();
     }
     
-    size_t RS_proximityBytes_composition =0;
+    uint64_t RS_proximityBytes_composition =0;
     for(const auto& v : RS_verifier_composition_){
         RS_proximityBytes_composition += v->expectedQueriedDataBytes();
     }

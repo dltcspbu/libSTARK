@@ -88,9 +88,9 @@ namespace Algebra {
 		
     /** The function evaluates the Affine polynomial at a given point and returns the result. */
     FieldElement AffinePolynomial::eval(const Algebra::FieldElement& x)const{
-         size_t res = constantFactor_intRep_;
+         uint64_t res = constantFactor_intRep_;
 
-         size_t x_asInt = mapFieldElementToInteger(0,ExtensionDegree,x);
+         uint64_t x_asInt = mapFieldElementToInteger(0,ExtensionDegree,x);
          for(int i=0; x_asInt != 0; i++){
             if(x_asInt & 1){
                 res ^= polyMat_[i];
@@ -108,7 +108,7 @@ namespace Algebra {
         //if "i" is not a power of 2, return zero
         if ((1UL<<int(log2(i))) != i) return zero();
 
-        const size_t indexLog = log2(i);
+        const uint64_t indexLog = log2(i);
         if (indexLog < coefficients_.size()) return coefficients_[indexLog];
 
 		return zero();

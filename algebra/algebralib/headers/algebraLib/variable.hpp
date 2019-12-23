@@ -86,7 +86,7 @@ private:
 public:
 	explicit VariableArray(const ::std::string& name = "");
 	explicit VariableArray(const int size, const ::std::string& name = "");
-	explicit VariableArray(const size_t size, const Variable& contents)
+	explicit VariableArray(const uint64_t size, const Variable& contents)
 		: VariableArrayContents(size, contents) {}
 
 	using VariableArrayContents::operator[];
@@ -101,7 +101,7 @@ public:
 class UnpackedWord : public VariableArray {
 public:
 	UnpackedWord() : VariableArray() {}
-	UnpackedWord(const size_t numBits, const ::std::string& name) : VariableArray(numBits, name) {}
+	UnpackedWord(const uint64_t numBits, const ::std::string& name) : VariableArray(numBits, name) {}
 }; // class UnpackedWord
 
 typedef ::std::vector<UnpackedWord> UnpackedWordArray;

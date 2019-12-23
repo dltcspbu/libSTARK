@@ -19,16 +19,16 @@ namespace Algebra {
 class PolynomialInterface : public multivarFunc{
 public:
 	//number of variables polynomial expects
-    virtual size_t numVars() const = 0;   
+    virtual uint64_t numVars() const = 0;   
 
     //evaluates a polynomial on a given assignment
     virtual FieldElement eval(const std::vector<FieldElement>& x)const = 0;
     
 	//evaluates a polynomial on a given set (represented as vector) of assignments
     virtual std::vector<FieldElement> evalOnSet(const std::vector<std::vector<FieldElement>>& x_set)const{
-        const size_t numEvals = x_set.size();
+        const uint64_t numEvals = x_set.size();
         std::vector<FieldElement> res(numEvals);
-        for(size_t i=0; i< numEvals; i++){
+        for(uint64_t i=0; i< numEvals; i++){
             res[i] = eval(x_set[i]);
         }
 
@@ -61,12 +61,12 @@ public:
      * and for any change of the value of \f$ a_{varId} \f$,
      * the result of the evaluation does not change
      */
-    virtual bool isEffectiveInput(const size_t varId)const{return true;}
+    virtual bool isEffectiveInput(const uint64_t varId)const{return true;}
 };
 
 class UnivariatePolynomialInterface : public PolynomialInterface {
 public:
-    size_t numVars() const{
+    uint64_t numVars() const{
         return 1;
     }
 	
@@ -138,9 +138,9 @@ public:
         using std::vector;
 
         //get coefficients
-        const size_t numCoeffs = std::max(PolynomialDegree::integral_t(0),1+PolynomialDegree::integral_t(getDegree()));
+        const uint64_t numCoeffs = std::max(PolynomialDegree::integral_t(0),1+PolynomialDegree::integral_t(getDegree()));
         vector<FieldElement> coeffs(numCoeffs);
-        for (size_t i=0; i< numCoeffs; i++){
+        for (uint64_t i=0; i< numCoeffs; i++){
             coeffs[i] = getCoefficient(i);
         }
 

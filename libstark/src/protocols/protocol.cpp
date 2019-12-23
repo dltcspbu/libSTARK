@@ -9,7 +9,7 @@
 #include "reductions/BairToAcsp/BairToAcsp.hpp"
 
 #include <iostream>
-#include <thread>
+// #include <thread>
 
 namespace libstark {
 namespace Protocols {
@@ -52,7 +52,7 @@ void startSpecs() { startColor(CYAN); }
 
 void startCicleCount() { startColor(WHITE); }
 
-std::string numBytesToString(size_t numBytes) {
+std::string numBytesToString(uint64_t numBytes) {
     std::string suffix[] = {"Bytes",  "KBytes", "MBytes", "GBytes",
                             "TBytes", "PBytes", "EByte",  "ZByte"};
 
@@ -83,8 +83,8 @@ std::string secondsToString(double seconds) {
 }
 
 void printSpecs(const double proverTime, const double verifierTime,
-                const size_t proofGeneratedBytes, const size_t proofSentBytes,
-                const size_t queriedDataBytes) {
+                const uint64_t proofGeneratedBytes, const uint64_t proofSentBytes,
+                const uint64_t queriedDataBytes) {
     startSpecs();
     specsPrinter specs("Protocol execution measurements");
     specs.addLine("Prover time", secondsToString(proverTime));
@@ -99,8 +99,8 @@ void printSpecs(const double proverTime, const double verifierTime,
 }
 
 void printSpecsCSV(const double proverTime, const double verifierTime,
-                   const size_t proofGeneratedBytes,
-                   const size_t proofSentBytes, const size_t queriedDataBytes) {
+                   const uint64_t proofGeneratedBytes,
+                   const uint64_t proofSentBytes, const uint64_t queriedDataBytes) {
     return;
     startSpecs();
     std::cout << "Comma Separated Valued (CSV) specifications:" << std::endl;
@@ -119,33 +119,33 @@ bool executeProtocol(PartieInterface& prover, verifierInterface& verifier,
                      const bool onlyVerifierData) {
     double verifierTime = 0;
     double proverTime = 0;
-    const size_t proofGeneratedBytes = verifier.expectedCommitedProofBytes();
-    const size_t proofSentBytes = verifier.expectedSentProofBytes();
-    const size_t queriedDataBytes = verifier.expectedQueriedDataBytes();
+    const uint64_t proofGeneratedBytes = verifier.expectedCommitedProofBytes();
+    const uint64_t proofSentBytes = verifier.expectedSentProofBytes();
+    const uint64_t queriedDataBytes = verifier.expectedQueriedDataBytes();
 
     Timer t;
     if (onlyVerifierData) {
         verifier.fillResultsAndCommitmentRandomly();
     } else {
-        size_t msgNum = 1;
+        uint64_t msgNum = 1;
         startCicleCount();
         while (!verifier.doneInteracting()) {
             std::cout << "communication iteration #" << msgNum++ << ":";
             bool doStatusLoop = true;
             Timer roundTimer;
-            std::thread barManager([&]() {
-                unsigned int sleepInterval = 10;
-                unsigned int sleepTime = 10;
-                while (doStatusLoop) {
-                    std::cout << "." << std::flush;
-                    for (unsigned int i = 0; (i < sleepTime) && doStatusLoop;
-                         i++) {
-                        std::this_thread::sleep_for(
-                            std::chrono::milliseconds(sleepInterval));
-                    }
-                    sleepTime *= 2;
-                }
-            });
+            // std::thread barManager([&]() {
+            //     unsigned int sleepInterval = 10;
+            //     unsigned int sleepTime = 10;
+            //     while (doStatusLoop) {
+            //         std::cout << "." << std::flush;
+            //         for (unsigned int i = 0; (i < sleepTime) && doStatusLoop;
+            //              i++) {
+            //             std::this_thread::sleep_for(
+            //                 std::chrono::milliseconds(sleepInterval));
+            //         }
+            //         sleepTime *= 2;
+            //     }
+            // });
             // TASK("interaction round #" + std::to_string(msgNum++));
 
             startVerifier();
@@ -162,7 +162,7 @@ bool executeProtocol(PartieInterface& prover, verifierInterface& verifier,
 
             {
                 doStatusLoop = false;
-                barManager.join();
+                // barManager.join();
                 std::cout << "(" << roundTimer.getElapsed() << " seconds)"
                           << std::endl;
             }
@@ -207,7 +207,7 @@ using std::to_string;
 void printBairInstanceSpec(const BairInstance& instance) {
     specsPrinter specs("BAIR Specifications");
     specs.addLine("field size", "2^64");
-    const size_t totalVars = instance.vectorsLen();
+    const uint64_t totalVars = instance.vectorsLen();
     specs.addLine("number of variables per state (w)", to_string(totalVars));
     specs.addLine("number of regular constraints (s)",
                   to_string(instance.constraintsAssignment().numMappings()));
@@ -225,23 +225,23 @@ void printBairInstanceSpec(const BairInstance& instance) {
                   to_string(instance.boundaryConstraints().size()));
 
     // count amount of routed vars
-    size_t amountRouted = 0;
-    for (size_t i = totalVars; i < totalVars * 2; i++) {
+    uint64_t amountRouted = 0;
+    for (uint64_t i = totalVars; i < totalVars * 2; i++) {
         if (instance.constraintsPermutation().varUsed(i)) {
             amountRouted++;
         }
     }
 
     // count how many univariate constraints we have in CHI
-    size_t univariateConstraintsTime = 0;
-    vector<pair<UnivariatePolynomialGeneral, size_t> > univariatePolys;
+    uint64_t univariateConstraintsTime = 0;
+    vector<pair<UnivariatePolynomialGeneral, uint64_t> > univariatePolys;
     {
         const vector<PolynomialDegree> inputDegrees(totalVars * 2,
                                                     PolynomialDegree(1));
         for (const auto& c : instance.constraintsAssignment().constraints()) {
-            size_t numVarsUsed = 0;
-            size_t lastVarUsed = 0;
-            for (size_t i = 0; i < totalVars * 2; i++) {
+            uint64_t numVarsUsed = 0;
+            uint64_t lastVarUsed = 0;
+            for (uint64_t i = 0; i < totalVars * 2; i++) {
                 if (c->isEffectiveInput(i)) {
                     numVarsUsed++;
                     lastVarUsed = i;
@@ -250,7 +250,7 @@ void printBairInstanceSpec(const BairInstance& instance) {
             if ((numVarsUsed == 1) && (lastVarUsed < totalVars)) {
                 univariateConstraintsTime++;
                 const auto degreeBound = c->getDegreeBound(inputDegrees);
-                const size_t interpolationBasisSize =
+                const uint64_t interpolationBasisSize =
                     ceil(Log2(PolynomialDegree::integral_t(degreeBound) + 1));
                 const auto interpolationBasis =
                     getStandartBasis(interpolationBasisSize);
@@ -261,7 +261,7 @@ void printBairInstanceSpec(const BairInstance& instance) {
                 vector<FieldElement> evaluation(POW2(interpolationBasisSize));
                 {
                     vector<FieldElement> assignment(totalVars * 2);
-                    for (size_t i = 0; i < evaluation.size(); i++) {
+                    for (uint64_t i = 0; i < evaluation.size(); i++) {
                         assignment[lastVarUsed] =
                             getSpaceElementByIndex(orderedBasis, zero(), i);
                         evaluation[i] = c->eval(assignment);
@@ -270,7 +270,7 @@ void printBairInstanceSpec(const BairInstance& instance) {
                 if ((numVarsUsed == 1) && (lastVarUsed < totalVars)) {
                     univariateConstraintsTime++;
                     const auto degreeBound = c->getDegreeBound(inputDegrees);
-                    const size_t interpolationBasisSize = ceil(
+                    const uint64_t interpolationBasisSize = ceil(
                         Log2(PolynomialDegree::integral_t(degreeBound) + 1));
                     const auto interpolationBasis =
                         getStandartBasis(interpolationBasisSize);
@@ -282,7 +282,7 @@ void printBairInstanceSpec(const BairInstance& instance) {
                         POW2(interpolationBasisSize));
                     {
                         vector<FieldElement> assignment(totalVars * 2);
-                        for (size_t i = 0; i < evaluation.size(); i++) {
+                        for (uint64_t i = 0; i < evaluation.size(); i++) {
                             assignment[lastVarUsed] =
                                 getSpaceElementByIndex(orderedBasis, zero(), i);
                             evaluation[i] = c->eval(assignment);
@@ -301,7 +301,7 @@ void printBairInstanceSpec(const BairInstance& instance) {
                             }
                             if (!found) {
                                 univariatePolys.push_back(
-                                    pair<UnivariatePolynomialGeneral, size_t>(
+                                    pair<UnivariatePolynomialGeneral, uint64_t>(
                                         poly, 1));
                             }
                         }
@@ -310,8 +310,8 @@ void printBairInstanceSpec(const BairInstance& instance) {
             }
         }
 
-        size_t usedVarsAmount = 0;
-        for (size_t i = 0; i < totalVars; i++) {
+        uint64_t usedVarsAmount = 0;
+        for (uint64_t i = 0; i < totalVars; i++) {
             if (instance.constraintsAssignment().varUsed(i)) {
                 usedVarsAmount++;
             } else if (instance.constraintsPermutation().varUsed(i)) {
@@ -325,7 +325,7 @@ void printBairInstanceSpec(const BairInstance& instance) {
             }
         }
 
-        const size_t unroutedAmount = totalVars - amountRouted;
+        const uint64_t unroutedAmount = totalVars - amountRouted;
 
         specs.addLine("number of variables used by constraint systems",
                       to_string(usedVarsAmount));
@@ -343,7 +343,7 @@ void printAcspInstanceSpec(const AcspInstance& instance) {
     specs.addLine("number of algebraic-registers (|\\Tau|)",
                   to_string(instance.witnessDegreeBound().size()));
 
-    size_t numNeighbors = 0;
+    uint64_t numNeighbors = 0;
     for (const auto& vn : instance.neighborPolys()) {
         numNeighbors += vn.size();
     }
@@ -354,7 +354,7 @@ void printAcspInstanceSpec(const AcspInstance& instance) {
 
     vector<PolynomialDegree> inputDegrees(1, PolynomialDegree(1));
     {
-        for (size_t wIndex = 0; wIndex < instance.neighborPolys().size();
+        for (uint64_t wIndex = 0; wIndex < instance.neighborPolys().size();
              wIndex++) {
             const PolynomialDegree witnessDeg =
                 instance.witnessDegreeBound()[wIndex];
@@ -377,7 +377,7 @@ void printAprInstanceSpec(const AcspInstance& instance) {
     specs.addLine("number of algebraic-registers (|\\Tau|)",
                   to_string(instance.witnessDegreeBound().size()));
 
-    size_t numNeighbors = 0;
+    uint64_t numNeighbors = 0;
     for (const auto& vn : instance.neighborPolys()) {
         numNeighbors += vn.size();
     }
@@ -387,7 +387,7 @@ void printAprInstanceSpec(const AcspInstance& instance) {
                   "2^" + to_string(basisForWitness(instance).basis.size()));
     specs.addLine("constraint (g) evaluation space size (|L_{cmp}|)",
                   "2^" + to_string(basisForConsistency(instance).basis.size()));
-    const size_t maxDeg = ceil(Log2(PolynomialDegree::integral_t(
+    const uint64_t maxDeg = ceil(Log2(PolynomialDegree::integral_t(
         maximalPolyDegSupported_Witness(instance))));
     specs.addLine(
         "witness (f) maximal rate (\\rho_{max})",
@@ -437,25 +437,27 @@ bool executeProtocol(const BairInstance& instance, const BairWitness& witness,
 
     // Reduce BAIR witness to ACSP witness
     unique_ptr<AcspWitness> acspWitness(nullptr);
+    std::cout << noWitness << std::endl;
     if (!noWitness) {
         std::cout << "Constructing APR (ACSP) witness:";
         bool doStatusLoop = true;
         Timer reductionTimer;
-        std::thread barManager([&]() {
-            unsigned int sleepInterval = 10;
-            unsigned int sleepTime = 10;
-            while (doStatusLoop) {
-                std::cout << "." << std::flush;
-                for (unsigned int i = 0; (i < sleepTime) && doStatusLoop; i++) {
-                    std::this_thread::sleep_for(
-                        std::chrono::milliseconds(sleepInterval));
-                }
-                sleepTime *= 2;
-            }
-        });
+        // std::thread barManager([&]() {
+        //     std::cout << "START WORKING" << std::endl;
+        //     unsigned int sleepInterval = 10;
+        //     unsigned int sleepTime = 10;
+        //     while (doStatusLoop) {
+        //         std::cout << "." << std::flush;
+        //         for (unsigned int i = 0; (i < sleepTime) && doStatusLoop; i++) {
+        //             std::this_thread::sleep_for(
+        //                 std::chrono::milliseconds(sleepInterval));
+        //         }
+        //         sleepTime *= 2;
+        //     }
+        // });
         acspWitness = CBairToAcsp::reduceWitness(instance, witness);
         doStatusLoop = false;
-        barManager.join();
+        // barManager.join();
         std::cout << "(" << reductionTimer.getElapsed() << " seconds)"
                   << std::endl;
 

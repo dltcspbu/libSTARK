@@ -184,7 +184,7 @@ public:
         constraintsInputDegrees.push_back(PolynomialDegree(1));
 
         // rest are composition of neighbor with witness
-        for(size_t wIndex = 0; wIndex < witness.assignmentPolys().size(); wIndex++){
+        for(uint64_t wIndex = 0; wIndex < witness.assignmentPolys().size(); wIndex++){
             const auto witnessDegree = witness.assignmentPolys()[wIndex]->getDegree();
             for (const auto& n : instance.neighborPolys()[wIndex]){
                 constraintsInputDegrees.push_back(n->getDegreeBound(witnessDegree));
@@ -197,18 +197,18 @@ public:
         //
         //define interpolation space
         //
-        const size_t degForPoly = degBound.isInteger()? ceil(log2(1+PolynomialDegree::integral_t(degBound))) : 0;
+        const uint64_t degForPoly = degBound.isInteger()? ceil(log2(1+PolynomialDegree::integral_t(degBound))) : 0;
         const auto interpolationBasis = Algebra::getStandartOrderedBasis(min(Algebra::ExtensionDegree, int(degForPoly)));
 
         //construct evaluation
         vector<FieldElement> evaluation(Infrastructure::POW2(interpolationBasis.size()));
-        for(size_t i=0; i< evaluation.size(); i++){
+        for(uint64_t i=0; i< evaluation.size(); i++){
             const FieldElement x = getSpaceElementByIndex(interpolationBasis,zero(),i);
             
             //construct the assignment for the constraints poly
             vector<FieldElement> assignment;
             assignment.push_back(x);
-            for(size_t wIndex = 0; wIndex < witness.assignmentPolys().size(); wIndex++){
+            for(uint64_t wIndex = 0; wIndex < witness.assignmentPolys().size(); wIndex++){
                 for(const auto& n : instance.neighborPolys()[wIndex]){
                     assignment.push_back(witness.assignmentPolys()[wIndex]->eval(n->eval(x)));
                 }
@@ -226,7 +226,7 @@ public:
     
     static std::vector<std::unique_ptr<uniPoly>> naiveWCHelper(const AcspInstance& instance, const AcspWitness& witness){
         std::vector<std::unique_ptr<uniPoly>> res;
-        for(size_t wIndex = 0; wIndex < witness.assignmentPolys().size(); wIndex++){
+        for(uint64_t wIndex = 0; wIndex < witness.assignmentPolys().size(); wIndex++){
             res.push_back(std::unique_ptr<uniPoly>(new Algebra::UnivariatePolynomialGeneral(*(witness.assignmentPolys()[wIndex]))));
         }
 

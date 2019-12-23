@@ -14,7 +14,7 @@ namespace Protocols{
 
 typedef std::function<void(const Algebra::FieldElement&)> setVal_t;
 // (blockIdx, offsetInBlock) -> locations to keep results
-typedef std::map<size_t , std::map<short, std::vector<setVal_t> > > expliciteQueries_t;
+typedef std::map<uint64_t , std::map<short, std::vector<setVal_t> > > expliciteQueries_t;
 
 class uniEvalView_t{
 public:
@@ -31,8 +31,8 @@ public:
     void fillResultsAndCommitmentRandomly();
     void digestResults(const rawResult_t& results);
     bool verifyComitment()const;
-    size_t expectedResultsLenght()const;
-    size_t expectedQueriedFieldElementsNum()const;
+    uint64_t expectedResultsLenght()const;
+    uint64_t expectedQueriedFieldElementsNum()const;
     short getLogSizeBytes()const{return logSizeBytes;}
 
 private:

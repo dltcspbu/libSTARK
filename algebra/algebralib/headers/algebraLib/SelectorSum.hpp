@@ -38,7 +38,7 @@ namespace Algebra{
 		//evaluates a polynomial on a given assignment. This one's implemented just to be compatible with old tests - implemented somewhat inefficiently!
 		FieldElement eval(const VariableAssignment& x)const;
 
-        size_t numVars() const;
+        uint64_t numVars() const;
 
 		void getConsts(map<FieldElement, unsigned long long, Algebra::classCompElements>& FElemMap) const;
 		string asString() const;

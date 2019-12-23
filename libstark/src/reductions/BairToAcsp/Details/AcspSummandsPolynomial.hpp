@@ -80,7 +80,7 @@ namespace BairToAcsp{
 		/// evaluates this polynomial on \f$ a \f$
 		Algebra::FieldElement eval(const EvaluationPoint& a)const;
 	
-        size_t numVars()const;
+        uint64_t numVars()const;
         
         //evaluates a polynomial on a given set (represented as vector) of assignments
         std::vector<Algebra::FieldElement> evalOnSet(const std::vector<std::vector<Algebra::FieldElement>>& x_set)const;

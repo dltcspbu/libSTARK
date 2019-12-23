@@ -28,7 +28,7 @@ public:
 
     struct varLocation{
         bool inPerm;
-        size_t index;
+        uint64_t index;
     };
 
     //constructor
@@ -41,12 +41,12 @@ public:
     /// return the vector of ids of variables that must be passed through the routing network
     /// formally , this is the vector of variable \f$ v \in \mathcal{V} \f$
     /// such that \f$ (v,1) \in [\mathcal{V} \times \{1\}](\mathcal{C}_\pi) \f$
-    inline const std::vector<size_t>& variablesPerm()const{return variablesPerm_;}
+    inline const std::vector<uint64_t>& variablesPerm()const{return variablesPerm_;}
 
     /// returns the vector of ids of variable that not need to be passed through the routing network
     /// formally , this is the vector of variable \f$ v \in \mathcal{V} \f$
     /// such that \f$ (v,1) \notin [\mathcal{V} \times \{1\}](\mathcal{C}_\pi) \f$
-    inline const std::vector<size_t>& variablesNonPerm()const{return variablesNonPerm_;}
+    inline const std::vector<uint64_t>& variablesNonPerm()const{return variablesNonPerm_;}
 
     /// returns the location of the variable with given id,
     /// the location says in which variables vector it is found (permutation variable or not)
@@ -57,20 +57,20 @@ public:
     ///
     /// and if getVarLocation(u) = {inPerm = false, index = j}, than
     /// variablesNonPerm()[j] = u
-    inline const varLocation& getVarLocation(const size_t varId)const{return bairVarLocation_[varId];}
+    inline const varLocation& getVarLocation(const uint64_t varId)const{return bairVarLocation_[varId];}
 
     /*
      * dimensions and sizes getters
      */
-    inline const size_t& heightSpaceDimension()const{return heightSpaceDimension_;}
-    inline const size_t imageHeight()const{return Infrastructure::POW2(heightSpaceDimension_);}
-    inline const size_t& widthSpaceDimension()const{return widthSpaceDimension_;}
-    inline const size_t imageWidth()const{return Infrastructure::POW2(widthSpaceDimension_);}
-    inline const size_t& amountOfPermutationLayers()const{return amountOfPermutationLayers_;}
-    inline const size_t& vanishingLayersSpaceDimension()const{return vanishingLayersSpaceDimension_;}
-    inline const size_t vanishingLayersAmount()const{return Infrastructure::POW2(vanishingLayersSpaceDimension_);}
-    inline const size_t witnessLayersAmount()const{return numOfWitnessLayers_;}
-    inline size_t vanishingSpaceDimension()const{return heightSpaceDimension()+widthSpaceDimension()+vanishingLayersSpaceDimension();}
+    inline const uint64_t& heightSpaceDimension()const{return heightSpaceDimension_;}
+    inline const uint64_t imageHeight()const{return Infrastructure::POW2(heightSpaceDimension_);}
+    inline const uint64_t& widthSpaceDimension()const{return widthSpaceDimension_;}
+    inline const uint64_t imageWidth()const{return Infrastructure::POW2(widthSpaceDimension_);}
+    inline const uint64_t& amountOfPermutationLayers()const{return amountOfPermutationLayers_;}
+    inline const uint64_t& vanishingLayersSpaceDimension()const{return vanishingLayersSpaceDimension_;}
+    inline const uint64_t vanishingLayersAmount()const{return Infrastructure::POW2(vanishingLayersSpaceDimension_);}
+    inline const uint64_t witnessLayersAmount()const{return numOfWitnessLayers_;}
+    inline uint64_t vanishingSpaceDimension()const{return heightSpaceDimension()+widthSpaceDimension()+vanishingLayersSpaceDimension();}
     inline bool hasRoutingNetwork()const{return variablesPerm_.size()>0;}
     inline const std::vector<Algebra::PolynomialDegree>& witnessDegreeBound()const{return witnessDegreeBound_;}
 
@@ -83,8 +83,8 @@ public:
 private:
     
     //variables partition
-    std::vector<size_t> variablesPerm_;
-    std::vector<size_t> variablesNonPerm_;
+    std::vector<uint64_t> variablesPerm_;
+    std::vector<uint64_t> variablesNonPerm_;
     std::vector<struct varLocation> bairVarLocation_;
 
     //the constraints for CHI ordered
@@ -92,19 +92,19 @@ private:
     std::vector<std::unique_ptr<Algebra::PolynomialInterface>> constraintsPi_;
 
     //dimensions and sizes
-    size_t heightSpaceDimension_;
-    size_t widthSpaceDimension_;
-    size_t amountOfPermutationLayers_;
-    size_t vanishingLayersSpaceDimension_;
-    size_t vanishingSpaceDimension_;
-    size_t numOfWitnessLayers_;
+    uint64_t heightSpaceDimension_;
+    uint64_t widthSpaceDimension_;
+    uint64_t amountOfPermutationLayers_;
+    uint64_t vanishingLayersSpaceDimension_;
+    uint64_t vanishingSpaceDimension_;
+    uint64_t numOfWitnessLayers_;
     std::vector<Algebra::PolynomialDegree> witnessDegreeBound_;
 
     //private methods
-    static std::vector<size_t> getRoutedIndexes(const BairInstance& instance);
-    static std::pair<std::vector<size_t>,std::vector<std::unique_ptr<Algebra::PolynomialInterface>>> getUnroutedIndexes_and_ConstraintsChi(const BairInstance& instance, const std::vector<Algebra::FieldElement>& coeffsChi);
+    static std::vector<uint64_t> getRoutedIndexes(const BairInstance& instance);
+    static std::pair<std::vector<uint64_t>,std::vector<std::unique_ptr<Algebra::PolynomialInterface>>> getUnroutedIndexes_and_ConstraintsChi(const BairInstance& instance, const std::vector<Algebra::FieldElement>& coeffsChi);
     static Algebra::PolynomialDegree getMaxTestDegree(const BairInstance& instance, const bool hasRoutingNetwork, const Algebra::PolynomialDegree& ascpWitnessDegreeBound);
-    static std::pair<Algebra::UnivariatePolynomialGeneral,std::vector<std::pair<Algebra::PolynomialInterface*,size_t> > > getCommonUnivariateConstraint(const BairInstance& instance);
+    static std::pair<Algebra::UnivariatePolynomialGeneral,std::vector<std::pair<Algebra::PolynomialInterface*,uint64_t> > > getCommonUnivariateConstraint(const BairInstance& instance);
 };
 
 } //namespace BairToAcsp

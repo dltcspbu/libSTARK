@@ -36,8 +36,8 @@ public:
 private:
     const common& commonDef_;
     
-    size_t offsetOfNetworkLayerId()const;
-    std::vector<size_t> getBitIndexesForDeBruijnNeighboursPairIndicator()const;
+    uint64_t offsetOfNetworkLayerId()const;
+    std::vector<uint64_t> getBitIndexesForDeBruijnNeighboursPairIndicator()const;
 };
 
 } //namespace BairToAcsp

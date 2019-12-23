@@ -24,7 +24,7 @@ public:
 	/*************************/
 
 	/** Class Default Constructor */
-	lightCircuit(size_t numInputs, size_t numOutputs):m_inputs(numInputs),m_outputs(numOutputs){};
+	lightCircuit(uint64_t numInputs, uint64_t numOutputs):m_inputs(numInputs),m_outputs(numOutputs){};
 
     /**
      * Same as above, but for small type of nodes
@@ -44,7 +44,7 @@ public:
 	std::vector<lightInputGate>& getInputGates(){return m_inputs;}
 
 	/** Gets amount of input gates: */
-	size_t getInputsNum() const{return m_inputs.size();}
+	uint64_t getInputsNum() const{return m_inputs.size();}
 	
     /** Gets the output gates: */
 	const std::vector<lightOutGate>& getOutputGates() const{return m_outputs;}
@@ -74,7 +74,7 @@ public:
      * is a path connecting the input gate in
      * the selected index to some output gate.
      */	
-    bool isInputEffective(const size_t inputIndex)const;
+    bool isInputEffective(const uint64_t inputIndex)const;
     
     /***************************************/
 	/********* Circuit Evaluations *********/

@@ -18,14 +18,14 @@ namespace FFF {
 		Element::vecXor((cell_t*)&p[l>>1],(cell_t*)&p[3*(l>>2)],Element::element_len*(l>>2));
 	}
 	void Polynomials::taylorExpansionIterationOMP(Polynomial p, len_t l){
-#pragma omp parallel for schedule(guided)
+// #pragma omp parallel for schedule(guided)
 		for(idx_t i = 0 ; i < (l>>2) ; ++i){
 			Element::c_add(p[(l>>1)+i],p[3*(l>>2)+i],p[(l>>1)+i]);
 			Element::c_add(p[(l>>2)+i],p[(l>>1)+i],p[(l>>2)+i]);
 		}
 	}
 	void Polynomials::i_taylorExpansionIterationOMP(Polynomial p, len_t l){
-#pragma omp parallel for
+// #pragma omp parallel for
 		for(idx_t i = 0 ; i < (l>>2) ; ++i){
 			Element::c_add(p[(l>>2)+i],p[(l>>1)+i],p[(l>>2)+i]);
 			Element::c_add(p[(l>>1)+i],p[3*(l>>2)+i],p[(l>>1)+i]);
@@ -53,7 +53,7 @@ namespace FFF {
 				taylorExpansionIterationOMP((Element*)&p[i_p],i);
 		}
 		for(;i>2;i>>=1){
-#pragma omp parallel for
+// #pragma omp parallel for
 			for(int i_p = len-i ; i_p >=0 ; i_p-=i)
 				taylorExpansionIteration((Element*)&p[i_p],i);
 		}
@@ -62,7 +62,7 @@ namespace FFF {
 		len_t len=1<<log_len;
 		idx_t i;
 		for(i=4;i<=len/omp_max_threads;i<<=1){
-#pragma omp parallel for
+// #pragma omp parallel for
 			for(int i_p = len-i ; i_p >=0 ; i_p-=i)
 				i_taylorExpansionIteration((Element*)&p[i_p],i);
 		}

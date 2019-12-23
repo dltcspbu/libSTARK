@@ -34,9 +34,9 @@ class verifier_t : public verifierInterface{
     msg_ptr_t sendMessage(); 
     bool doneInteracting()const;
     bool verify()const;
-    size_t expectedCommitedProofBytes()const;
-    size_t expectedSentProofBytes()const;
-    size_t expectedQueriedDataBytes()const;
+    uint64_t expectedCommitedProofBytes()const;
+    uint64_t expectedSentProofBytes()const;
+    uint64_t expectedQueriedDataBytes()const;
     void fillResultsAndCommitmentRandomly();
 
     

@@ -9,7 +9,7 @@ public:
     boundaryMapping(const common& commonInfo):
         instanceMappings(commonInfo){};
 
-    witnessElement_t mapPoint(const size_t rowId, const size_t varId)const{
+    witnessElement_t mapPoint(const uint64_t rowId, const uint64_t varId)const{
         commonMappings::witnessElement_t res = mapVariable_witnessElement(varId);
         res.second += mapRowId(rowId);
         
@@ -18,7 +18,7 @@ public:
 
 private:
     //Methods
-    Algebra::FieldElement mapRowId(const size_t rowId)const{
+    Algebra::FieldElement mapRowId(const uint64_t rowId)const{
         return map_x_power_modulu_poly(rowId, commonInfo_.rowsModulus());
     }
 };
@@ -28,8 +28,8 @@ std::vector<AcspInstance::boundaryConstraints_t> reduceBoundaryConstraints(const
     std::vector<AcspInstance::boundaryConstraints_t> boundaryConstraints(commonDef.witnessLayersAmount());
     for(const auto& p : bairBoundary){
         const auto currPoint = p.first;
-        const size_t rowId = currPoint.first;
-        const size_t varId = currPoint.second;
+        const uint64_t rowId = currPoint.first;
+        const uint64_t varId = currPoint.second;
         const auto x = mapping.mapPoint(rowId,varId);
         boundaryConstraints[x.first][x.second] = p.second;
     }

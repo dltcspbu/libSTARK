@@ -38,7 +38,7 @@ PolynomialDegree composition_div_ZH_degreeBound(const AcspInstance& src){
 	vector< PolynomialDegree> inputDegrees;
 	inputDegrees.push_back(PolynomialDegree(1));
      
-    for(size_t wIndex = 0; wIndex < src.neighborPolys().size(); wIndex++){
+    for(uint64_t wIndex = 0; wIndex < src.neighborPolys().size(); wIndex++){
         const PolynomialDegree witnessDeg = src.witnessDegreeBound()[wIndex];
         for (const auto& n : src.neighborPolys()[wIndex]){
             inputDegrees.push_back(n->getDegreeBound(witnessDeg));
@@ -52,7 +52,7 @@ PolynomialDegree composition_div_ZH_degreeBound(const AcspInstance& src){
 
 vector<PolynomialDegree> witness_div_Z_Boundery_degreeBound(const AcspInstance& src){
     vector<PolynomialDegree> res;
-    for(size_t wIndex = 0; wIndex < src.neighborPolys().size(); wIndex++){
+    for(uint64_t wIndex = 0; wIndex < src.neighborPolys().size(); wIndex++){
         res.push_back(PolynomialDegree(PolynomialDegree::integral_t(src.witnessDegreeBound()[wIndex]) - src.boundaryConstraints()[wIndex].size()));
     }
 

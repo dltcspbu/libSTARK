@@ -40,7 +40,7 @@ std::vector<FieldElement> FFT(const std::vector<FieldElement>& poly, const std::
 /**
  * FFT, but the result is stored in the input poly
  */
-void FFT_inplace(FieldElement* poly, const std::vector<FieldElement>& orderedBasis, const FieldElement& shift, const size_t polyDeg_ceilLog);
+void FFT_inplace(FieldElement* poly, const std::vector<FieldElement>& orderedBasis, const FieldElement& shift, const uint64_t polyDeg_ceilLog);
 
 /**
  * Low Degree Extension.

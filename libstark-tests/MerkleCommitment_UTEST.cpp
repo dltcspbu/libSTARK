@@ -22,7 +22,7 @@ TEST(MerkleCommitment,verifyTree){
     vector<hashDigest_t> merkleTree(1UL<<NUM_BLOCKS_LOG);
 
     //fill data
-    for(size_t i=0; i<data.size(); i++){
+    for(uint64_t i=0; i<data.size(); i++){
         data[i] = (i<2? 1 : data[i-1] + data[i-2]);
     }
 
@@ -30,7 +30,7 @@ TEST(MerkleCommitment,verifyTree){
     constructMerkleTree(&data[0], NUM_BYTES_LOG, &merkleTree[0]);
 
     //verify tree
-    for(size_t i=1; i < merkleTree.size()/2; i++){
+    for(uint64_t i=1; i < merkleTree.size()/2; i++){
         EXPECT_EQ(merkleTree[i],hash(&merkleTree[2*i]));
     }
 }
@@ -43,7 +43,7 @@ TEST(MerkleCommitment,verifySubTree){
     
     //construct data
     vector<unsigned char> data(1UL<<NUM_BYTES_LOG);
-    for(size_t i=0; i<data.size(); i++){
+    for(uint64_t i=0; i<data.size(); i++){
         data[i] = (i<2? 1 : data[i-1] + data[i-2]);
     }
     
@@ -53,14 +53,14 @@ TEST(MerkleCommitment,verifySubTree){
 
     //construct tree using segment subtrees
     vector<hashDigest_t> merkleTree(1UL<<NUM_BLOCKS_LOG);
-    for(size_t i=0; i< (1UL<<(NUM_BYTES_LOG - NUM_BYTES_PER_SIGMENT_LOG)); i++){
+    for(uint64_t i=0; i< (1UL<<(NUM_BYTES_LOG - NUM_BYTES_PER_SIGMENT_LOG)); i++){
         constructMerkleSubTree(&data[0],NUM_BYTES_LOG,NUM_BYTES_PER_SIGMENT_LOG,i,&merkleTree[0]);
     }
     const short left_src_log_len = NUM_BYTES_LOG - NUM_BYTES_PER_SIGMENT_LOG;
     constructMerkleTree(&merkleTree[1UL<<left_src_log_len], left_src_log_len+logBytesPerHash, &merkleTree[0]);
 
     //verify results
-    for(size_t i=0; i< merkleTree.size(); i++){
+    for(uint64_t i=0; i< merkleTree.size(); i++){
         EXPECT_EQ(merkleTree[i],merkleTree_ref[i]);
     }
 
@@ -73,7 +73,7 @@ TEST(MerkleCommitment,verifyPaths){
     vector<unsigned char> merkleTree(data.size());
 
     //fill data
-    for(size_t i=0; i<data.size(); i++){
+    for(uint64_t i=0; i<data.size(); i++){
         data[i] = (i<2? 1 : data[i-1] + data[i-2]);
     }
 
@@ -81,7 +81,7 @@ TEST(MerkleCommitment,verifyPaths){
     const hashDigest_t root = constructMerkleTree(&data[0], NUM_BYTES_LOG, &merkleTree[0]);
 
     //verify all paths
-    for(size_t i=0; i< (1UL<<NUM_BLOCKS_LOG); i++){
+    for(uint64_t i=0; i< (1UL<<NUM_BLOCKS_LOG); i++){
         hashDigest_t const*const currData = ((hashDigest_t*)&data[0])+(i & ~1UL);
         const path_t path = getPathToBlock(&merkleTree[0],NUM_BYTES_LOG,i);
         
@@ -98,7 +98,7 @@ TEST(MerkleCommitment,SparceTree){
     const int NUM_INDICES_TO_TEST = 10;
 
     //fill data
-    for(size_t i=0; i<data.size(); i++){
+    for(uint64_t i=0; i<data.size(); i++){
         data[i] = (i<2? 1 : data[i-1] + data[i-2]);
     }
 
@@ -106,9 +106,9 @@ TEST(MerkleCommitment,SparceTree){
     const hashDigest_t root = constructMerkleTree(&data[0], NUM_BYTES_LOG, &merkleTree[0]);
 
     //Draw some indices to write and later read
-    vector<size_t> indicesToTest;
+    vector<uint64_t> indicesToTest;
     for(int i=0; i< NUM_INDICES_TO_TEST; i++){
-        const size_t idxToAdd = rand() % (1<<(NUM_BLOCKS_LOG-1));
+        const uint64_t idxToAdd = rand() % (1<<(NUM_BLOCKS_LOG-1));
         indicesToTest.push_back(idxToAdd);
     }
 
@@ -147,7 +147,7 @@ TEST(MerkleCommitment,SparceTree){
         const auto serialTree = subTree.toVector();
         SparceMerkleTree subTree_DS(NUM_BYTES_LOG);
         
-        std::set<size_t> queriedIndices;
+        std::set<uint64_t> queriedIndices;
         for(const auto& pairIdx : indicesToTest){
             const auto idx = (pairIdx<<1);
             queriedIndices.insert(idx);

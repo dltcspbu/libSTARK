@@ -120,10 +120,10 @@ const CS_testLocations& testLocations){
 namespace{
 class sparceInputsPoly : public PolynomialInterface{
 public:
-    sparceInputsPoly(const PolynomialInterface& poly, const map<size_t,size_t> varsTranslation, const size_t inputsNum):
+    sparceInputsPoly(const PolynomialInterface& poly, const map<uint64_t,uint64_t> varsTranslation, const uint64_t inputsNum):
         poly_(poly.clone()),inputsNum_(inputsNum){
             
-            size_t maxUsed = 0;
+            uint64_t maxUsed = 0;
             for(const auto& translation : varsTranslation){
                 varsTranslation_.push_back(translation);
                 maxUsed = std::max(maxUsed,translation.first);
@@ -140,7 +140,7 @@ public:
         return poly_->eval(assignment);
     }
 
-    size_t numVars()const{
+    uint64_t numVars()const{
         return inputsNum_;
     }
     
@@ -161,14 +161,14 @@ public:
     }
 
     unique_ptr<PolynomialInterface> clone()const{
-        map<size_t,size_t> varsTransMap;
+        map<uint64_t,uint64_t> varsTransMap;
         for(const auto& translation : varsTranslation_){
             varsTransMap[translation.first] = translation.second;
         }
         return unique_ptr<PolynomialInterface>(new sparceInputsPoly(*poly_,varsTransMap,inputsNum_));
     }
 
-    bool isEffectiveInput(const size_t varId)const{
+    bool isEffectiveInput(const uint64_t varId)const{
         for(const auto& translation : varsTranslation_){
             if ((translation.second == varId) && (poly_->isEffectiveInput(translation.first))){
                 return true;
@@ -179,21 +179,21 @@ public:
 
 private:
     const unique_ptr<PolynomialInterface> poly_;
-    vector<std::pair<size_t,size_t>> varsTranslation_;
-    const size_t inputsNum_;
-    size_t assignemntLen_;
+    vector<std::pair<uint64_t,uint64_t>> varsTranslation_;
+    const uint64_t inputsNum_;
+    uint64_t assignemntLen_;
 };
 
 class booleanityTestPoly : public PolynomialInterface{
 public:
-    booleanityTestPoly(const size_t varToTest):varToTest_(varToTest){};
+    booleanityTestPoly(const uint64_t varToTest):varToTest_(varToTest){};
    
     FieldElement eval(const vector<FieldElement>& x)const{
         const FieldElement& val = x[varToTest_];
         return val*(val-one());
     }
 
-    size_t numVars()const{
+    uint64_t numVars()const{
         return varToTest_+1;
     }
     
@@ -210,23 +210,23 @@ public:
         return unique_ptr<PolynomialInterface>(new booleanityTestPoly(varToTest_));
     }
 
-    bool isEffectiveInput(const size_t varId)const{
+    bool isEffectiveInput(const uint64_t varId)const{
         return varId == varToTest_;
     }
 
 private:
-    const size_t varToTest_;
+    const uint64_t varToTest_;
 };
 
 class equivalenceTestPoly : public PolynomialInterface{
 public:
-    equivalenceTestPoly(const size_t var1, const size_t var2):var1_(var1),var2_(var2){};
+    equivalenceTestPoly(const uint64_t var1, const uint64_t var2):var1_(var1),var2_(var2){};
    
     FieldElement eval(const vector<FieldElement>& x)const{
         return x[var1_] - x[var2_];
     }
 
-    size_t numVars()const{
+    uint64_t numVars()const{
         return max(var1_,var2_)+1;
     }
     
@@ -242,24 +242,24 @@ public:
         return unique_ptr<PolynomialInterface>(new equivalenceTestPoly(var1_,var2_));
     }
 
-    bool isEffectiveInput(const size_t varId)const{
+    bool isEffectiveInput(const uint64_t varId)const{
         return (varId == var1_) || (varId == var2_);
     }
 
 private:
-    const size_t var1_;
-    const size_t var2_;
+    const uint64_t var1_;
+    const uint64_t var2_;
 };
 
 class constValTestPoly : public PolynomialInterface{
 public:
-    constValTestPoly(const size_t var, const FieldElement& val):var_(var),val_(val){};
+    constValTestPoly(const uint64_t var, const FieldElement& val):var_(var),val_(val){};
    
     FieldElement eval(const vector<FieldElement>& x)const{
         return x[var_] - val_;
     }
 
-    size_t numVars()const{
+    uint64_t numVars()const{
         return var_+1;
     }
     
@@ -275,18 +275,18 @@ public:
         return unique_ptr<PolynomialInterface>(new constValTestPoly(var_,val_));
     }
 
-    bool isEffectiveInput(const size_t varId)const{
+    bool isEffectiveInput(const uint64_t varId)const{
         return varId == var_;
     }
 
 private:
-    const size_t var_;
+    const uint64_t var_;
     const FieldElement val_;
 };
 
 class DeBruijnRoutingTestPoly : public PolynomialInterface{
 public:
-    DeBruijnRoutingTestPoly(const size_t currVal_var, const size_t neighbor0_var, const size_t neighbor1_var, const size_t routingBit_var):
+    DeBruijnRoutingTestPoly(const uint64_t currVal_var, const uint64_t neighbor0_var, const uint64_t neighbor1_var, const uint64_t routingBit_var):
         currVal_var_(currVal_var),
         neighbor0_var_(neighbor0_var),
         neighbor1_var_(neighbor1_var),
@@ -317,7 +317,7 @@ public:
         return b*(n0 + n1) + v + n0;
     }
 
-    size_t numVars()const{
+    uint64_t numVars()const{
         return max(max(currVal_var_, routingBit_var_), max(neighbor0_var_,neighbor1_var_))+1;
     }
     
@@ -340,7 +340,7 @@ public:
         return unique_ptr<PolynomialInterface>(new DeBruijnRoutingTestPoly(*this));
     }
 
-    bool isEffectiveInput(const size_t varId)const{
+    bool isEffectiveInput(const uint64_t varId)const{
         return  (varId == currVal_var_) 
                 || 
                 (varId == neighbor0_var_)
@@ -351,10 +351,10 @@ public:
     }
 
 private:
-    const size_t currVal_var_; 
-    const size_t neighbor0_var_;
-    const size_t neighbor1_var_;
-    const size_t routingBit_var_;
+    const uint64_t currVal_var_; 
+    const uint64_t neighbor0_var_;
+    const uint64_t neighbor1_var_;
+    const uint64_t routingBit_var_;
 };
 
 void addAssignmentCS_checks(
@@ -368,17 +368,17 @@ const spaces& spacesGenerator,
 const CS_testLocations& testLocations){
     
     const auto columnVanishingPoly_noCarry = bigPoly.addSubspacePoly(spacesGenerator.getNetworkColumnAssignmentNoCarryBasis());
-    const size_t chiCarryBitLocation =  commonDef.heightSpaceDimension() - 1;
+    const uint64_t chiCarryBitLocation =  commonDef.heightSpaceDimension() - 1;
     const FieldElement offsetForWithCarrySpace = mapIntegerToFieldElement(chiCarryBitLocation,1,1);
     
-    const size_t assignmentSize = 2*(commonDef.variablesPerm().size() + commonDef.variablesNonPerm().size());
+    const uint64_t assignmentSize = 2*(commonDef.variablesPerm().size() + commonDef.variablesNonPerm().size());
    
     // each polynomial in the constraint system find right assignment for it,
     //and multiply the result by a selector for current location
-    for(size_t poly_indx=0; poly_indx<constraints.size(); poly_indx++){
+    for(uint64_t poly_indx=0; poly_indx<constraints.size(); poly_indx++){
         const PolynomialInterface* poly = constraints[poly_indx].get();
 
-        const size_t testIndex = testLocations.indexOfConstraint_Assignment(poly_indx);
+        const uint64_t testIndex = testLocations.indexOfConstraint_Assignment(poly_indx);
 
         // the test location shift (a field element in the tested column)
         const FieldElement testShift = instanceMapping.mapNonPermutationElement(testIndex);
@@ -404,10 +404,10 @@ const CS_testLocations& testLocations){
         //
         
         // construct input translation
-        map<size_t,size_t> inputTranslation_noCarry;
-        map<size_t,size_t> inputTranslation_withCarry;
+        map<uint64_t,uint64_t> inputTranslation_noCarry;
+        map<uint64_t,uint64_t> inputTranslation_withCarry;
         bool usesVarFromNextLine = false;
-        for(size_t varId=0; varId< assignmentSize; varId++){
+        for(uint64_t varId=0; varId< assignmentSize; varId++){
 
             //if the variable is used, get next input from the global inputs
             if(neighbors.existsAssignmentCS(poly_indx,varId)){
@@ -445,14 +445,14 @@ const instanceMappings& instanceMapping,
 const spaces& spacesGenerator,
 const CS_testLocations& testLocations){
      
-    const size_t assignmentSize = 2*(commonDef.variablesPerm().size() + commonDef.variablesNonPerm().size());
+    const uint64_t assignmentSize = 2*(commonDef.variablesPerm().size() + commonDef.variablesNonPerm().size());
    
     // each polynomial in the constraint system find right assignment for it,
     //and multiply the result by a selector for current location
-    for(size_t poly_indx=0; poly_indx<constraints.size(); poly_indx++){
+    for(uint64_t poly_indx=0; poly_indx<constraints.size(); poly_indx++){
         const PolynomialInterface* poly = constraints[poly_indx].get();
 
-        const size_t testIndex = testLocations.indexOfConstraint_Permuation(poly_indx);
+        const uint64_t testIndex = testLocations.indexOfConstraint_Permuation(poly_indx);
 
         // the test location shift (a field element in the tested column)
         const FieldElement testShift = instanceMapping.mapNonPermutationElement(testIndex);
@@ -477,8 +477,8 @@ const CS_testLocations& testLocations){
         //
         
         // construct input translation
-        map<size_t,size_t> inputTranslation;
-        for(size_t varId=0; varId< assignmentSize; varId++){
+        map<uint64_t,uint64_t> inputTranslation;
+        for(uint64_t varId=0; varId< assignmentSize; varId++){
 
             //if the variable is used, get next input from the global inputs
             if(neighbors.existsPermCS(poly_indx,varId)){
@@ -511,7 +511,7 @@ const vector<FieldElement>& paddingPi){
     const auto layersVanishingPoly = bigPoly.addSubspacePoly(spacesGenerator.getNetworkLayersBasis());
 
     // calculate the shift for last network column
-    const size_t lastColIndex = commonDef.imageWidth() - 2;
+    const uint64_t lastColIndex = commonDef.imageWidth() - 2;
     const FieldElement lastColShift = instanceMapping.mapPermutationColumnId_spaceElement(lastColIndex);
     
     
@@ -519,8 +519,8 @@ const vector<FieldElement>& paddingPi){
      *  add the routing bits checks (verify they are all boolean)
      ******************************************************************/
     {
-        const size_t routingBitsLayerIndex0 = 2*commonDef.variablesPerm().size();
-        const size_t routingBitsLayerIndex1 = routingBitsLayerIndex0 + 1;
+        const uint64_t routingBitsLayerIndex0 = 2*commonDef.variablesPerm().size();
+        const uint64_t routingBitsLayerIndex1 = routingBitsLayerIndex0 + 1;
         const FieldElement routingBitsLayerOffset0 = instanceMapping.mapPermutationLayerId_spaceElement(routingBitsLayerIndex0);
         const FieldElement routingBitsLayerOffset1 = instanceMapping.mapPermutationLayerId_spaceElement(routingBitsLayerIndex1);
 
@@ -553,8 +553,8 @@ const vector<FieldElement>& paddingPi){
     /******************************************************************
      *      add the last DeBruijn column identical check
      ******************************************************************/
-    for(size_t currVar=0; currVar < commonDef.variablesPerm().size(); currVar++){
-        const size_t currLayer = 2*currVar;
+    for(uint64_t currVar=0; currVar < commonDef.variablesPerm().size(); currVar++){
+        const uint64_t currLayer = 2*currVar;
         
         // get the test shift
         const FieldElement testShift = lastColShift + instanceMapping.mapPermutationLayerId_spaceElement(currLayer);
@@ -571,8 +571,8 @@ const vector<FieldElement>& paddingPi){
      *      is routed to itself
      *      and its value is the padding value check
      ******************************************************************/
-    for(size_t currVar=0; currVar < 2*commonDef.variablesPerm().size(); currVar++){
-        const size_t currLayer = currVar;
+    for(uint64_t currVar=0; currVar < 2*commonDef.variablesPerm().size(); currVar++){
+        const uint64_t currLayer = currVar;
         
         // get the test shift
         const FieldElement testShift = instanceMapping.mapPermutationElement_spaceElement(0,currLayer);
@@ -605,9 +605,9 @@ const vector<FieldElement>& paddingPi){
     const vector<FieldElement> DeBruijnShifts = spacesGenerator.getDeBruijnLayerCosets();
 
     //each routed variable uses two DeBruijn layers
-    const size_t amountOfLayersToCheck = commonDef.variablesPerm().size()*2;
+    const uint64_t amountOfLayersToCheck = commonDef.variablesPerm().size()*2;
     
-    for(size_t currLayer=0; currLayer < amountOfLayersToCheck; currLayer++){
+    for(uint64_t currLayer=0; currLayer < amountOfLayersToCheck; currLayer++){
        
         // Construct the auxiliary polynomials
         const FieldElement currLayerOffset = instanceMapping.mapPermutationLayerId_spaceElement(currLayer);
@@ -615,13 +615,13 @@ const vector<FieldElement>& paddingPi){
         const AcspSummandsPolynomial::AuxPoly vanishingOnLastColumn(columnVanishingPoly,currLayerOffset + lastColShift);
         const AcspSummandsPolynomial::AuxPolyVec auxPolys = {vanishingOnZeroColumn, vanishingOnLastColumn};
 
-        for(size_t cosetId=0; cosetId < DeBruijnShifts.size(); cosetId++){
+        for(uint64_t cosetId=0; cosetId < DeBruijnShifts.size(); cosetId++){
 
             // Construct the test polynomial
-            const size_t currVal_var = neighbors.locationOfId(currLayer) + 1;
-            const size_t N0_var = neighbors.locationOfDeBruijn(0,cosetId,currLayer) + 1;
-            const size_t N1_var = neighbors.locationOfDeBruijn(1,cosetId,currLayer) + 1;
-            const size_t bit_var = neighbors.locationOfRoutingBit(currLayer) + 1;
+            const uint64_t currVal_var = neighbors.locationOfId(currLayer) + 1;
+            const uint64_t N0_var = neighbors.locationOfDeBruijn(0,cosetId,currLayer) + 1;
+            const uint64_t N1_var = neighbors.locationOfDeBruijn(1,cosetId,currLayer) + 1;
+            const uint64_t bit_var = neighbors.locationOfRoutingBit(currLayer) + 1;
             const DeBruijnRoutingTestPoly test(currVal_var, N0_var, N1_var, bit_var);
 
             // Add the test

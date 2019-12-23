@@ -24,44 +24,44 @@ namespace{
         return X_exp;
     }
     
-    vector<FieldElement> novelIFFT(const vector<FieldElement> orderedBasis, const vector<SubspacePolynomial> X_exp, vector<FieldElement>&& polysVals,const size_t numPolys, const size_t width){
+    vector<FieldElement> novelIFFT(const vector<FieldElement> orderedBasis, const vector<SubspacePolynomial> X_exp, vector<FieldElement>&& polysVals,const uint64_t numPolys, const uint64_t width){
         const unsigned short basisSize = orderedBasis.size();
-        const size_t spaceSize = 1UL<<basisSize;
+        const uint64_t spaceSize = 1UL<<basisSize;
         
         for (int i=0; i < basisSize; i++){
             const unsigned short currShift_c = i;
-            const size_t currMask_m = (1UL<<currShift_c)-1;
-            const size_t oddMask_c = 1UL<<currShift_c;
+            const uint64_t currMask_m = (1UL<<currShift_c)-1;
+            const uint64_t oddMask_c = 1UL<<currShift_c;
             const unsigned short len_c = basisSize-currShift_c;
 
             vector<FieldElement> X_exp_precomp(1UL<<(len_c-1));
-#pragma omp parallel for
+// #pragma omp parallel for
             for(unsigned long long c=0; c < X_exp_precomp.size(); c++){
                 const FieldElement c_elem = getSpaceElementByIndex(orderedBasis,zero(),c<<(currShift_c+1));
                 X_exp_precomp[c] = X_exp[i].eval(c_elem);
             }
 
-#pragma omp parallel for
+// #pragma omp parallel for
             for(unsigned long long mc=0; mc < (spaceSize>>1); mc++){
 
-                const size_t m = mc & currMask_m;
-                const size_t c = (mc>>(currShift_c))<<1;
+                const uint64_t m = mc & currMask_m;
+                const uint64_t c = (mc>>(currShift_c))<<1;
 
                 
-                for(size_t polyIdx = 0; polyIdx < numPolys; polyIdx++){
+                for(uint64_t polyIdx = 0; polyIdx < numPolys; polyIdx++){
                     FieldElement* currPoly = &polysVals[polyIdx];
                     //handle case (18)
                     {
-                        const size_t mc_case18 = m | ((c|1UL)<<currShift_c);
-                        const size_t innerIdx = mc_case18 ^ oddMask_c;
+                        const uint64_t mc_case18 = m | ((c|1UL)<<currShift_c);
+                        const uint64_t innerIdx = mc_case18 ^ oddMask_c;
 
                         currPoly[width*mc_case18] = currPoly[width*innerIdx] + currPoly[width*mc_case18];
                     }
 
                     //handle case (17)
                     {
-                        const size_t mc_case17 = m | (c<<currShift_c);
-                        const size_t prevIdx2 = mc_case17 ^ oddMask_c;
+                        const uint64_t mc_case17 = m | (c<<currShift_c);
+                        const uint64_t prevIdx2 = mc_case17 ^ oddMask_c;
 
                         currPoly[width*mc_case17] = currPoly[width*mc_case17] + X_exp_precomp[c>>1] * currPoly[width*prevIdx2];
                     }
@@ -72,11 +72,11 @@ namespace{
         return polysVals;
     }
 
-    vector<FieldElement> convertPolysBasis(const vector<FieldElement> orderedBasis, const vector<SubspacePolynomial> X_exp, vector<vector<FieldElement>>&& polysCoeffs, const size_t width, const FieldElement& pad_value){
+    vector<FieldElement> convertPolysBasis(const vector<FieldElement> orderedBasis, const vector<SubspacePolynomial> X_exp, vector<vector<FieldElement>>&& polysCoeffs, const uint64_t width, const FieldElement& pad_value){
 
     ALGEBRALIB_ASSERT(width >= polysCoeffs.size(), "Width must be at least as the number of polys");
-    const size_t numPolys = polysCoeffs.size();
-    const size_t spaceSize = 1UL<<orderedBasis.size();
+    const uint64_t numPolys = polysCoeffs.size();
+    const uint64_t spaceSize = 1UL<<orderedBasis.size();
     
     //evaluate using standard FFT on the space
     vector<FieldElement> res(width * spaceSize, pad_value);
@@ -86,7 +86,7 @@ namespace{
         FFF::Basis basis(basis_vec, orderedBasis.size(),shift_fff);
         FFF::FFT fftInstance(basis,FFF::FFT_OP);
 
-#pragma omp parallel for
+// #pragma omp parallel for
         for(unsigned int i=0; i< numPolys; i++){
             
             vector<FieldElement>& currCoeffs = polysCoeffs[i];
@@ -113,7 +113,7 @@ namespace{
 
 } // anonymous namespace
     
-novelFFT::novelFFT(const vector<FieldElement>& orderedBasis, const vector<SubspacePolynomial> X_exp, std::vector<std::vector<FieldElement>>&& polysCoeffs, const size_t width, const FieldElement& pad_value):
+novelFFT::novelFFT(const vector<FieldElement>& orderedBasis, const vector<SubspacePolynomial> X_exp, std::vector<std::vector<FieldElement>>&& polysCoeffs, const uint64_t width, const FieldElement& pad_value):
     X_exp_(X_exp),
     polys_(convertPolysBasis(orderedBasis,X_exp,std::move(polysCoeffs),width,pad_value)),
     orderedBasis_(orderedBasis),
@@ -130,21 +130,21 @@ novelFFT::novelFFT(const vector<FieldElement>& orderedBasis, const vector<Subspa
 novelFFT::novelFFT(const vector<FieldElement>& orderedBasis, vector<FieldElement>&& srcEval) :
     novelFFT(orderedBasis, calc_X_exp(orderedBasis), std::move(srcEval)){};
 
-novelFFT::novelFFT(const vector<FieldElement>& orderedBasis, vector<vector<FieldElement>>&& polysCoeffs, const size_t width, const FieldElement& pad_value) :
+novelFFT::novelFFT(const vector<FieldElement>& orderedBasis, vector<vector<FieldElement>>&& polysCoeffs, const uint64_t width, const FieldElement& pad_value) :
     novelFFT(orderedBasis, calc_X_exp(orderedBasis), std::move(polysCoeffs), width, pad_value){};
  
-void novelFFT::FFT(const vector<FieldElement>& affineShift, FieldElement* dst, const size_t diff_coset)const{
+void novelFFT::FFT(const vector<FieldElement>& affineShift, FieldElement* dst, const uint64_t diff_coset)const{
 
     const unsigned short basisSize = orderedBasis_.size();
-    const size_t spaceSize = 1UL<<basisSize;
+    const uint64_t spaceSize = 1UL<<basisSize;
 
     //copy coefficient to destination
     {
-        const unsigned int max_threads_machine = omp_get_max_threads();
-        const size_t bufferBytesLen = polys_.size() * sizeof(FieldElement);
-        const size_t blockBytesLen = bufferBytesLen / max_threads_machine;
-        const size_t blockRemeinder = bufferBytesLen % max_threads_machine;
-#pragma omp parallel for
+        const unsigned int max_threads_machine = 1; //omp_get_max_threads();
+        const uint64_t bufferBytesLen = polys_.size() * sizeof(FieldElement);
+        const uint64_t blockBytesLen = bufferBytesLen / max_threads_machine;
+        const uint64_t blockRemeinder = bufferBytesLen % max_threads_machine;
+// #pragma omp parallel for
         for(long long blockIdx = 0; blockIdx < max_threads_machine; blockIdx++){
             for(unsigned int cosetIdx = 0; cosetIdx < affineShift.size(); cosetIdx++){
                 memcpy((char*)(dst + (cosetIdx*diff_coset)) + (blockIdx*blockBytesLen), ((char*)&polys_[0]) + (blockIdx*blockBytesLen), blockBytesLen);
@@ -163,42 +163,42 @@ void novelFFT::FFT(const vector<FieldElement>& affineShift, FieldElement* dst, c
     {
         for (int i=basisSize-1; i >= 0; i--){
             const unsigned short currShift_c = i;
-            const size_t currMask_m = (1UL<<currShift_c)-1;
-            const size_t oddMask_c = 1UL<<currShift_c;
+            const uint64_t currMask_m = (1UL<<currShift_c)-1;
+            const uint64_t oddMask_c = 1UL<<currShift_c;
             const unsigned short len_c = basisSize-currShift_c;
             const unsigned short logNumPrecompute = len_c-1;
-            const size_t numPrecompute = 1UL<<(logNumPrecompute);
-            const size_t numPrecomputeMask = numPrecompute-1;
-            const size_t numShifts = affineShift.size();
+            const uint64_t numPrecompute = 1UL<<(logNumPrecompute);
+            const uint64_t numPrecomputeMask = numPrecompute-1;
+            const uint64_t numShifts = affineShift.size();
 
             vector<vector<FieldElement>> X_exp_precomp(affineShift.size(),vector<FieldElement>(numPrecompute));
-#pragma omp parallel for
+// #pragma omp parallel for
             for(unsigned long long expIdx=0; expIdx < (numShifts<<logNumPrecompute); expIdx++){
-                const size_t c = expIdx & numPrecomputeMask;
-                const size_t cosetId = expIdx >> logNumPrecompute;
+                const uint64_t c = expIdx & numPrecomputeMask;
+                const uint64_t cosetId = expIdx >> logNumPrecompute;
                 const FieldElement c_elem = getSpaceElementByIndex(orderedBasis_,affineShift[cosetId],c<<(currShift_c+1));
                 X_exp_precomp[cosetId][c] = X_exp_[i].eval(c_elem);
             }
 
-#pragma omp parallel for
+// #pragma omp parallel for
             for(unsigned long long mc=0; mc < spaceSize/2; mc++){
 
-                const size_t m = mc & currMask_m;
-                const size_t c = (mc>>(currShift_c))<<1;
+                const uint64_t m = mc & currMask_m;
+                const uint64_t c = (mc>>(currShift_c))<<1;
 
                 {
-                    const size_t mc_case17 = m | (c<<currShift_c);
-                    const size_t mc_case18 = mc_case17 ^ oddMask_c;
+                    const uint64_t mc_case17 = m | (c<<currShift_c);
+                    const uint64_t mc_case18 = mc_case17 ^ oddMask_c;
 
-                    const size_t mc_case17index = width_*mc_case17;
-                    const size_t mc_case18index = width_*mc_case18;
+                    const uint64_t mc_case17index = width_*mc_case17;
+                    const uint64_t mc_case18index = width_*mc_case18;
                     const long long cs1 = c>>1;
-                    for(size_t cosetId=0; cosetId < affineShift.size(); cosetId++){
+                    for(uint64_t cosetId=0; cosetId < affineShift.size(); cosetId++){
                         
                         const FieldElement Xpre = X_exp_precomp[cosetId][cs1];
                         const FFF::Element XpreElem = *(FFF::Element*)(&Xpre);
                         
-                        const size_t cosetOffset = diff_coset*cosetId;
+                        const uint64_t cosetOffset = diff_coset*cosetId;
                         FieldElement* baseVec = dst + cosetOffset;
                         FFF::Element* currVecFFF = (FFF::Element*)(baseVec);
                         
@@ -212,8 +212,8 @@ void novelFFT::FFT(const vector<FieldElement>& affineShift, FieldElement* dst, c
                          * General code - less field specific optimizations
                          */
                         
-                        //const size_t ub = polys_.size() * diff_poly_fixed;
-                        //for(size_t polyOffset=0; polyOffset < ub; polyOffset+=(diff_poly_fixed*2)){
+                        //const uint64_t ub = polys_.size() * diff_poly_fixed;
+                        //for(uint64_t polyOffset=0; polyOffset < ub; polyOffset+=(diff_poly_fixed*2)){
                             //FieldElement* currVec = baseVec + polyOffset;
                             
                             //handle case (17)

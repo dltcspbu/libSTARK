@@ -1,3 +1,4 @@
+#include <iostream>
 #include <memory>
 #include <algebraLib/variable_operators.hpp>
 #include <algebraLib/FieldElement.hpp>
@@ -181,7 +182,7 @@ set<Opcode> getUsedOpcodes(const TinyRAMProgram& program){
 	return retVal;
 }
 
-map<Opcode, Polynomial> getRelevantConstraints(const TinyRAMProgram& program, const size_t& constraintIndex, const ProtoboardPtr& pb){
+map<Opcode, Polynomial> getRelevantConstraints(const TinyRAMProgram& program, const uint64_t& constraintIndex, const ProtoboardPtr& pb){
 	map<Opcode, Polynomial> retVal;
 	set<Opcode> opcodes = getUsedOpcodes(program);
 	for (auto opcode : opcodes) {
@@ -192,9 +193,9 @@ map<Opcode, Polynomial> getRelevantConstraints(const TinyRAMProgram& program, co
 	return retVal;
 }
 
-size_t getMaxConstraintNum(const TinyRAMProgram& program,const ProtoboardPtr& pb){
+uint64_t getMaxConstraintNum(const TinyRAMProgram& program,const ProtoboardPtr& pb){
 	set<Opcode> opcodes = getUsedOpcodes(program);
-	size_t retVal = 0;
+	uint64_t retVal = 0;
 	for (const auto& opcode : opcodes) {
 		retVal = max(retVal, pb->constraintSystem(opcode).getNumberOfConstraints());
 	}
@@ -211,7 +212,7 @@ void ALU_Gadget::generateConstraints() {
 	GADGETLIB_ASSERT(program_.size() > 0, "The program should be initalized");
 	
 	unsigned int programLength = (unsigned int)(program_.size());
-	size_t maxConstraintNum = getMaxConstraintNum(program_, pb_);
+	uint64_t maxConstraintNum = getMaxConstraintNum(program_, pb_);
 	for (unsigned int i = 0; i < maxConstraintNum; i++) {
 		map<Opcode, Polynomial> opToConstraints = getRelevantConstraints(program_, i, pb_);
 		vector<Polynomial> constraints;
@@ -412,7 +413,7 @@ void ALU_AND_Gadget::generateConstraints(){
 		unpackArg1_g_->generateConstraints();
 		unpackArg2_g_->generateConstraints();
 	}
-	size_t registerLength = tinyRAMparams()->registerLength();
+	uint64_t registerLength = tinyRAMparams()->registerLength();
 	CircuitPolynomial polynomial;
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
@@ -436,7 +437,7 @@ void ALU_AND_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	unpackArg1_g_->generateWitness();
 	unpackArg2_g_->generateWitness();
-	size_t registerLength = tinyRAMparams()->registerLength();
+	uint64_t registerLength = tinyRAMparams()->registerLength();
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
 	Algebra::FElem res = Algebra::zero();
@@ -467,7 +468,7 @@ ALU_OR_Gadget::ALU_OR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALU
 
 
 void ALU_OR_Gadget::init(){
-	//size_t registerLength = tinyRAMparams()->registerLength();
+	//uint64_t registerLength = tinyRAMparams()->registerLength();
 	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK, Opcode::OR);
 	unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK, Opcode::OR);
 	
@@ -484,7 +485,7 @@ void ALU_OR_Gadget::generateConstraints(){
 		unpackArg1_g_->generateConstraints();
 		unpackArg2_g_->generateConstraints();
 	}
-	size_t registerLength = tinyRAMparams()->registerLength();
+	uint64_t registerLength = tinyRAMparams()->registerLength();
 	CircuitPolynomial polynomial;
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
@@ -511,7 +512,7 @@ void ALU_OR_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 			unpackArg1_g_->generateWitness();
 			unpackArg2_g_->generateWitness();
-	size_t registerLength = tinyRAMparams()->registerLength();
+	uint64_t registerLength = tinyRAMparams()->registerLength();
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
 	Algebra::FElem res=Algebra::zero();
@@ -552,7 +553,7 @@ GadgetPtr ALU_NOT_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const
 }
 
 void ALU_NOT_Gadget::generateConstraints(){
-	size_t registerLength = tinyRAMparams()->registerLength();
+	uint64_t registerLength = tinyRAMparams()->registerLength();
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
 	Algebra::FElem allOnes = Algebra::zero();
@@ -575,7 +576,7 @@ void ALU_NOT_Gadget::generateConstraints(){
 void ALU_NOT_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
-	size_t registerLength = tinyRAMparams()->registerLength();
+	uint64_t registerLength = tinyRAMparams()->registerLength();
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
 	Algebra::FElem allOnes = Algebra::zero();
@@ -616,7 +617,7 @@ GadgetPtr ALU_ADD_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const
 }
 
 void ALU_ADD_Gadget::init(){
-	//size_t registerLength = tinyRAMparams()->registerLength();
+	//uint64_t registerLength = tinyRAMparams()->registerLength();
 	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK, Opcode::ADD);
 	unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK, Opcode::ADD);
 	packResult_g_ = CompressionPacking_Gadget::create(pb_, opcodeResult_, results_.result_, PackingMode::PACK, Opcode::ADD);
@@ -624,7 +625,7 @@ void ALU_ADD_Gadget::init(){
 }
 
 void ALU_ADD_Gadget::generateConstraints(){
-	//size_t registerLength = tinyRAMparams()->registerLength();
+	//uint64_t registerLength = tinyRAMparams()->registerLength();
 	if (standAlone_){
 		unpackArg1_g_->generateConstraints();
 		unpackArg2_g_->generateConstraints();
@@ -681,9 +682,9 @@ void ALU_SUB_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
 	unpackArg1_g_->generateWitness();
-	size_t registerLength = tinyRAMparams()->registerLength();
-	size_t operand1 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg1_val_));
-	size_t operand2 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg2_val_));
+	uint64_t registerLength = tinyRAMparams()->registerLength();
+	uint64_t operand1 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg1_val_));
+	uint64_t operand2 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg2_val_));
 	val(results_.result_) = mapIntegerToFieldElement(0, registerLength, /* 0x100000000ULL + */ operand1 - operand2);
 	unpackArg2_g_->generateWitness();
 	add_g_->generateWitness();
@@ -725,7 +726,7 @@ void ALU_MULL_Gadget::generateConstraints(){
 	}
 	mult_g_->generateConstraints();
 	unpackResult_g_->generateConstraints();
-	const size_t & registerLength = tinyRAMparams()->registerLength();
+	const uint64_t & registerLength = tinyRAMparams()->registerLength();
 	for (unsigned int i = 0; i < registerLength; ++i) {
 		enforceBooleanity(witnessHighBits_[i], Opcode::MULL);
 	}
@@ -741,16 +742,16 @@ void ALU_MULL_Gadget::generateConstraints(){
 void ALU_MULL_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
-	const size_t & registerLength = tinyRAMparams()->registerLength();
+	const uint64_t & registerLength = tinyRAMparams()->registerLength();
 	unpackArg1_g_->generateWitness();
 	unpackArg2_g_->generateWitness();
 	mult_g_->generateWitness();
-	const size_t v = mapFieldElementToInteger(0, registerLength, val(inputs_.arg1_val_)) *
+	const uint64_t v = mapFieldElementToInteger(0, registerLength, val(inputs_.arg1_val_)) *
 		mapFieldElementToInteger(0, registerLength, val(inputs_.arg2_val_));
 	pb_->val(results_.result_) = mapIntegerToFieldElement(0, registerLength, v);
 	unpackResult_g_->generateWitness();
-	for (size_t i = 0; i < registerLength; i++) {
-		pb_->val(witnessHighBits_[i]) = (v >> registerLength) & (size_t(1) << i) ? Algebra::one() : Algebra::zero();
+	for (uint64_t i = 0; i < registerLength; i++) {
+		pb_->val(witnessHighBits_[i]) = (v >> registerLength) & (uint64_t(1) << i) ? Algebra::one() : Algebra::zero();
 	}
 	dmultPack_g_->generateWitness();
 	//flag:
@@ -799,7 +800,7 @@ void ALU_UMULH_Gadget::generateConstraints(){
 	}
 	mult_g_->generateConstraints();
 	unpackResult_g_->generateConstraints();
-	const size_t & registerLength = tinyRAMparams()->registerLength();
+	const uint64_t & registerLength = tinyRAMparams()->registerLength();
 	for (unsigned int i = 0; i < registerLength; ++i) {
 		enforceBooleanity(witnessLowBits_[i], Opcode::UMULH);
 	}
@@ -814,16 +815,16 @@ void ALU_UMULH_Gadget::generateConstraints(){
 void ALU_UMULH_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
-	const size_t & registerLength = tinyRAMparams()->registerLength();
+	const uint64_t & registerLength = tinyRAMparams()->registerLength();
 	unpackArg1_g_->generateWitness();
 	unpackArg2_g_->generateWitness();
 	mult_g_->generateWitness();
-	const size_t v = mapFieldElementToInteger(0, registerLength, val(inputs_.arg1_val_)) *
+	const uint64_t v = mapFieldElementToInteger(0, registerLength, val(inputs_.arg1_val_)) *
 			mapFieldElementToInteger(0, registerLength, val(inputs_.arg2_val_));
 	pb_->val(results_.result_) = mapIntegerToFieldElement(0, registerLength, v >> registerLength);
 	unpackResult_g_->generateWitness();
-	for (size_t i = 0; i < registerLength; i++) {
-		pb_->val(witnessLowBits_[i]) = (v >> i) & size_t(1) ? Algebra::one() : Algebra::zero();
+	for (uint64_t i = 0; i < registerLength; i++) {
+		pb_->val(witnessLowBits_[i]) = (v >> i) & uint64_t(1) ? Algebra::one() : Algebra::zero();
 	}
 	dmultPack_g_->generateWitness();
 	//flag:
@@ -871,7 +872,7 @@ void ALU_SMULH_Gadget::generateConstraints(){
 	}
 	mult_g_->generateConstraints();
 	unpackResult_g_->generateConstraints();
-	const size_t & registerLength = tinyRAMparams()->registerLength();
+	const uint64_t & registerLength = tinyRAMparams()->registerLength();
 	for (unsigned int i = 0; i < registerLength; ++i) {
 		enforceBooleanity(witnessLowBits_[i], Opcode::SMULH);
 	}
@@ -889,7 +890,7 @@ void ALU_SMULH_Gadget::generateConstraints(){
 void ALU_SMULH_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
-	const size_t & registerLength = tinyRAMparams()->registerLength();
+	const uint64_t & registerLength = tinyRAMparams()->registerLength();
 	unpackArg1_g_->generateWitness();
 	unpackArg2_g_->generateWitness();
 	mult_g_->generateWitness();
@@ -961,8 +962,8 @@ void ALU_UDIV_Gadget::generateConstraints(){
 	if (standAlone_)
 	unpackArg2_g_->generateConstraints();
 	unpackResult_g_->generateConstraints();
- 	const size_t & registerLength = tinyRAMparams()->registerLength();
-	for (size_t i = 0; i < registerLength; i++)
+ 	const uint64_t & registerLength = tinyRAMparams()->registerLength();
+	for (uint64_t i = 0; i < registerLength; i++)
 		enforceBooleanity(witnessRemainder_[i], Opcode::UMOD);
 	mult_g_->generateConstraints();
 	if (standAlone_)
@@ -983,8 +984,8 @@ void ALU_UDIV_Gadget::generateConstraints(){
 void ALU_UDIV_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
-	const size_t & registerLength = tinyRAMparams()->registerLength();
-	const size_t operand2 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg2_val_));
+	const uint64_t & registerLength = tinyRAMparams()->registerLength();
+	const uint64_t operand2 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg2_val_));
 	if (0 == operand2){
 		pb_->val(pInverse_) = Algebra::zero(); //needed?
 		pb_->val(results_.result_) = Algebra::zero();
@@ -992,11 +993,11 @@ void ALU_UDIV_Gadget::generateWitness(){
 	}
 	else {
 		pb_->val(pInverse_) = (val(inputs_.arg2_val_)).inverse();
-		const size_t operand1 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg1_val_));
+		const uint64_t operand1 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg1_val_));
 		val(results_.result_) = mapIntegerToFieldElement(0, registerLength, operand1 / operand2);
-		const size_t rem = operand1 % operand2;
-		for (size_t i = 0; i < registerLength; i++)
-			pb_->val(witnessRemainder_[i]) = (rem >> i) & size_t(1) ? Algebra::one() : Algebra::zero();
+		const uint64_t rem = operand1 % operand2;
+		for (uint64_t i = 0; i < registerLength; i++)
+			pb_->val(witnessRemainder_[i]) = (rem >> i) & uint64_t(1) ? Algebra::one() : Algebra::zero();
 		pb_->val(results_.flag_) = Algebra::zero();
 	}
 		unpackArg1_g_->generateWitness();
@@ -1049,8 +1050,8 @@ void ALU_UMOD_Gadget::init(){
 void ALU_UMOD_Gadget::generateConstraints(){
 	if (standAlone_)
 	unpackArg2_g_->generateConstraints();
-	const size_t & registerLength = tinyRAMparams()->registerLength();
-	for (size_t i = 0; i < registerLength; i++) {
+	const uint64_t & registerLength = tinyRAMparams()->registerLength();
+	for (uint64_t i = 0; i < registerLength; i++) {
 		enforceBooleanity(witnessResult_[i], Opcode::UMOD);
 		enforceBooleanity(witnessRemainder_[i], Opcode::UMOD);
 	}
@@ -1074,8 +1075,8 @@ void ALU_UMOD_Gadget::generateConstraints(){
 void ALU_UMOD_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
-	const size_t & registerLength = tinyRAMparams()->registerLength();
-	const size_t operand2 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg2_val_));
+	const uint64_t & registerLength = tinyRAMparams()->registerLength();
+	const uint64_t operand2 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg2_val_));
 	if (0 == operand2){
 		pb_->val(pInverse_) = Algebra::zero(); //needed?
 		pb_->val(results_.result_) = Algebra::zero();
@@ -1083,13 +1084,13 @@ void ALU_UMOD_Gadget::generateWitness(){
 	}
 	else {
 		pb_->val(pInverse_) = (val(inputs_.arg2_val_)).inverse();
-		const size_t operand1 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg1_val_));
-		const size_t result = operand1 / operand2;
-		const size_t rem = operand1 % operand2;
+		const uint64_t operand1 = mapFieldElementToInteger(0, registerLength, val(inputs_.arg1_val_));
+		const uint64_t result = operand1 / operand2;
+		const uint64_t rem = operand1 % operand2;
 		val(results_.result_) = mapIntegerToFieldElement(0, registerLength, rem);
-		for (size_t i = 0; i < registerLength; i++) {
-			pb_->val(witnessResult_[i]) = (result >> i) & size_t(1) ? Algebra::one() : Algebra::zero();
-			pb_->val(witnessRemainder_[i]) = (rem >> i) & size_t(1) ? Algebra::one() : Algebra::zero();
+		for (uint64_t i = 0; i < registerLength; i++) {
+			pb_->val(witnessResult_[i]) = (result >> i) & uint64_t(1) ? Algebra::one() : Algebra::zero();
+			pb_->val(witnessRemainder_[i]) = (rem >> i) & uint64_t(1) ? Algebra::one() : Algebra::zero();
 		}
 		pb_->val(results_.flag_) = Algebra::zero();
 	}
@@ -1363,7 +1364,7 @@ GadgetPtr ALU_SHL_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const
 }
 
 void ALU_SHL_Gadget::init(){
-	size_t registerLength = tinyRAMparams()->registerLength();
+	uint64_t registerLength = tinyRAMparams()->registerLength();
 	unpackDouble_g_ = DoubleUnpack_Gadget::create(pb_, unpackedArg1_, unpackedArg2_,
 		auxArr_[registerLength - ALU_SHL_Gadget::idxs::dRes], Opcode::SHL);
 	packResult_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, results_.result_, PackingMode::PACK, Opcode::SHL);
@@ -1423,11 +1424,11 @@ void ALU_SHL_Gadget::generateWitness(){
 	const long registerLength = long((tinyRAMparams()->registerLength()));
 	const long registerLogLen = long(log2(registerLength));
 
-	size_t operand2 = Algebra::mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
-	size_t r = operand2;
+	uint64_t operand2 = Algebra::mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
+	uint64_t r = operand2;
 	for (int i = 0; i < registerLogLen; ++i){
 		const Variable v = auxArr_[i];
-		size_t mask = size_t(1) << i;
+		uint64_t mask = uint64_t(1) << i;
 		pb_->val(v) = (r & mask) ? Algebra::one() : Algebra::zero();
 		r = r & (~mask);
 	}
@@ -1440,9 +1441,9 @@ void ALU_SHL_Gadget::generateWitness(){
 	}
 
 	const FElem operand1 = pb_->val(inputs_.arg1_val_);
-	size_t doubleRes = Algebra::mapFieldElementToInteger(0, EXTDIM, operand1);
+	uint64_t doubleRes = Algebra::mapFieldElementToInteger(0, EXTDIM, operand1);
 	const FElem fToggled = Algebra::mapIntegerToFieldElement(0, EXTDIM,
-		doubleRes & (~(size_t(1) << (registerLength - 1))));
+		doubleRes & (~(uint64_t(1) << (registerLength - 1))));
 	//const FElem fRes = Algebra::mapIntegerToFieldElement(0, 1, doubleRes >> (registerLength - 1));
 	const FElem fRes = (doubleRes >> (registerLength - 1)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.flag_) = fRes;
@@ -1481,7 +1482,7 @@ GadgetPtr ALU_SHR_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const
 }
 
 void ALU_SHR_Gadget::init(){
-	size_t registerLength = tinyRAMparams()->registerLength();
+	uint64_t registerLength = tinyRAMparams()->registerLength();
 	unpackDouble_g_ = DoubleUnpack_Gadget::create(pb_, unpackedArg1_, unpackedArg2_,
 		auxArr_[registerLength - ALU_SHR_Gadget::idxs::dRes], Opcode::SHR);
 	packResult_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, results_.result_, PackingMode::PACK, Opcode::SHR);
@@ -1541,11 +1542,11 @@ void ALU_SHR_Gadget::generateWitness(){
 	const long registerLength = long((tinyRAMparams()->registerLength()));
 	const long registerLogLen = long(log2(registerLength));
 	
-	size_t operand2 = Algebra::mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
-	size_t r = operand2;
+	uint64_t operand2 = Algebra::mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
+	uint64_t r = operand2;
 	for (int i = 0; i < registerLogLen; ++i){
 		const Variable v = auxArr_[i];
-		size_t mask = size_t(1) << i;
+		uint64_t mask = uint64_t(1) << i;
 		pb_->val(v) = (r & mask) ? Algebra::one() : Algebra::zero();
 		r = r & (~mask);
 	}
@@ -1558,7 +1559,7 @@ void ALU_SHR_Gadget::generateWitness(){
 	}
 
 	const FElem operand1 = pb_->val(inputs_.arg1_val_);
-	size_t doubleRes = Algebra::mapFieldElementToInteger(0, EXTDIM, operand1);
+	uint64_t doubleRes = Algebra::mapFieldElementToInteger(0, EXTDIM, operand1);
 	
 	const FElem fRes = Algebra::mapIntegerToFieldElement(0, 1, doubleRes);
 	pb_->val(results_.flag_) = fRes;
@@ -1706,6 +1707,7 @@ void ALU_STOREW_Gadget::generateWitness(){
 	pb_->val(results_.isLoadOp_) = Algebra::zero();
 	FElem memoryAddress = pb_->val(inputs_.arg2_val_);
 	FElem value = pb_->val(inputs_.dest_val_);
+	std::cout<<"new cash is : "<<value<<std::endl;
 	// Stores arg2 To dest_val
 	pb_->storeValue(memoryAddress, value);
 	pb_->val(results_.value_) = value;
@@ -1741,6 +1743,7 @@ void ALU_LOADW_Gadget::generateConstraints(){
 	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::LOADW);
 }
 
+
 void ALU_LOADW_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
@@ -1748,6 +1751,7 @@ void ALU_LOADW_Gadget::generateWitness(){
 	pb_->val(results_.isMemOp_) = Algebra::one();
 	FElem address = pb_->val(inputs_.arg2_val_); // stores [A] to r_1 - check traceConsistency
 	FElem value = pb_->loadValue(address);
+	std::cout<<value<<std::endl; 
 	pb_->val(results_.address_) = address;
 	pb_->val(results_.value_) = value;
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
@@ -1789,10 +1793,16 @@ void ALU_ANSWER_Gadget::generateWitness(){
 		flag = false;
 		if (Algebra::one() == program_output)
 			program_output = pb_->val(inputs_.arg2_val_);
-		/*
-         * size_t a = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
-         * std::cout << "\n*** TIMESTEPS=" << max_timestep << " ANSWER=" << a << " (binary " << std::bitset<REGISTER_LENGTH>(a) << ")\n" << std::endl;
-         */
+
+		if (mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_))==0) {
+		    std::cout<<"can make this transaction"<<std::endl;
+		}
+		else {
+		    std::cout<<"can't make this transaction"<<std::endl;
+		}
+//		uint64_t a = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
+//		std::cout << "\n*** TIMESTEPS=" << max_timestep << " ANSWER=" << a << " (binary " << std::bitset<REGISTER_LENGTH>(a) << ")\n" << std::endl;
+
 	}
 }
 
@@ -1824,6 +1834,10 @@ void ALU_MOV_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
+//	std::cout<<pb_<<"pb suck"<<std::endl;
+//	shared_ptr<Protoboard> pb_suck = pb_;
+//  Protoboard suck_val = *pb_suck;
+//  std::cout << suck_val << "Suckval" << endl;
 }
 
 /*************************************************************************************************/
@@ -1871,7 +1885,7 @@ void ALU_RESERVED_OPCODE_24_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	unpackArg1_g_->generateWitness();
 	srand(prngseed); rand();
-	size_t n = mapFieldElementToInteger(0, EXTDIM, val(inputs_.arg2_val_));
+	uint64_t n = mapFieldElementToInteger(0, EXTDIM, val(inputs_.arg2_val_));
 	if (n < ROMSIZE)
 		for (unsigned int i = 0; i < n; ++i)
 			(void)rand(); //lame, replace with md5 or sha

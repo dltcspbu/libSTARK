@@ -112,7 +112,7 @@ PolynomialDegree lightAdditionGate::calculateDegree(const vector<PolynomialDegre
 FieldElement lightMultiplicationGate::calculateEvaluation(const LazyVector<FieldElement>& inputVals)const{
 	const FieldElement ZERO = Algebra::zero();
 	FieldElement res = Algebra::one();
-    for (size_t i=0; i<inputVals.size(); i++){
+    for (uint64_t i=0; i<inputVals.size(); i++){
         
         //if a factor in the product is zero,
         //no need to check the valued of the rest

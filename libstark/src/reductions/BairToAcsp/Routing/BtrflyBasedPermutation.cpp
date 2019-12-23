@@ -31,18 +31,18 @@ namespace{
  * because any instance of this class dies before the "rout" method ends
  * and the Sequence "src" is a parameter to this function
  */
-class bitReverse : public Sequence<size_t>{
+class bitReverse : public Sequence<uint64_t>{
 public:
-	bitReverse(const Sequence<size_t>& src, const layerID_t& numBits)
+	bitReverse(const Sequence<uint64_t>& src, const layerID_t& numBits)
 	:src_(src),numBits_(numBits){};
 	
-	size_t getElementByIndex(index_t index)const {
+	uint64_t getElementByIndex(index_t index)const {
 	    const auto origVal = src_.getElementByIndex(index);
         return reverseBits(origVal)>>(8*sizeof(origVal)-numBits_);
     }
 private:
-    const Sequence<size_t>& src_;
-    const size_t numBits_;
+    const Sequence<uint64_t>& src_;
+    const uint64_t numBits_;
 };
 
 }

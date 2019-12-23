@@ -182,7 +182,7 @@ void CompressFunc_Gadget::init() {
    round_g_.push_back(prev_[6]);
    round_h_.push_back(prev_[7]);
 
-   for (size_t i=0; i<SHA2RND; ++i) {
+   for (uint64_t i=0; i<SHA2RND; ++i) {
       round_h_.push_back(round_g_[i]);
       round_g_.push_back(round_f_[i]);
       round_f_.push_back(round_e_[i]);
@@ -209,17 +209,17 @@ void CompressFunc_Gadget::init() {
 
 void CompressFunc_Gadget::generateConstraints() {
    compute_msgsched_->generateConstraints();
-   for (size_t i=0; i<SHA2RND; ++i)
+   for (uint64_t i=0; i<SHA2RND; ++i)
       round_funcs_[i]->generateConstraints();
-   for (size_t i=0; i<8; ++i)
+   for (uint64_t i=0; i<8; ++i)
       add_funcs_[i]->generateConstraints();
 }
 
 void CompressFunc_Gadget::generateWitness() {
    compute_msgsched_->generateWitness();
-   for (size_t i=0; i<SHA2RND; ++i)
+   for (uint64_t i=0; i<SHA2RND; ++i)
       round_funcs_[i]->generateWitness();
-   for (size_t i=0; i<8; ++i)
+   for (uint64_t i=0; i<8; ++i)
       add_funcs_[i]->generateWitness();
 }
 
@@ -308,7 +308,7 @@ GadgetPtr ToySHA2_Gadget::create(ProtoboardPtr pb,
 #endif //of TOY_SHA2_INCLUDE
 
 BIGSIGMA_Gadget::BIGSIGMA_Gadget(ProtoboardPtr pb,
-   const size_t rot1, const size_t rot2, const size_t rot3,
+   const uint64_t rot1, const uint64_t rot2, const uint64_t rot3,
    const VariableArray& input, const VariableArray& result)
    : Gadget(pb), input_(input), result_(result) {
    for(int i=0; i<result_.size(); ++i)
@@ -330,7 +330,7 @@ void BIGSIGMA_Gadget::generateWitness() {
 }
 
 GadgetPtr BIGSIGMA_Gadget::create(ProtoboardPtr pb,
-   const size_t rot1, const size_t rot2, const size_t rot3,
+   const uint64_t rot1, const uint64_t rot2, const uint64_t rot3,
    const VariableArray& input, const VariableArray& result) {
 	addGadgetToTraceback("BIGSIGMA_Gadget");
    GadgetPtr pGadget(new BIGSIGMA_Gadget(pb,
@@ -341,7 +341,7 @@ GadgetPtr BIGSIGMA_Gadget::create(ProtoboardPtr pb,
 }
 
 SMALLSIGMA_Gadget::SMALLSIGMA_Gadget(ProtoboardPtr pb,
-   const size_t rot1, const size_t rot2, const size_t shift,
+   const uint64_t rot1, const uint64_t rot2, const uint64_t shift,
    const VariableArray& input, const VariableArray& result)
    : Gadget(pb), input_(input), result_(result) {
    for(int i=0; i<result_.size(); ++i) {
@@ -368,7 +368,7 @@ void SMALLSIGMA_Gadget::generateWitness() {
 }
 
 GadgetPtr SMALLSIGMA_Gadget::create(ProtoboardPtr pb,
-   const size_t rot1, const size_t rot2, const size_t shift,
+   const uint64_t rot1, const uint64_t rot2, const uint64_t shift,
    const VariableArray& input, const VariableArray& result) {
 	addGadgetToTraceback("SMALLSIGMA_Gadget");
    GadgetPtr pGadget(new SMALLSIGMA_Gadget(pb,

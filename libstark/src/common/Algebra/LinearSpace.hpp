@@ -20,7 +20,7 @@ public:
 	 * @return  True iff such an element exists
 	 */
 	bool exist(const std::unique_ptr<const FieldElementPredicate>& pred)const;
-	size_t size()const;
+	uint64_t size()const;
 	const UnivariatePolynomialInterface& vanishingPoly()const;
 
     /**

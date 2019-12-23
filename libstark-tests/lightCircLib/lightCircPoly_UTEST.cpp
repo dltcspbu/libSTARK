@@ -242,11 +242,11 @@ TEST(lightCircPoly,nonDistinctAddition_different_inputs_ammount){
 	}
 
 	lightCircPoly circ1(poly[0]);
-    vector<size_t> inputsInCirc1;
+    vector<uint64_t> inputsInCirc1;
     inputsInCirc1.push_back(0);
 
     lightCircPoly circ2(poly[1]);
-    vector<size_t> inputsInCirc2;
+    vector<uint64_t> inputsInCirc2;
     inputsInCirc2.push_back(1);
 
     for(int j=2; j<NUM_POLYS; j++){
@@ -264,7 +264,7 @@ TEST(lightCircPoly,nonDistinctAddition_different_inputs_ammount){
     lightCircPoly combCirc(circ1);
     combCirc.addSameInputs(circ2);
 
-    const size_t totalInputsAmount = max(inputsInCirc1.size(), inputsInCirc2.size());
+    const uint64_t totalInputsAmount = max(inputsInCirc1.size(), inputsInCirc2.size());
 
 	for(int i=0; i< amountOfEvals; i++){
 		vector< FieldElement> xvec(totalInputsAmount);
@@ -275,7 +275,7 @@ TEST(lightCircPoly,nonDistinctAddition_different_inputs_ammount){
         //calculate result of circ1
         FieldElement circ1Ref = one();
         {
-        size_t inpIndx = 0;
+        uint64_t inpIndx = 0;
         for(const auto& inp : inputsInCirc1){
             circ1Ref *= poly[inp].eval(xvec[inpIndx++]);
         }
@@ -287,7 +287,7 @@ TEST(lightCircPoly,nonDistinctAddition_different_inputs_ammount){
         //calculate result of circ2
         FieldElement circ2Ref = one();
         {
-        size_t inpIndx = 0;
+        uint64_t inpIndx = 0;
         for(const auto& inp : inputsInCirc2){
             circ2Ref *= poly[inp].eval(xvec[inpIndx++]);
         }
@@ -319,8 +319,8 @@ TEST(lightCircPoly,nonDistinctAddition_different_inputs_ammount){
 TEST(lightCircPoly,isEffectiveInput){
 	
     //define constants
-    const size_t amountOfEffectiveInputs = 1+rand()%10;
-    const size_t totalInputsAmount = amountOfEffectiveInputs + rand()%10;
+    const uint64_t amountOfEffectiveInputs = 1+rand()%10;
+    const uint64_t totalInputsAmount = amountOfEffectiveInputs + rand()%10;
 
     //generate random polynomial
     UnivariatePolynomialGeneral uniPoly;
@@ -340,8 +340,8 @@ TEST(lightCircPoly,isEffectiveInput){
 
     //define the mapping for expansion
     //it is the ID mapping
-    vector<size_t> inputsMapping(amountOfEffectiveInputs);
-    for(size_t i=0; i< amountOfEffectiveInputs; i++){
+    vector<uint64_t> inputsMapping(amountOfEffectiveInputs);
+    for(uint64_t i=0; i< amountOfEffectiveInputs; i++){
         inputsMapping[i] = i;
     }
 
@@ -349,12 +349,12 @@ TEST(lightCircPoly,isEffectiveInput){
     lightCircPoly expendedPoly(circ,totalInputsAmount,inputsMapping);
 
     //test the original inputs are effective
-    for(size_t i=0; i< amountOfEffectiveInputs; i++){
+    for(uint64_t i=0; i< amountOfEffectiveInputs; i++){
         EXPECT_TRUE(expendedPoly.isEffectiveInput(i));
     }
 
     //tests the additional inputs
-    for(size_t i=amountOfEffectiveInputs; i< totalInputsAmount; i++){
+    for(uint64_t i=amountOfEffectiveInputs; i< totalInputsAmount; i++){
         EXPECT_FALSE(expendedPoly.isEffectiveInput(i));
     }
 

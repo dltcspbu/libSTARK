@@ -32,11 +32,11 @@ MerkleTree::MerkleTree(short src_log_size): logSizeBytes_(src_log_size+Log2(size
     tree_ = new hashDigest_t[POW2(logSizeBytes_ - Log2(sizeof(CryptoCommitment::hashDigest_t)))];
 }
 
-void MerkleTree::constructSubtree(FieldElement const*const src, const size_t sigment_logLen, const size_t sigment_index){
+void MerkleTree::constructSubtree(FieldElement const*const src, const uint64_t sigment_logLen, const uint64_t sigment_index){
     constructMerkleSubTree(src,logSizeBytes_,sigment_logLen + Log2(sizeof(FieldElement)),sigment_index,tree_);
 }
 
-void MerkleTree::finishTreeAfterSegments(const size_t sigment_logLen){
+void MerkleTree::finishTreeAfterSegments(const uint64_t sigment_logLen){
     short currSrcLogLen = logSizeBytes_ - (sigment_logLen + Log2(sizeof(FieldElement)));
     if(currSrcLogLen == 0){
         root_ = tree_[1];
@@ -49,11 +49,11 @@ const hashDigest_t& MerkleTree::getRoot()const{
     return root_;
 }
 
-path_t MerkleTree::getPathToBlock(const size_t blockIndex)const{
+path_t MerkleTree::getPathToBlock(const uint64_t blockIndex)const{
     return CryptoCommitment::getPathToBlock(tree_,logSizeBytes_,blockIndex);
 }
 
-bool MerkleTree::verifyPathToBlock(const path_t& path, FieldElement const*const blockData, const size_t blockIndex)const{
+bool MerkleTree::verifyPathToBlock(const path_t& path, FieldElement const*const blockData, const uint64_t blockIndex)const{
     return CryptoCommitment::verifyPathToBlock(blockData, root_, path, blockIndex);
 }
 
@@ -75,14 +75,14 @@ namespace{
         MerkleTree& commitment,
         const bool multyThreading){
         
-        const size_t numSigments = POW2(logNumSigments);
-        const size_t sigmentLength = POW2(logSigmentLength);
+        const uint64_t numSigments = POW2(logNumSigments);
+        const uint64_t sigmentLength = POW2(logSigmentLength);
 
         //
         //Calculate buffers
         //
         if(multyThreading){
-#pragma omp parallel for
+// #pragma omp parallel for
             for(plooplongtype currSigmentIdx = 0; currSigmentIdx < numSigments; currSigmentIdx++){
                 sigmentConstructor(currSigmentIdx,&data[currSigmentIdx*sigmentLength]);
                 commitment.constructSubtree(&data[0], logSigmentLength, currSigmentIdx);
@@ -108,12 +108,12 @@ namespace{
 
     void getUniPolySigment(const UnivariatePolynomialInterface& srcPoly,
             const vector<FieldElement>& evaluationBasis, const FieldElement& evaluationShift,
-            const unsigned short degBoundLog, const size_t sigmentIdx,
+            const unsigned short degBoundLog, const uint64_t sigmentIdx,
             FieldElement* res){
         //
         //Initialize global data relevant to fractions of space for queries
         //
-        const size_t buffDim = degBoundLog;
+        const uint64_t buffDim = degBoundLog;
         const vector<FieldElement> buffEvalBasis(evaluationBasis.begin(), evaluationBasis.begin()+buffDim);
         const vector<FieldElement> buffOffsetBasis(evaluationBasis.begin()+buffDim, evaluationBasis.end());
         
@@ -134,7 +134,7 @@ const unsigned short degBoundLog):
     dataWithCommitment(
         degBoundLog,
         evaluationBasis.size() - degBoundLog,
-        [&](const size_t sigmentIdx, FieldElement* res){
+        [&](const uint64_t sigmentIdx, FieldElement* res){
                 getUniPolySigment(srcPoly,evaluationBasis,evaluationShift,degBoundLog,sigmentIdx,res);
                 }),
     poly_(srcPoly){};
@@ -162,15 +162,15 @@ dataWithCommitment::dataWithCommitment(const vector<FieldElement>&& data ,const 
     
 dataWithCommitment::~dataWithCommitment(){ }
 
-vector<FieldElement> dataWithCommitment::getSigment(size_t sigmentId)const{
-    const size_t sigBegin = sigmentId*POW2(logSigmentLength_);
-    const size_t sigEnd = sigBegin + POW2(logSigmentLength_);
+vector<FieldElement> dataWithCommitment::getSigment(uint64_t sigmentId)const{
+    const uint64_t sigBegin = sigmentId*POW2(logSigmentLength_);
+    const uint64_t sigEnd = sigBegin + POW2(logSigmentLength_);
     vector<FieldElement> result(data_.begin() + sigBegin, data_.begin() + sigEnd);
 
     return result;
 }
 
-const FieldElement& dataWithCommitment::getElement(const size_t index)const{
+const FieldElement& dataWithCommitment::getElement(const uint64_t index)const{
     _COMMON_ASSERT(index < data_.size(),"Index out of range");
     return data_[index];
 }
@@ -179,21 +179,21 @@ CryptoCommitment::SparceMerkleTree dataWithCommitment::answerQueries(const rawQu
 
     CryptoCommitment::SparceMerkleTree resultsTree(logSigmentLength_ + logNumSigments_ + Log2(sizeof(FieldElement)));
 
-    for(const size_t& blockPairIndex : queries){
-        const size_t blockIndex = blockPairIndex<<1;
-        const size_t FElemIndex = CryptoCommitment::getElementIndex(blockIndex); 
+    for(const uint64_t& blockPairIndex : queries){
+        const uint64_t blockIndex = blockPairIndex<<1;
+        const uint64_t FElemIndex = CryptoCommitment::getElementIndex(blockIndex); 
 
         std::array<hashDigest_t,2> data;
         {
             FieldElement* dataAsFE((FieldElement*)&data[0]);
-            for(size_t i=0; i< CryptoCommitment::getDualBlockSize(); i++){
+            for(uint64_t i=0; i< CryptoCommitment::getDualBlockSize(); i++){
                 dataAsFE[i] = data_[FElemIndex + i];
             }
         }
 
         const auto currPath =  commitment_.getPathToBlock(CryptoCommitment::getBlockIndex(FElemIndex));
 
-#pragma omp critical
+// #pragma omp critical
         { 
             resultsTree.addPath(data, currPath, blockPairIndex);
         }

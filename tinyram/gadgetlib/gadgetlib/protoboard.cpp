@@ -159,7 +159,7 @@ Algebra::FElem Protoboard::loadValue(const Algebra::FElem& address){
 	return it->second;
 }
 
-void Protoboard::addBoundaryConstraint(const Algebra::Variable& var, const size_t timeStamp, const Algebra::FElem& assignment){
+void Protoboard::addBoundaryConstraint(const Algebra::Variable& var, const uint64_t timeStamp, const Algebra::FElem& assignment){
 	addBoundaryVariable(var);
 	addBoundaryTimestamp(timeStamp);
 	addBoundaryAssignment(assignment);

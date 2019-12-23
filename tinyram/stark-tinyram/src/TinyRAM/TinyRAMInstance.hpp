@@ -41,8 +41,8 @@ using gadgetlib::Log2ceil;
 /*************************************************************************************************/
 
 struct RAMArchParams {
-	size_t numRegisters;
-	size_t registerLength;
+	uint64_t numRegisters;
+	uint64_t registerLength;
 
 	bool operator==(const RAMArchParams& rhs) const;
 };
@@ -58,16 +58,16 @@ struct RAMArchParams {
 struct MachineInstruction {
 	Opcode opcode_ = Opcode::ANSWER;
 	bool arg2isImmediate_ = true;
-	size_t destIdx_ = 0;
-	size_t arg1Idx_ = 0;
-	size_t arg2IdxOrImmediate_ = 1;
+	uint64_t destIdx_ = 0;
+	uint64_t arg1Idx_ = 0;
+	uint64_t arg2IdxOrImmediate_ = 1;
 
 	MachineInstruction(
 		const Opcode& opcode,
 		const bool arg2isImmediate,
-		const size_t destIdx,
-		const size_t arg1Idx,
-		const size_t arg2IdxOrImmediate);
+		const uint64_t destIdx,
+		const uint64_t arg1Idx,
+		const uint64_t arg2IdxOrImmediate);
 	
     MachineInstruction(const std::string line);
 
@@ -88,16 +88,16 @@ public:
 		name_(name), archParams_(archParams), code_(code) {}
 
 	TinyRAMProgram(const std::string& name,
-		size_t numRegisters,
-		size_t wordSize) :
+		uint64_t numRegisters,
+		uint64_t wordSize) :
 		name_(name), archParams_(RAMArchParams{ numRegisters, wordSize }) {
 	}
 
 	std::string name() const { return name_; }
 	const RAMMachineCode& code() const { return code_; }
-	const size_t size() const { return code_.size(); }
+	const uint64_t size() const { return code_.size(); }
 	const RAMArchParams& archParams() const { return archParams_; }
-	const MachineInstruction& getInstructionAtPc(const size_t pc) const { return code_[pc]; }
+	const MachineInstruction& getInstructionAtPc(const uint64_t pc) const { return code_[pc]; }
 	void addInstruction(const MachineInstruction& instruction) { code_.emplace_back(instruction); }
 	void addInstructionsFromFile(const std::string filename);
     unsigned int pcLength() const {
@@ -123,26 +123,26 @@ public:
 class TinyRAMProtoboardParams : public gadgetlib::ProtoboardParams {
 private:
 	RAMArchParams archParams_;
-	size_t opcodeWidth_;
-	size_t timeBound_;
-	size_t pcIncrement_;
+	uint64_t opcodeWidth_;
+	uint64_t timeBound_;
+	uint64_t pcIncrement_;
 public:
 	TinyRAMProtoboardParams(unsigned int numRegisters, unsigned int registerLength,
-		size_t opcodeWidth, size_t timeBound, size_t pcIncrement)
+		uint64_t opcodeWidth, uint64_t timeBound, uint64_t pcIncrement)
 		: archParams_(RAMArchParams{ numRegisters, registerLength }),
 		opcodeWidth_(opcodeWidth),
 		timeBound_(timeBound), pcIncrement_(pcIncrement) {}
 	TinyRAMProtoboardParams()
 		: archParams_(RAMArchParams{ 0, 0 }), opcodeWidth_(0), timeBound_(0), pcIncrement_(0) {}
 	RAMArchParams archParams() const { return archParams_; }
-	size_t opcodeWidth() const { return opcodeWidth_; }
-	size_t numRegisters() const { return archParams_.numRegisters; }
-	size_t registerLength() const { return archParams_.registerLength; }
-	size_t registerIndexLength() const { return Log2ceil(numRegisters()); }
-	size_t arg2length() const { return std::max({ registerIndexLength(), registerLength() }); }
-	size_t numOpcodes() const { return 1u << (opcodeWidth()); }
-	size_t timeBound() const { return timeBound_; }
-	size_t pcIncrement() const { return pcIncrement_; }
+	uint64_t opcodeWidth() const { return opcodeWidth_; }
+	uint64_t numRegisters() const { return archParams_.numRegisters; }
+	uint64_t registerLength() const { return archParams_.registerLength; }
+	uint64_t registerIndexLength() const { return Log2ceil(numRegisters()); }
+	uint64_t arg2length() const { return std::max({ registerIndexLength(), registerLength() }); }
+	uint64_t numOpcodes() const { return 1u << (opcodeWidth()); }
+	uint64_t timeBound() const { return timeBound_; }
+	uint64_t pcIncrement() const { return pcIncrement_; }
 }; // class TinyRAMProtoboardParams
 
 

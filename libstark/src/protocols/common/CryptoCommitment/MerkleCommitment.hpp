@@ -31,10 +31,10 @@ const short logBytesPerHash = 4;
 
 unsigned short getBlockSize();
 unsigned short getDualBlockSize();
-size_t getBlockIndex(const size_t elementIndex);
-size_t getElementIndex(const size_t blockIndex);
-unsigned short getOffsetInBlock(const size_t index);
-unsigned short getOffsetInDualBlock(const size_t index);
+uint64_t getBlockIndex(const uint64_t elementIndex);
+uint64_t getElementIndex(const uint64_t blockIndex);
+unsigned short getOffsetInBlock(const uint64_t index);
+unsigned short getOffsetInDualBlock(const uint64_t index);
 
 //
 // Constructs a Merkle tree for the src buffer (srcLen expected in bytes)
@@ -51,12 +51,12 @@ hashDigest_t getMerkleCommitmentInplace(void * data, const short src_logLen);
 // It is expected src_logLen is in bytes.
 // It is expected the size of dst in bytes is at least srcLen.
 //
-void constructMerkleSubTree(void const* const src, const short src_logLen, const size_t sigment_logLen, const size_t sigment_index, void * const dst);
+void constructMerkleSubTree(void const* const src, const short src_logLen, const uint64_t sigment_logLen, const uint64_t sigment_index, void * const dst);
 
-path_t getPathToBlock(void const*const tree, const short src_logLen, const size_t blockIndex);
-std::vector<path_t> getPathToBlocksInPlace(void * data, const short src_logLen, const std::vector<size_t>& blockIndces);
+path_t getPathToBlock(void const*const tree, const short src_logLen, const uint64_t blockIndex);
+std::vector<path_t> getPathToBlocksInPlace(void * data, const short src_logLen, const std::vector<uint64_t>& blockIndces);
 
-bool verifyPathToBlock(void const*const blockData, const hashDigest_t& root, const path_t& path, const size_t blockIndex);
+bool verifyPathToBlock(void const*const blockData, const hashDigest_t& root, const path_t& path, const uint64_t blockIndex);
 
 //
 // An efficient representation of subtree containing only
@@ -65,21 +65,21 @@ bool verifyPathToBlock(void const*const blockData, const hashDigest_t& root, con
 //
 class SparceMerkleLayer{
 public:
-    bool hasElement(const size_t idx)const;
-    void addEntry(const size_t idx, const hashDigest_t& data);
-    void deleteEntry(const size_t idx);
-    const hashDigest_t& readData(const size_t idx)const;
+    bool hasElement(const uint64_t idx)const;
+    void addEntry(const uint64_t idx, const hashDigest_t& data);
+    void deleteEntry(const uint64_t idx);
+    const hashDigest_t& readData(const uint64_t idx)const;
     
     //idx is the index of a pair of hashes
-    hashDigest_t hashPair(const size_t idx)const;
+    hashDigest_t hashPair(const uint64_t idx)const;
     
     //calculates the next layer, with merging received data, for verification
     SparceMerkleLayer calculateNextLayer(const SparceMerkleLayer& recieved)const;
     
     std::vector<hashDigest_t> toVector()const;
-    std::set<size_t> getIndices()const;
+    std::set<uint64_t> getIndices()const;
 private:
-    std::map<size_t,hashDigest_t> data_;
+    std::map<uint64_t,hashDigest_t> data_;
 };
 
 class SparceMerkleTree{
@@ -89,19 +89,19 @@ public:
     SparceMerkleTree(const short src_logLen);
     
     //De serialization
-    void DeSerialize(const std::set<size_t>& queriedIndices, const std::vector<hashDigest_t>& serializedSubtree);
+    void DeSerialize(const std::set<uint64_t>& queriedIndices, const std::vector<hashDigest_t>& serializedSubtree);
 
-    void addPath(const std::array<hashDigest_t,2>& data, const path_t& path, const size_t pairIdx);
+    void addPath(const std::array<hashDigest_t,2>& data, const path_t& path, const uint64_t pairIdx);
     hashDigest_t calculateRoot()const;
 
-    bool hasData(const size_t idx)const;
-    const hashDigest_t& readData(const size_t idx)const;
+    bool hasData(const uint64_t idx)const;
+    const hashDigest_t& readData(const uint64_t idx)const;
     
     //Serialization
     std::vector<hashDigest_t> toVector()const;
     
     //used to get expected results length
-    std::vector< std::pair<short,size_t> > getSerializationMapping(const std::set<size_t>& queriedIndices)const;
+    std::vector< std::pair<short,uint64_t> > getSerializationMapping(const std::set<uint64_t>& queriedIndices)const;
 private:
     std::vector<SparceMerkleLayer> layers_;
 };

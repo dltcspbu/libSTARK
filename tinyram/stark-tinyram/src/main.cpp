@@ -37,7 +37,7 @@ libstark::BairInstance constructInstance(const TinyRAMProgram& prog, const unsig
 
     unique_ptr<cs2BairConstraints> cs2bairConstraints_(new cs2BairConstraints(cs2bair_instance));
     unique_ptr<cs2BairMemoryCS> cs2bairMemoryCS_(new cs2BairMemoryCS(cs2bair_instance));
-    size_t numVars = (cs2bairConstraints_->numVars() / 2);
+    uint64_t numVars = (cs2bairConstraints_->numVars() / 2);
     return libstark::BairInstance(
             numVars,
             t,
@@ -59,13 +59,13 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const unsigne
     return libstark::BairWitness(move(cs2bairColoring_), move(cs2bairMemory_));
 }
 
-void execute(const string assemblyFile, const unsigned int t, const unsigned int securityParameter, const bool simulateOnly){
-    cout<<"Executing simulation with assembly from " + assemblyFile + " over 2^" + to_string(t) +"-1 steps, and soundness error at most 2^-" +to_string(securityParameter)<<endl;
+void execute(const string assemblyCode, const unsigned int t, const unsigned int securityParameter, const bool simulateOnly){
+    cout<<"Executing simulation with assembly from over 2^" + to_string(t) +"-1 steps, and soundness error at most 2^-" +to_string(securityParameter)<<endl;
     
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
-	TinyRAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
-    program.addInstructionsFromFile(assemblyFile);
+	TinyRAMProgram program(assemblyCode, REGISTERS_NUMBER, trRegisterLen);
+    program.addInstructionsFromFile(assemblyCode);
 
     
     //simulation only - no prover
@@ -87,7 +87,8 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    string assemblyFile(argv[1]);
+    string assemblyCode(argv[1]);
+
     unsigned int executionLenLog = 0;
     unsigned int securityParameter = 60;
     bool noProver = false;
@@ -116,7 +117,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    execute(assemblyFile,executionLenLog,securityParameter,noProver);
+    execute(assemblyCode, executionLenLog, securityParameter, noProver);
 
     return 0;
 }

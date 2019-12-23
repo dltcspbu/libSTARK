@@ -22,9 +22,9 @@ class invExtrType {
 };
 extern const invExtrType invExtrConsts;
 	
-typedef std::array<size_t,63> matBitExt_t;
+typedef std::array<uint64_t,63> matBitExt_t;
 matBitExt_t matForBitExtr(const int bitNum);
-FieldElement extractBit(const FieldElement& elem, const int bitNum, const std::array<size_t,63>& invExtrMat);
+FieldElement extractBit(const FieldElement& elem, const int bitNum, const std::array<uint64_t,63>& invExtrMat);
 FieldElement extractBit(const FieldElement& elem, const int bitNum);
 
 } // namespace Algebra

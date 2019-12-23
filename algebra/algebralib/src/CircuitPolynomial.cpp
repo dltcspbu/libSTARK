@@ -263,7 +263,7 @@ FElem CircuitPolynomial::eval(const VariableAssignment& assignment) const{
 	return retval;
 }
 
-size_t CircuitPolynomial::numVars() const{
+uint64_t CircuitPolynomial::numVars() const{
     ALGEBRALIB_FATAL("Not implemented");
 }
 
@@ -336,7 +336,7 @@ PolynomialDegree CircuitPolynomial::getDegreeBound(const std::vector<PolynomialD
 	return maxDegree;
 }
 
-bool CircuitPolynomial::isEffectiveInput(const size_t varId) const {
+bool CircuitPolynomial::isEffectiveInput(const uint64_t varId) const {
 	//return true;
 	Variable::set usedVariables = this->getUsedVariables();
 	for (const Variable& v : usedVariables){

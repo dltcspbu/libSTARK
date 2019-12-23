@@ -9,14 +9,14 @@ namespace BairToAcsp{
 
 class CS_testLocations{
 public:
-    typedef size_t polynomialIndicator_t;
+    typedef uint64_t polynomialIndicator_t;
     CS_testLocations(const common& commonDef);
-    size_t indexOfConstraint_Assignment(polynomialIndicator_t poly)const;
-    size_t indexOfConstraint_Permuation(polynomialIndicator_t poly)const;
+    uint64_t indexOfConstraint_Assignment(polynomialIndicator_t poly)const;
+    uint64_t indexOfConstraint_Permuation(polynomialIndicator_t poly)const;
 
 private:
-    std::map<polynomialIndicator_t, size_t> indexesAssignment_;
-    std::map<polynomialIndicator_t, size_t> indexesPermutation_;
+    std::map<polynomialIndicator_t, uint64_t> indexesAssignment_;
+    std::map<polynomialIndicator_t, uint64_t> indexesPermutation_;
 };
 
 } //namespace BairToAcsp

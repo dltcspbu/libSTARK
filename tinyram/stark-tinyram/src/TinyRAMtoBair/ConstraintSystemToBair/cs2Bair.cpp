@@ -151,7 +151,7 @@ void cs2Bair::createTranslationVector(){
 	translation_.insert(translation_.end(), auxVars.cbegin(), auxVars.cend());
 	translation_.insert(translation_.end(), traceSecondVariables.cbegin(), traceSecondVariables.cend());
 	Algebra::Variable unUsed("Unused aux Variable");
-	for (size_t i = 0; i < auxVars.size(); i++){
+	for (uint64_t i = 0; i < auxVars.size(); i++){
 		translation_.emplace_back(unUsed);
 	}
 	// Jenya - pretty ugly - we leave it like this for now - we'll change it as soon as I have time.
@@ -170,7 +170,7 @@ void cs2Bair::generateConstraints(){
 //VariableAssignment <-> vector<FieldElement> mappings
 std::vector<Algebra::FieldElement> cs2Bair::assignmentToVec(const VariableAssignment& ass)const{
     std::vector<Algebra::FieldElement> res(translation_.size()/2);
-    for(size_t i=0; i< res.size(); i++){
+    for(uint64_t i=0; i< res.size(); i++){
         res[i] = ass.at(translation_[i]);
     }
     return res;
@@ -178,7 +178,7 @@ std::vector<Algebra::FieldElement> cs2Bair::assignmentToVec(const VariableAssign
 
 VariableAssignment cs2Bair::vectorToAssignment(const std::vector<Algebra::FieldElement>& vec)const{
     VariableAssignment res;
-    for(size_t i=0; i< translation_.size()/2; i++){
+    for(uint64_t i=0; i< translation_.size()/2; i++){
         res[translation_[i]] = vec[i];
     }
     return res;
@@ -256,8 +256,8 @@ void cs2Bair::generateMemoryWitness(){
 	std::sort(memoryTrace.begin(), memoryTrace.end(), sortMemoryInfo);
 	GADGETLIB_ASSERT(memoryTrace.size() == traceAssignmentTable_.size(), "memoryInfo size should be the same as the coloring");
 	for (unsigned int i = 0; i < memoryTrace.size(); i++){
-		size_t serialNumber1 = memoryTrace[i].getSerialNumber();
-		size_t serialNumber2 = memoryTrace[(i + 1) % memoryTrace.size()].getSerialNumber();
+		uint64_t serialNumber1 = memoryTrace[i].getSerialNumber();
+		uint64_t serialNumber2 = memoryTrace[(i + 1) % memoryTrace.size()].getSerialNumber();
 		memoryPermutation_[serialNumber1] = serialNumber2;
 		if (doesProgramUsesMemory_){
 			VariableAssignment currAssignment = vectorToAssignment(traceAssignmentTable_[serialNumber1]);
@@ -296,7 +296,7 @@ void cs2Bair::generateMemoryWitness(){
 }
 
 
-size_t cs2Bair::varsAmount() const{
+uint64_t cs2Bair::varsAmount() const{
 	std::vector<Algebra::Variable> translation = pb_->getTranslationVector();
 	GADGETLIB_ASSERT(translation.size() % 2 == 0, "translation vector size is expected to be even.");
 	/*
@@ -367,13 +367,13 @@ cs2BairConstraints::cs2BairConstraints(const cs2Bair& cs2bair) : numVars_(cs2bai
     }
 };
 
-cs2BairConstraints::cs2BairConstraints(const polySet_t& constraints, const size_t numVars):numVars_(numVars){
+cs2BairConstraints::cs2BairConstraints(const polySet_t& constraints, const uint64_t numVars):numVars_(numVars){
     for(const auto& p: constraints){
         constraints_.push_back(p->clone());
     }
 }
 
-size_t cs2BairConstraints::numVars() const{
+uint64_t cs2BairConstraints::numVars() const{
 	return numVars_;;
 }
 const ConstraintSys::polySet_t& cs2BairConstraints::constraints() const{
@@ -411,7 +411,7 @@ BairWitness::color_t cs2BairColoring::getElementByIndex(index_t index) const{
 
 cs2BairMemory::cs2BairMemory(const cs2Bair& cs2bair) : memoryPermutation_(cs2bair.getMemoryPermutation()){}
 
-size_t cs2BairMemory::getElementByIndex(index_t index) const{
+uint64_t cs2BairMemory::getElementByIndex(index_t index) const{
 	return memoryPermutation_.at(index);
 }
 
@@ -428,13 +428,13 @@ cs2BairMemoryCS::cs2BairMemoryCS(const cs2Bair& cs2bair) : numVars_(cs2bair.vars
 	constraints_ = cs.getConstraintPolynomials();
 };
 
-cs2BairMemoryCS::cs2BairMemoryCS(const polySet_t& constraints, const size_t numVars):numVars_(numVars){
+cs2BairMemoryCS::cs2BairMemoryCS(const polySet_t& constraints, const uint64_t numVars):numVars_(numVars){
     for(const auto& p: constraints){
         constraints_.push_back(p->clone());
     }
 }
 
-size_t cs2BairMemoryCS::numVars() const{
+uint64_t cs2BairMemoryCS::numVars() const{
 	return numVars_;
 }
 

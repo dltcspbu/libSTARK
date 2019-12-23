@@ -93,7 +93,7 @@ vector<FieldElement> compositionAlg(const AcspInstance& instance, const AcspWitn
     constraintsInputDegrees.push_back(PolynomialDegree(1));
 
     // rest are composition of neighbor with witness
-    for(size_t wIndex = 0 ; wIndex < witness.assignmentPolys().size(); wIndex++){
+    for(uint64_t wIndex = 0 ; wIndex < witness.assignmentPolys().size(); wIndex++){
         const auto witnessDegree = witness.assignmentPolys()[wIndex]->getDegree();
         for (const auto& n : instance.neighborPolys()[wIndex]){
             constraintsInputDegrees.push_back(n->getDegreeBound(witnessDegree));
@@ -102,7 +102,7 @@ vector<FieldElement> compositionAlg(const AcspInstance& instance, const AcspWitn
 
     // get the composition degree bound
     const PolynomialDegree degBound = constraintsPoly.getDegreeBound_DividedByZH(constraintsInputDegrees);
-    const size_t degBoundLog = ceil(Log2(max(PolynomialDegree::integral_t(degBound)+1,PolynomialDegree::integral_t(2))));
+    const uint64_t degBoundLog = ceil(Log2(max(PolynomialDegree::integral_t(degBound)+1,PolynomialDegree::integral_t(2))));
 
     //
     //construct composition evaluation basis 
@@ -112,7 +112,7 @@ vector<FieldElement> compositionAlg(const AcspInstance& instance, const AcspWitn
         compositionBasis = vector<FieldElement>(basisPCPP.begin(),basisPCPP.begin()+degBoundLog);
     }
     else{
-        for(size_t i=0; i< degBoundLog; i++){
+        for(uint64_t i=0; i< degBoundLog; i++){
             compositionBasis[i] = mapIntegerToFieldElement(i,1,1);
             _COMMON_ASSERT(compositionBasis[i] == basisPCPP[i], "Unsupported basis");
         }
@@ -122,30 +122,30 @@ vector<FieldElement> compositionAlg(const AcspInstance& instance, const AcspWitn
 
     vector<FieldElement> evaluation(Infrastructure::POW2(compositionBasis.size()));
     
-    vector<size_t> neighborsIndexOffset;
-    size_t numNeighbors = 0;
-    for(size_t wIndex = 0 ; wIndex < witness.assignmentPolys().size(); wIndex++){
+    vector<uint64_t> neighborsIndexOffset;
+    uint64_t numNeighbors = 0;
+    for(uint64_t wIndex = 0 ; wIndex < witness.assignmentPolys().size(); wIndex++){
         neighborsIndexOffset.push_back(numNeighbors);
-        for(size_t n=0; n < instance.neighborPolys()[wIndex].size(); n++){
+        for(uint64_t n=0; n < instance.neighborPolys()[wIndex].size(); n++){
             numNeighbors++;
         }
     }
 
-    const size_t wDegBound = PolynomialDegree::integral_t(instance.witnessDegreeBound()[0])+1;
+    const uint64_t wDegBound = PolynomialDegree::integral_t(instance.witnessDegreeBound()[0])+1;
     for(const auto& d: instance.witnessDegreeBound()){
         _COMMON_ASSERT((long long)wDegBound-1 == PolynomialDegree::integral_t(d), "Degrees of witness columns are expected to be equal");
     }
-    const size_t wDim = Log2(wDegBound);
+    const uint64_t wDim = Log2(wDegBound);
     const vector<FieldElement> wEvalBasis(compositionBasis.begin(), compositionBasis.begin()+wDim);
     const vector<FieldElement> wOffsetBasis(compositionBasis.begin()+wDim, compositionBasis.end());
-    const size_t numEvalOffsets = evaluation.size() >> wDim;
-    const size_t numWitnessOffsets = Infrastructure::POW2(wOffsetBasis.size());
+    const uint64_t numEvalOffsets = evaluation.size() >> wDim;
+    const uint64_t numWitnessOffsets = Infrastructure::POW2(wOffsetBasis.size());
     
     vector<vector<FieldElement>> witnessOffsets;
     {
         witnessOffsets.resize(numWitnessOffsets);
         const FieldElement carryOut = mapIntegerToFieldElement(wDim,1,1);
-        for(size_t i=0; i<numWitnessOffsets; i++){
+        for(uint64_t i=0; i<numWitnessOffsets; i++){
             auto& currOffsets = witnessOffsets[i];
             const FieldElement genElem = getSpaceElementByIndex(wOffsetBasis,Algebra::zero(),i) + evaluationAffineShift;
             
@@ -155,10 +155,10 @@ vector<FieldElement> compositionAlg(const AcspInstance& instance, const AcspWitn
         }
     }
     
-    const size_t numWitnesses = witness.assignmentPolys().size();
-    const size_t cosetSize = POW2(wEvalBasis.size());
-    const size_t numCosetsPerEval = 3;
-    const size_t witnessEvalBlockSize = numWitnesses*cosetSize*numCosetsPerEval;
+    const uint64_t numWitnesses = witness.assignmentPolys().size();
+    const uint64_t cosetSize = POW2(wEvalBasis.size());
+    const uint64_t numCosetsPerEval = 3;
+    const uint64_t witnessEvalBlockSize = numWitnesses*cosetSize*numCosetsPerEval;
 
     std::unique_ptr<novelFFT> fftInstance;
     if(!witnessIsEvaluation){
@@ -188,7 +188,7 @@ vector<FieldElement> compositionAlg(const AcspInstance& instance, const AcspWitn
                 fftInstance->FFT(witnessOffsets[currOffset],&witnessEval[0],numWitnesses*cosetSize);
             }
 
-#pragma omp parallel for schedule(guided)
+// #pragma omp parallel for schedule(guided)
             for(plooplongtype i=0; i< wDegBound; i++){
 
                 const long currLocation = i + (currOffset<<wDim);
@@ -201,19 +201,19 @@ vector<FieldElement> compositionAlg(const AcspInstance& instance, const AcspWitn
                 assignment[0].resize(1+numNeighbors);
                 assignment[0][0] = x;
 
-                for(size_t wIndex = 0 ; wIndex < witness.assignmentPolys().size(); wIndex++){
-                    for(size_t n=0; n < instance.neighborPolys()[wIndex].size(); n++){
+                for(uint64_t wIndex = 0 ; wIndex < witness.assignmentPolys().size(); wIndex++){
+                    for(uint64_t n=0; n < instance.neighborPolys()[wIndex].size(); n++){
 
                         const FieldElement neighborRes = instance.neighborPolys()[wIndex][n]->eval(x);
                         FieldElement witnessRes;
                         
                         if(!witnessIsEvaluation){
-                            const size_t nInCosetIdx = mapFieldElementToInteger(0,wDim,neighborRes);
-                            size_t nOffsetIdx = mapFieldElementToInteger(degBoundLog+2,1,neighborRes) + 2*mapFieldElementToInteger(wDim,1,neighborRes);
+                            const uint64_t nInCosetIdx = mapFieldElementToInteger(0,wDim,neighborRes);
+                            uint64_t nOffsetIdx = mapFieldElementToInteger(degBoundLog+2,1,neighborRes) + 2*mapFieldElementToInteger(wDim,1,neighborRes);
                             if (nOffsetIdx == 2){nOffsetIdx = 0;}
                             if (nOffsetIdx == 3){nOffsetIdx = 2;}
-                            const size_t nIdx = nInCosetIdx + (nOffsetIdx<<wDim);
-                            const size_t dataIdx =  wIndex + numWitnesses*nIdx;
+                            const uint64_t nIdx = nInCosetIdx + (nOffsetIdx<<wDim);
+                            const uint64_t dataIdx =  wIndex + numWitnesses*nIdx;
                             witnessRes = witnessEval[dataIdx];
                         }
                         else{
@@ -235,7 +235,7 @@ vector<FieldElement> compositionAlg(const AcspInstance& instance, const AcspWitn
         const novelFFT fftCol(compositionBasis, std::move(evaluation));
         vector<FieldElement> cosetShiftsBasis(basisPCPP.begin()+degBoundLog, basisPCPP.end());
         vector<FieldElement> cosetShifts(POW2(cosetShiftsBasis.size()));
-        for(size_t i=0; i< cosetShifts.size(); i++){
+        for(uint64_t i=0; i< cosetShifts.size(); i++){
             cosetShifts[i] = getSpaceElementByIndex(cosetShiftsBasis,shiftPCPP - evaluationAffineShift, i);
         }
 
@@ -258,9 +258,9 @@ class evaluatedUniPoly : public Algebra::UnivariatePolynomialGeneral{
             //
             //define interpolation space
             //
-            const size_t vanishingSpaceDim = Log2(instance.vanishingSet().size());
-            const size_t witnessDegLog = ceil(Log2(PolynomialDegree::integral_t(witness.getDegree())));
-            const size_t witnessEvalBasisSize = max(vanishingSpaceDim + 1, witnessDegLog);
+            const uint64_t vanishingSpaceDim = Log2(instance.vanishingSet().size());
+            const uint64_t witnessDegLog = ceil(Log2(PolynomialDegree::integral_t(witness.getDegree())));
+            const uint64_t witnessEvalBasisSize = max(vanishingSpaceDim + 1, witnessDegLog);
             evaluationBasis_ = Algebra::getStandartOrderedBasis(witnessEvalBasisSize);
             evaluationOffset_ = zero();
 
@@ -275,7 +275,7 @@ class evaluatedUniPoly : public Algebra::UnivariatePolynomialGeneral{
         }
 
     Algebra::FieldElement eval(const FieldElement& x)const{
-        const size_t x_indx = Algebra::mapFieldElementToInteger(0,64,x-evaluationOffset_);
+        const uint64_t x_indx = Algebra::mapFieldElementToInteger(0,64,x-evaluationOffset_);
         if(x_indx < Infrastructure::POW2(evaluationBasis_.size())){
                 return witnessEval_[x_indx];
         }
@@ -290,7 +290,7 @@ class evaluatedUniPoly : public Algebra::UnivariatePolynomialGeneral{
 
 vector<unique_ptr<UnivariatePolynomialInterface>> witnessCheckerHelper(const AcspInstance& instance, const AcspWitness& witness){
     vector<unique_ptr<UnivariatePolynomialInterface>> res;
-    for(size_t wIndex=0; wIndex < witness.assignmentPolys().size(); wIndex++){
+    for(uint64_t wIndex=0; wIndex < witness.assignmentPolys().size(); wIndex++){
         res.push_back(unique_ptr<UnivariatePolynomialInterface>(new evaluatedUniPoly(instance,*witness.assignmentPolys()[wIndex])));
     }
 

@@ -80,7 +80,7 @@ namespace Algebra{
 
 	}
 
-    size_t SelectorSum::numVars()const{
+    uint64_t SelectorSum::numVars()const{
         ALGEBRALIB_FATAL("Not implemented");
     }
 

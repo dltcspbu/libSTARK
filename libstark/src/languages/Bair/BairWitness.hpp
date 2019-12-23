@@ -66,7 +66,7 @@ public:
 	typedef Sequence<color_t> assignment_t;
 	typedef std::unique_ptr<assignment_t> assignment_ptr;
 
-	typedef Sequence<size_t> permutation_t;
+	typedef Sequence<uint64_t> permutation_t;
 	typedef std::unique_ptr<permutation_t> permutation_ptr;
 	
 	BairWitness(
@@ -79,7 +79,7 @@ public:
 	BairWitness(BairWitness&& src) = default;
 	BairWitness(const BairWitness& src) = delete;
 
-	inline color_t get_color(size_t vecIndex)const {
+	inline color_t get_color(uint64_t vecIndex)const {
 		return assignment_->getElementByIndex(vecIndex);
 	}
 	

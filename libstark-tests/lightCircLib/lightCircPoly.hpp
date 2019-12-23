@@ -27,7 +27,7 @@ public:
 	
     lightCircPoly(const lightCircPoly& poly);
 
-    size_t numVars()const;
+    uint64_t numVars()const;
     
     /**
      * @brief return a clone of the current polynomial
@@ -42,7 +42,7 @@ public:
      *
      * It requires a mapping from the original inputs indexes to new inputs indexes
 	 */
-	lightCircPoly(const lightCircPoly&, const size_t totalInputs ,const std::vector<size_t>& originalInputsLocation);
+	lightCircPoly(const lightCircPoly&, const uint64_t totalInputs ,const std::vector<uint64_t>& originalInputsLocation);
 
 	/**
 	 * @brief   Evaluation the polynomial
@@ -133,7 +133,7 @@ public:
      * it returns false only if the result
      * can not be affected by the specified input
      */
-    virtual bool isEffectiveInput(const size_t inputIndex)const;
+    virtual bool isEffectiveInput(const uint64_t inputIndex)const;
 
 protected:
 	std::unique_ptr<LightCircLib::lightCircuit> model_;

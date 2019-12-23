@@ -32,8 +32,8 @@ using Infrastructure::Log2;
 
 namespace{
 
-    size_t expectedQueriedFieldElementsNum(const state_t<uniEvalView_t>& src){
-        size_t res = src.localState.expectedQueriedFieldElementsNum();
+    uint64_t expectedQueriedFieldElementsNum(const state_t<uniEvalView_t>& src){
+        uint64_t res = src.localState.expectedQueriedFieldElementsNum();
 
         for(auto& subproof : src.subproofs){
             res += expectedQueriedFieldElementsNum(subproof.second);
@@ -42,8 +42,8 @@ namespace{
         return res;
     }
 
-    size_t expectedHashesInResults(const state_t<uniEvalView_t>& src){
-        size_t res = src.localState.expectedResultsLenght();
+    uint64_t expectedHashesInResults(const state_t<uniEvalView_t>& src){
+        uint64_t res = src.localState.expectedResultsLenght();
 
         for(auto& subproof : src.subproofs){
             res += expectedHashesInResults(subproof.second);
@@ -52,8 +52,8 @@ namespace{
         return res;
     }
 
-    size_t expectedProofSize(const state_t<uniEvalView_t>& src){
-        size_t res = Infrastructure::POW2(src.localState.getLogSizeBytes());
+    uint64_t expectedProofSize(const state_t<uniEvalView_t>& src){
+        uint64_t res = Infrastructure::POW2(src.localState.getLogSizeBytes());
 
         for(auto& subproof : src.subproofs){
             res += expectedProofSize(subproof.second);
@@ -66,14 +66,14 @@ namespace{
     void fill_queries(
             const RS_queriesTree& srcQueries,
             state_t<uniEvalView_t>& dstState,
-            const size_t dimOfL){
+            const uint64_t dimOfL){
 
         //local queries
         dstState.localState.view = SparceMerkleTree(dimOfL + Log2(sizeof(FieldElement)));
         for(const auto& q : srcQueries.localState){
 
-            const size_t x = q.first;
-            const size_t blockIndex = CryptoCommitment::getBlockIndex(x);
+            const uint64_t x = q.first;
+            const uint64_t blockIndex = CryptoCommitment::getBlockIndex(x);
             const short offsetInBlock = CryptoCommitment::getOffsetInBlock(x);
 
             auto setValFunc = [=,&q](const FieldElement& res){ q.second.answer(res); };
@@ -81,7 +81,7 @@ namespace{
         }
         
         //child queries
-        const size_t columnBasisSize = dimOfColumn(dimOfL);
+        const uint64_t columnBasisSize = dimOfColumn(dimOfL);
         for(const auto& subproofQuerie : srcQueries.subproofs){
             fill_queries(subproofQuerie.second,dstState.subproofs[subproofQuerie.first],columnBasisSize);
         }
@@ -145,11 +145,11 @@ const unsigned short calculateRecursionDepth(const unsigned short basisSize, con
     return depth;
 }
 
-const size_t getNumCommitmentPaths(const unsigned short basisSize, const unsigned short fieldExtensionDim, const unsigned short securityLevel){
+const uint64_t getNumCommitmentPaths(const unsigned short basisSize, const unsigned short fieldExtensionDim, const unsigned short securityLevel){
     return std::ceil(securityLevel/double(fieldExtensionDim - (basisSize+1)));
 }
 
-const size_t getNumQueryPaths(const unsigned short basisSize, const unsigned short logDegBound, const unsigned short securityLevel){
+const uint64_t getNumQueryPaths(const unsigned short basisSize, const unsigned short logDegBound, const unsigned short securityLevel){
     return std::ceil(double(securityLevel) / (basisSize-logDegBound));
 }
 
@@ -160,8 +160,8 @@ verifier_t::verifier_t(const vector<FieldElement> evaluationBasis, const unsigne
     recievedResults_(false)
 {
     
-    const size_t numQueryPaths = getNumQueryPaths(evaluationBasis_.size(),logDegBound, securityLevel);
-    const size_t numComitmentPaths = getNumCommitmentPaths(evaluationBasis_.size(),FFF::Element::ord,securityLevel);
+    const uint64_t numQueryPaths = getNumQueryPaths(evaluationBasis_.size(),logDegBound, securityLevel);
+    const uint64_t numComitmentPaths = getNumCommitmentPaths(evaluationBasis_.size(),FFF::Element::ord,securityLevel);
    
     { 
         using std::to_string;
@@ -191,7 +191,7 @@ verifier_t::verifier_t(const vector<FieldElement> evaluationBasis, const unsigne
             TASK("Generating " + std::to_string(numComitmentPaths) + " commitment query paths of depth " + std::to_string(depth_));
 
             RS_results_.resize(numComitmentPaths);
-            for(size_t i=0; i< numComitmentPaths; i++){
+            for(uint64_t i=0; i< numComitmentPaths; i++){
                 addRandomComitmentPath(logDegBound, evaluationBasis_ , const_cast<details::RS_queries&>(queries_), RS_results_[i], depth_, L0isMSB_);
             }
         }
@@ -201,7 +201,7 @@ verifier_t::verifier_t(const vector<FieldElement> evaluationBasis, const unsigne
             TASK("Generating " + std::to_string(numQueryPaths) + " consistency paths queries");
 
             Consistency_path_results_.resize(numQueryPaths);
-            for(size_t i=0; i< numQueryPaths; i++){
+            for(uint64_t i=0; i< numQueryPaths; i++){
                 addRandomQueryPath(const_cast<details::RS_queries&>(queries_), evaluationBasis_ , Consistency_path_results_[i], L0isMSB_);
             }
         }
@@ -209,7 +209,7 @@ verifier_t::verifier_t(const vector<FieldElement> evaluationBasis, const unsigne
         // fetch queries for univariate for external verifier
         {
             for(const auto& q : queries_.univariate){
-                const size_t x = q.first;
+                const uint64_t x = q.first;
                 auto& currLocationsList = const_cast<queriesToInp_t&>(queriesToInput_)[x];
                 currLocationsList.insert(currLocationsList.end(),q.second.begin(),q.second.end());
             }
@@ -352,7 +352,7 @@ void verifier_t::recieveProofConstructionComitments(const vector<hashDigest_t>& 
     {
         _COMMON_ASSERT(currProofRequests_.size() == comitments.size(), "Number of commitments not as expected");
 
-        for(size_t i=0; i< currProofRequests_.size(); i++){
+        for(uint64_t i=0; i< currProofRequests_.size(); i++){
             currProofRequests_[i].first->localState.commitment = comitments[i];
         }
     }
@@ -376,15 +376,15 @@ void verifier_t::recieveProofConstructionComitments(const vector<hashDigest_t>& 
     }
 }
 
-size_t verifier_t::expectedCommitedProofBytes()const{
+uint64_t verifier_t::expectedCommitedProofBytes()const{
     return expectedProofSize(state_);
 }
 
-size_t verifier_t::expectedSentProofBytes()const{
+uint64_t verifier_t::expectedSentProofBytes()const{
     return expectedHashesInResults(state_) * sizeof(hashDigest_t);
 }
 
-size_t verifier_t::expectedQueriedDataBytes()const{
+uint64_t verifier_t::expectedQueriedDataBytes()const{
     return expectedQueriedFieldElementsNum(state_) * sizeof(FieldElement);
 }
 

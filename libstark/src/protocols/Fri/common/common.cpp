@@ -27,9 +27,9 @@ vector<FieldElement> getL1Basis(const vector<FieldElement>& BasisL, const bool L
     return vector<FieldElement>(BasisL.begin() + SoundnessParameters::dimReduction, BasisL.end());
 }
 
-size_t getBasisLIndex_byL0L1indices(const vector<FieldElement>& BasisL, const size_t idxL0, const size_t idxL1, const bool L0isMSB){
+uint64_t getBasisLIndex_byL0L1indices(const vector<FieldElement>& BasisL, const uint64_t idxL0, const uint64_t idxL1, const bool L0isMSB){
 	if(L0isMSB){
-        const size_t BasisL1_size = BasisL.size() - SoundnessParameters::dimReduction;
+        const uint64_t BasisL1_size = BasisL.size() - SoundnessParameters::dimReduction;
         return idxL1 | (idxL0<<BasisL1_size);
     }
     

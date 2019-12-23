@@ -20,16 +20,16 @@ public:
     const queriesToInp_t& queriesToInput()const;
     bool verify()const;
     
-    size_t expectedCommitedProofBytes()const;
-    size_t expectedSentProofBytes()const;
-    size_t expectedQueriedDataBytes()const;
+    uint64_t expectedCommitedProofBytes()const;
+    uint64_t expectedSentProofBytes()const;
+    uint64_t expectedQueriedDataBytes()const;
     
     void fillResultsAndCommitmentRandomly();
 
 private:
     const std::vector<Algebra::FieldElement> evaluationBasis_;
     const queriesToInp_t queriesToInput_;
-    const size_t depth_;
+    const uint64_t depth_;
     const bool L0isMSB_;
     
     const details::RS_queries queries_;

@@ -32,9 +32,9 @@ public:
 	virtual ~RationalConstraintSys(){};
 	
     /// the amount of inputs each polynomial expects
-    virtual size_t numVars() const = 0;
+    virtual uint64_t numVars() const = 0;
 
-    size_t numMappings()const = 0;
+    uint64_t numMappings()const = 0;
     virtual std::vector<Algebra::FieldElement> eval(const std::vector<Algebra::FieldElement>& assignment)const = 0;
     RationalConstraintSys* clone()const = 0;
 

@@ -84,16 +84,16 @@ namespace Algebra {
      * Boolean matrix inverse
      * Using Gaussian elimination
      */
-    std::array<size_t,matDim> getInv(const std::array<size_t,matDim>& src){
-        std::array<size_t,matDim> srcMat(src);
-        std::array<size_t,matDim> unitMat;
+    std::array<uint64_t,matDim> getInv(const std::array<uint64_t,matDim>& src){
+        std::array<uint64_t,matDim> srcMat(src);
+        std::array<uint64_t,matDim> unitMat;
         for(int i=0; i< matDim; i++){
             unitMat[i] = 1UL<<i;
         }
 
         for(int currCol=0; currCol < matDim; currCol++){
             
-            const size_t colMask = 1UL<<currCol;
+            const uint64_t colMask = 1UL<<currCol;
 
             //find a row with the column bit set
             if((srcMat[currCol] & colMask) == 0UL) {
@@ -122,8 +122,8 @@ namespace Algebra {
         return unitMat;
     }
 
-	std::array<size_t,matDim> matForBitExtr(const int bitNum) {
-		std::array<size_t,matDim> M;
+	std::array<uint64_t,matDim> matForBitExtr(const int bitNum) {
+		std::array<uint64_t,matDim> M;
         M.fill(0UL);
 		const FieldElement invExtractBit = invExtrConsts[bitNum];
 		const FieldElement x = xFE();
@@ -131,7 +131,7 @@ namespace Algebra {
 		
         for (int i = 0; i < matDim; ++i) {
 			FieldElement tmp = invExtractBit*(y*y + y);
-			size_t v = mapFieldElementToInteger(0,ExtensionDegree,tmp);
+			uint64_t v = mapFieldElementToInteger(0,ExtensionDegree,tmp);
 			for (int j = 0; j < DIM - 1; ++j){
                 if (j < bitNum){
                     M[i] |= (v & 1)<<j;
@@ -148,12 +148,12 @@ namespace Algebra {
 	}
 
 	//TODO: half-trace method ii.2.4
-	FieldElement extractBit(const FieldElement& elem, const int bitNum, const std::array<size_t,matDim>& invM) {
+	FieldElement extractBit(const FieldElement& elem, const int bitNum, const std::array<uint64_t,matDim>& invM) {
 		static const FieldElement x = xFE();
-		const size_t tvec = mapFieldElementToInteger(0,ExtensionDegree,elem);
-		size_t vcoeffs = 0;
+		const uint64_t tvec = mapFieldElementToInteger(0,ExtensionDegree,elem);
+		uint64_t vcoeffs = 0;
 		for (int j = 0; j < DIM - 1; ++j){
-			const size_t entryMask = 1UL<<j;
+			const uint64_t entryMask = 1UL<<j;
             if (j < bitNum){
 				vcoeffs |= tvec & entryMask;
             }
@@ -162,7 +162,7 @@ namespace Algebra {
             }
         }
 		
-        size_t v = 0;
+        uint64_t v = 0;
         // v= vcoeffs * invM
         for(int i=0; i< matDim; i++){
             if((vcoeffs>>i) & 1UL){

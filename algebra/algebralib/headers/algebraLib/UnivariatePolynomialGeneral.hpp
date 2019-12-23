@@ -138,7 +138,7 @@ public:
 	  * @param   factor the constant factor of the monomial
       * @param   deg the degree of the monomial
 	  */
-	 void multiply_by_monomial(const FieldElement& factor, const size_t deg);
+	 void multiply_by_monomial(const FieldElement& factor, const uint64_t deg);
 
 
 	 /**

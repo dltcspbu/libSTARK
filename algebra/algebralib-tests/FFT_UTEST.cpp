@@ -13,7 +13,7 @@ using Algebra::getStandartBasis;
 using Algebra::IFFT;
 using std::vector;
 
-FieldElement getElementFromOrderedBasis(const vector<FieldElement>& orderedBasis, size_t elementIndex){
+FieldElement getElementFromOrderedBasis(const vector<FieldElement>& orderedBasis, uint64_t elementIndex){
     FieldElement res = zero();
     for(const auto& b: orderedBasis){
         if (elementIndex%2 == 1) res+=b;
@@ -44,7 +44,7 @@ TEST(Algebra,IFFT){
 
     //construct the evaluation
     vector<FieldElement> vals;
-    for(size_t i=0; (i>>basisSize)==0; i++){
+    for(uint64_t i=0; (i>>basisSize)==0; i++){
         vals.push_back(generateRandom());
     }
 
@@ -52,7 +52,7 @@ TEST(Algebra,IFFT){
     vector<FieldElement> polyCoeffs = IFFT(vals,orderedBasis,shift);
 
     //Test result
-    for(size_t i=0; (i>>basisSize)==0; i++){
+    for(uint64_t i=0; (i>>basisSize)==0; i++){
         const FieldElement x = shift + getElementFromOrderedBasis(orderedBasis, i);
         const FieldElement y = HornerEvaluation(polyCoeffs,x);
         EXPECT_EQ(vals[i],y);
@@ -61,7 +61,7 @@ TEST(Algebra,IFFT){
 
 TEST(Algebra,FFT){
     const unsigned short basisSize = 10;
-    const size_t polyDeg = (1<<basisSize);
+    const uint64_t polyDeg = (1<<basisSize);
     
     //construct the basis (just the standard basis)
     elementsSet_t basisUnordered = getStandartBasis(basisSize);
@@ -72,7 +72,7 @@ TEST(Algebra,FFT){
     //construct the evaluation
     vector<FieldElement> polyCoeffs(polyDeg);
 #pragma omp parallel for 
-    for(size_t i=0; i < polyDeg; i++){
+    for(uint64_t i=0; i < polyDeg; i++){
         polyCoeffs[i] = generateRandom();
     }
 
@@ -80,7 +80,7 @@ TEST(Algebra,FFT){
     vector<FieldElement> vals = FFT(polyCoeffs,orderedBasis,shift);
 
     //Test result
-    for(size_t i=0; (i>>basisSize)==0; i++){
+    for(uint64_t i=0; (i>>basisSize)==0; i++){
         const FieldElement x = shift + getElementFromOrderedBasis(orderedBasis, i);
         const FieldElement y = HornerEvaluation(polyCoeffs,x);
         EXPECT_EQ(vals[i],y);
@@ -91,7 +91,7 @@ TEST(Algebra,novelFFT_single){
     using Algebra::novelFFT;
 
     const unsigned short basisSize = 10;
-    const size_t polyDeg = (1<<basisSize);
+    const uint64_t polyDeg = (1<<basisSize);
     
     //construct the basis (just the standart basis)
     elementsSet_t basisUnordered = getStandartBasis(basisSize);
@@ -102,7 +102,7 @@ TEST(Algebra,novelFFT_single){
     //construct the evaluation
     vector<FieldElement> polyCoeffs(polyDeg);
 #pragma omp parallel for 
-    for(size_t i=0; i < polyDeg; i++){
+    for(uint64_t i=0; i < polyDeg; i++){
         polyCoeffs[i] = generateRandom();
     }
 
@@ -115,7 +115,7 @@ TEST(Algebra,novelFFT_single){
     }
 
     //Test result
-    for(size_t i=0; (i>>basisSize)==0; i++){
+    for(uint64_t i=0; (i>>basisSize)==0; i++){
         const FieldElement x = shift + getElementFromOrderedBasis(orderedBasis, i);
         const FieldElement y = HornerEvaluation(polyCoeffs,x);
         EXPECT_EQ(vals[i],y);
@@ -126,10 +126,10 @@ TEST(Algebra,novelFFT_multiple){
     using Algebra::novelFFT;
 
     const unsigned short basisSize = 10;
-    const size_t spaceSize = 1<<basisSize;
-    const size_t polyDeg = spaceSize;
-    const size_t numPolys = 2;//5;
-    const size_t numCosets = 1;//3;
+    const uint64_t spaceSize = 1<<basisSize;
+    const uint64_t polyDeg = spaceSize;
+    const uint64_t numPolys = 2;//5;
+    const uint64_t numCosets = 1;//3;
     
     //construct the basis (just the standart basis)
     elementsSet_t basisUnordered = getStandartBasis(basisSize);
@@ -143,7 +143,7 @@ TEST(Algebra,novelFFT_multiple){
     //construct the polynomials
     vector<vector<FieldElement>> polyCoeffs(numPolys,vector<FieldElement>(polyDeg));
 #pragma omp parallel for 
-    for(size_t i=0; i < polyDeg; i++){
+    for(uint64_t i=0; i < polyDeg; i++){
         for(auto& poly : polyCoeffs){
             poly[i] = generateRandom();
         }
@@ -158,12 +158,12 @@ TEST(Algebra,novelFFT_multiple){
     }
 
     //Test result
-    for(size_t shiftIdx = 0; shiftIdx < shift.size(); shiftIdx++){
+    for(uint64_t shiftIdx = 0; shiftIdx < shift.size(); shiftIdx++){
         const FieldElement& currShift = shift[shiftIdx];
-        for(size_t i=0; i < spaceSize; i++){
+        for(uint64_t i=0; i < spaceSize; i++){
             const FieldElement x = currShift + getElementFromOrderedBasis(orderedBasis, i);
 
-            for(size_t polyId =0; polyId < numPolys; polyId++){
+            for(uint64_t polyId =0; polyId < numPolys; polyId++){
                 const FieldElement y = HornerEvaluation(polyCoeffs[polyId],x);
                 EXPECT_EQ(vals[numPolys*spaceSize*shiftIdx + numPolys*i + polyId],y);
             }
@@ -192,7 +192,7 @@ TEST(Algebra,FFT_LDE){
 
     //construct the evaluation
     vector<FieldElement> vals;
-    for(size_t i=0; (i>>basisSize_src)==0; i++){
+    for(uint64_t i=0; (i>>basisSize_src)==0; i++){
         vals.push_back(generateRandom());
     }
 
@@ -204,7 +204,7 @@ TEST(Algebra,FFT_LDE){
     vector<FieldElement> ref = FFT(polyCoeffs,orderedBasis_dst,shift_dst);
 
     EXPECT_EQ(ref.size(),LDE_res.size());
-    for(size_t i=0; i < ref.size(); i++){
+    for(uint64_t i=0; i < ref.size(); i++){
         EXPECT_EQ(ref[i], LDE_res[i]);
     }
 

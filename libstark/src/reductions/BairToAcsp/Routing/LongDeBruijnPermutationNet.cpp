@@ -33,19 +33,19 @@ namespace{
  * and the Sequence "src" is a parameter to this function
  */
 
-class rightShiftedIndexes : public Sequence<size_t>{
+class rightShiftedIndexes : public Sequence<uint64_t>{
 public:
-	rightShiftedIndexes(const Sequence<size_t>& src, const layerID_t& numBits, const layerID_t& numShifts)
+	rightShiftedIndexes(const Sequence<uint64_t>& src, const layerID_t& numBits, const layerID_t& numShifts)
 	:origSequence_(src), numBits_(numBits), numShifts_(numShifts % numBits){;}
 	
-	size_t getElementByIndex(index_t index)const {
+	uint64_t getElementByIndex(index_t index)const {
         const index_t mask = (1<<numBits_)-1;
         const auto shifted_index = ((index>>numShifts_) | (index<<(numBits_ - numShifts_))) & mask;
         const auto data = origSequence_.getElementByIndex(shifted_index);
         return data;
 	}
 private:
-	const Sequence<size_t>& origSequence_;
+	const Sequence<uint64_t>& origSequence_;
     const layerID_t numBits_;
     const layerID_t numShifts_;
 };

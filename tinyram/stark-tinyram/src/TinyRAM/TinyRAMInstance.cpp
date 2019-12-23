@@ -8,7 +8,7 @@
     using std::string;
 
 	MachineInstruction::MachineInstruction(const Opcode& opcode, const bool arg2isImmediate,
-		const size_t destIdx, const size_t arg1Idx, const size_t arg2IdxOrImmediate) :
+		const uint64_t destIdx, const uint64_t arg1Idx, const uint64_t arg2IdxOrImmediate) :
 		opcode_(opcode), arg2isImmediate_(arg2isImmediate), destIdx_(destIdx), arg1Idx_(arg1Idx),
 		arg2IdxOrImmediate_(arg2IdxOrImmediate){}
     
@@ -146,12 +146,23 @@
         }
     }
 	
-    void TinyRAMProgram::addInstructionsFromFile(const std::string filename){
-        std::ifstream ifs(filename);
-        std::string content((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
+    // void TinyRAMProgram::addInstructionsFromFile(const std::string filename){
+    //     std::ifstream ifs(filename);
+    //     std::string content((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
         
-        std::regex regex{R"([\n]+)"}; // split to lines
-        std::sregex_token_iterator it{content.begin(), content.end(), regex, -1};
+    //     std::regex regex{R"([\n]+)"}; // split to lines
+    //     std::sregex_token_iterator it{content.begin(), content.end(), regex, -1};
+    //     std::vector<std::string> lines{it, {}};
+
+    //     for(const auto& l : lines){
+    //         MachineInstruction instruction(l);
+    //         addInstruction(instruction);
+    //     }
+    // }
+
+    void TinyRAMProgram::addInstructionsFromFile(const std::string assemblyCode){
+        std::regex regex{R"([;]+)"}; // split to lines
+        std::sregex_token_iterator it{assemblyCode.begin(), assemblyCode.end(), regex, -1};
         std::vector<std::string> lines{it, {}};
 
         for(const auto& l : lines){

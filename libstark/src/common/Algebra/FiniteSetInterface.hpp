@@ -20,7 +20,7 @@ public:
 	/**
  	* Returns the size of the set
  	*/ 
-	virtual size_t size()const = 0;
+	virtual uint64_t size()const = 0;
 
 	/**
  	* Returns the minimal polynomial that vanishes over the set

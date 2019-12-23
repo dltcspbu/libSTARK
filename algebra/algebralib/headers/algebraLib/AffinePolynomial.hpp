@@ -57,9 +57,9 @@ namespace Algebra {
     private:
 		std::vector<FieldElement> coefficients_;	//coefficients[i] = coefficient c of the monomial c*x^(2^i)
 		FieldElement constantFactor_;  //The constant factor of the vanishing polynomial, relevant for affine subspaces and not linear.
-        size_t constantFactor_intRep_;
+        uint64_t constantFactor_intRep_;
 		
-        std::array<size_t,ExtensionDegree> polyMat_; //the matrix corresponding to evaluating this poly (not including adding constantFactor)
+        std::array<uint64_t,ExtensionDegree> polyMat_; //the matrix corresponding to evaluating this poly (not including adding constantFactor)
         /**updates the polyMat field to contain correct evaluation matrix*/
 		void computeMat() ;
 

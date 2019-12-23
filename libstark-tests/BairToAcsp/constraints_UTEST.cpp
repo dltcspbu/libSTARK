@@ -81,9 +81,9 @@ class BairToAcsp_tester : private CBairToAcsp, private witnessReduction{
         }
 
         //find some victim index
-        const size_t column = rand()%(POW2(commonDef.widthSpaceDimension())-2);
-        const size_t row = rand()%POW2(commonDef.heightSpaceDimension());
-        const size_t layer = rand()%2;
+        const uint64_t column = rand()%(POW2(commonDef.widthSpaceDimension())-2);
+        const uint64_t row = rand()%POW2(commonDef.heightSpaceDimension());
+        const uint64_t layer = rand()%2;
 
         //get the victim indicator
         const auto victim = witnessMapping.mapNetworkRoutingBit_witnessIndex(row,column,layer);
@@ -116,9 +116,9 @@ class BairToAcsp_tester : private CBairToAcsp, private witnessReduction{
         auto mappings = witnessReduction::getEmbeddingMapping(partialInstance,bair_pair.second, commonDef,witnessMapping);
 
         //find some victim index
-        const size_t lastCol = commonDef.imageWidth() - 2;
-        const size_t row = rand()%POW2(commonDef.heightSpaceDimension());
-        const size_t layer = rand()%(2*commonDef.variablesPerm().size());
+        const uint64_t lastCol = commonDef.imageWidth() - 2;
+        const uint64_t row = rand()%POW2(commonDef.heightSpaceDimension());
+        const uint64_t layer = rand()%(2*commonDef.variablesPerm().size());
 
         //get the victim indicator
         const auto victim = witnessMapping.mapNetworkElement_witnessIndex(row,lastCol,layer);
@@ -152,12 +152,12 @@ class BairToAcsp_tester : private CBairToAcsp, private witnessReduction{
         auto mappings = witnessReduction::getEmbeddingMapping(partialInstance,bair_pair.second, commonDef,witnessMapping);
 
         //find some victim index
-        const size_t firstCol = 0;
-        const size_t layer = rand()%(2*commonDef.variablesPerm().size());
+        const uint64_t firstCol = 0;
+        const uint64_t layer = rand()%(2*commonDef.variablesPerm().size());
 
         //get the victim indicator
         const FieldElement victim = witnessMapping.mapPermutationColumnId_spaceElement(firstCol);
-        const size_t victim_index = Algebra::getSpaceIndexOfElement(orderedBasis,Algebra::zero(),victim);
+        const uint64_t victim_index = Algebra::getSpaceIndexOfElement(orderedBasis,Algebra::zero(),victim);
 
         //change the value
         //adding 1 makes it different for sure
@@ -188,10 +188,10 @@ class BairToAcsp_tester : private CBairToAcsp, private witnessReduction{
         auto mappings = witnessReduction::getEmbeddingMapping(partialInstance,bair_pair.second, commonDef,witnessMapping);
 
         //find some victim index
-        const size_t lastCol = commonDef.imageWidth() - 2;
-        const size_t column = rand()%lastCol;
-        const size_t row = rand()%POW2(commonDef.heightSpaceDimension());
-        const size_t layer = rand()%(2*commonDef.variablesPerm().size());
+        const uint64_t lastCol = commonDef.imageWidth() - 2;
+        const uint64_t column = rand()%lastCol;
+        const uint64_t row = rand()%POW2(commonDef.heightSpaceDimension());
+        const uint64_t layer = rand()%(2*commonDef.variablesPerm().size());
 
         //get the victim indicator
         const auto victim = witnessMapping.mapNetworkElement_witnessIndex(row,column,layer);

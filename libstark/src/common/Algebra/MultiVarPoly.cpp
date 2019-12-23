@@ -15,8 +15,8 @@
 //			product_t newProd;
 //			newProd.coeff = monomial.getCoefficient();
 //
-//			for (size_t varId = 0; varId < varsTranslation.size(); varId++){
-//				for (size_t i = 0; i< monomial.getVariableDegree(varsTranslation[varId]); i++){
+//			for (uint64_t varId = 0; varId < varsTranslation.size(); varId++){
+//				for (uint64_t i = 0; i< monomial.getVariableDegree(varsTranslation[varId]); i++){
 //					newProd.vars.push_back(varId);
 //				}
 //			}
@@ -80,7 +80,7 @@
 //		return unique_ptr<PolynomialInterface>(new constraintPoly(*this));
 //	}
 //
-//	bool isEffectiveInput(const size_t varId)const{
+//	bool isEffectiveInput(const uint64_t varId)const{
 //
 //		for (const auto& prod : poly_){
 //			for (const auto& varId_ : prod.vars){
@@ -91,7 +91,7 @@
 //	}
 //
 //private:
-//	typedef size_t varId_t;
+//	typedef uint64_t varId_t;
 //	typedef struct product_t{
 //		vector<varId_t> vars;
 //		FieldElement coeff;

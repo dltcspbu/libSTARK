@@ -6,9 +6,9 @@
 #include "reductions/BairToAcsp/BairToAcsp.hpp"
 
 #include <set>
-#if __GNUG__
-#include <sys/sysinfo.h>
-#endif
+// #if __GNUG__
+// #include <sys/sysinfo.h>
+// #endif
 
 namespace libstark{
 namespace Protocols{
@@ -45,16 +45,16 @@ namespace{
         using Algebra::UnivariatePolynomialGeneral;
         using Algebra::zero;
         
-        const size_t numOfWitnesses = acspWitness.assignmentPolys().size();
-        const size_t degBound = PolynomialDegree::integral_t(acspInstance.witnessDegreeBound()[0]);
+        const uint64_t numOfWitnesses = acspWitness.assignmentPolys().size();
+        const uint64_t degBound = PolynomialDegree::integral_t(acspInstance.witnessDegreeBound()[0]);
         for(const auto& d: acspInstance.witnessDegreeBound()){
-            _COMMON_ASSERT(degBound == (size_t)PolynomialDegree::integral_t(d), "Degrees of witness columns are expected to be equal");
+            _COMMON_ASSERT(degBound == (uint64_t)PolynomialDegree::integral_t(d), "Degrees of witness columns are expected to be equal");
         }
         
         const unsigned short witnessDegLog = ceil(Log2(degBound));
-        const size_t witnessPow2Deg = POW2(witnessDegLog);
+        const uint64_t witnessPow2Deg = POW2(witnessDegLog);
 
-#pragma omp parallel for
+// #pragma omp parallel for
         for(ploopinttype wIndex = 0; wIndex < numOfWitnesses; wIndex++){
 
             const Algebra::UnivariatePolynomialInterface& witnessPoly = *(acspWitness.assignmentPolys()[wIndex]);
@@ -94,8 +94,8 @@ namespace{
         }
     }
 
-    void initWitness_ZkMask_coeffs(FieldElement* res, const size_t numCoeffs){
-#pragma omp parallel for
+    void initWitness_ZkMask_coeffs(FieldElement* res, const uint64_t numCoeffs){
+// #pragma omp parallel for
         for(plooplongtype i =0; i< numCoeffs; i++){
             res[i] = Algebra::generateRandom();
         }
@@ -109,14 +109,14 @@ namespace{
         /** Step 1 - Parameter Instantiation: */
         /**************************************/
 
-        const size_t numOfWitnesses = acspWitness.assignmentPolys().size();
-        const size_t numOfWitnessesWithZkMask = numOfWitnesses+numRepetitions;
-        const size_t degBound = PolynomialDegree::integral_t(acspInstance.witnessDegreeBound()[0]);
+        const uint64_t numOfWitnesses = acspWitness.assignmentPolys().size();
+        const uint64_t numOfWitnessesWithZkMask = numOfWitnesses+numRepetitions;
+        const uint64_t degBound = PolynomialDegree::integral_t(acspInstance.witnessDegreeBound()[0]);
         for(const auto& d: acspInstance.witnessDegreeBound()){
-            _COMMON_ASSERT(degBound == (size_t)PolynomialDegree::integral_t(d), "Degrees of witness columns are expected to be equal");
+            _COMMON_ASSERT(degBound == (uint64_t)PolynomialDegree::integral_t(d), "Degrees of witness columns are expected to be equal");
         }
         const unsigned short witnessDegLog = ceil(Log2(degBound));
-        const size_t witnessPow2Deg = POW2(witnessDegLog);
+        const uint64_t witnessPow2Deg = POW2(witnessDegLog);
 
         //
         //Construct ordered basis for proofs
@@ -137,7 +137,7 @@ namespace{
         {
             TASK("Generating Witnesses ZK Mask polynomial coefficients");
             for(unsigned int i=0; i< numRepetitions; i++){
-                const size_t zkIdx = numOfWitnesses+i;
+                const uint64_t zkIdx = numOfWitnesses+i;
                 vector<FieldElement>& zkMask = witnessCoeffs[zkIdx];
 
                 zkMask.resize(witnessPow2Deg);
@@ -151,11 +151,11 @@ namespace{
             // some space constants
             const vector<FieldElement> cosetBasis(basisPCPP.basis.begin(),basisPCPP.basis.begin()+witnessDegLog);
             const vector<FieldElement> shiftsBasis(basisPCPP.basis.begin()+witnessDegLog, basisPCPP.basis.end());
-            const size_t numShifts = POW2(shiftsBasis.size());
-            const size_t cosetSize = POW2(cosetBasis.size());
+            const uint64_t numShifts = POW2(shiftsBasis.size());
+            const uint64_t cosetSize = POW2(cosetBasis.size());
             
             const unsigned short widthLog = boundaryPolysMatrix_logWidth(acspInstance, numZkMasks);
-            const size_t width = POW2(widthLog);
+            const uint64_t width = POW2(widthLog);
             
             fftInstance = unique_ptr<novelFFT>(new novelFFT(cosetBasis,std::move(witnessCoeffs),width,Algebra::zero()));
             
@@ -165,23 +165,23 @@ namespace{
                 unsigned short logVM;
                 //compute RAM amount on current machine
                 {
-#if __GNUG__
-                    struct sysinfo info;
-                    sysinfo(&info);
-                    logRAM = std::floor(Log2(info.totalram));
-                    logVM = std::floor(Log2(info.totalswap + info.totalram));
-                    logVM = std::min(logVM, logRAM); //it seems to be giving best performance
-#else
+// #if __GNUG__
+//                     struct sysinfo info;
+//                     sysinfo(&info);
+//                     logRAM = std::floor(Log2(info.totalram));
+//                     logVM = std::floor(Log2(info.totalswap + info.totalram));
+//                     logVM = std::min(logVM, logRAM); //it seems to be giving best performance
+// #else
                     logRAM = 33;
                     logVM = 33;
-#endif
+// #endif
                 }
                 const unsigned short logCosetSize = widthLog + cosetBasis.size() + Log2(sizeof(FieldElement));
                 entireWitnessKept = (logVM > shiftsBasis.size() + logCosetSize);
                 const int logMerkleOverhead = (entireWitnessKept? 1 : 0);
                 logNumCosetsInParallel = std::min(shiftsBasis.size(), (size_t)std::max(0,int(logRAM-(logCosetSize+logMerkleOverhead))));
             }
-            const size_t numCosetsInParallel = POW2(logNumCosetsInParallel);
+            const uint64_t numCosetsInParallel = POW2(logNumCosetsInParallel);
 
             //
             // Handling the case where the proof fits entirely into RAM
@@ -194,7 +194,7 @@ namespace{
                     TASK("Evaluating all witnesses, will keep them in RAM");
                     return unique_ptr<dataWithCommitment>(new 
                             dataWithCommitment(widthLog + cosetBasis.size(), shiftsBasis.size(),
-                                [&](const size_t shiftIdx, FieldElement* res){
+                                [&](const uint64_t shiftIdx, FieldElement* res){
                                 const FieldElement affineShift = Algebra::getSpaceElementByIndex(shiftsBasis, basisPCPP.shift, shiftIdx);
                                 fftInstance->FFT({affineShift}, res, cosetSize*width);
                                 }
@@ -205,14 +205,14 @@ namespace{
                     TASK("Evaluating witnesses in blocks of " + std::to_string(numCosetsInParallel) + " cosets in block, will keep them in RAM");
                     return unique_ptr<dataWithCommitment>(new 
                             dataWithCommitment(widthLog + cosetBasis.size() + logNumCosetsInParallel, shiftsBasis.size() - logNumCosetsInParallel,
-                                [&](const size_t globalShiftIdx, FieldElement* res){
+                                [&](const uint64_t globalShiftIdx, FieldElement* res){
 
                                 TASK("Constructing " + std::to_string(numCosetsInParallel) + " cosets of total " + std::to_string(numShifts));
 
                                 vector<FieldElement> affineShifts(numCosetsInParallel);
 
-                                const size_t shiftsStart = globalShiftIdx*numCosetsInParallel;
-                                for(size_t shiftId=0; shiftId < numCosetsInParallel; shiftId++){
+                                const uint64_t shiftsStart = globalShiftIdx*numCosetsInParallel;
+                                for(uint64_t shiftId=0; shiftId < numCosetsInParallel; shiftId++){
                                 affineShifts[shiftId] = Algebra::getSpaceElementByIndex(shiftsBasis, basisPCPP.shift, shiftsStart + shiftId);
                                 
                                 }
@@ -227,24 +227,24 @@ namespace{
             hashDigest_t* cosetsHash = (hashDigest_t*)&merklePeakData[0];
             {
                 vector<FieldElement> cosetEval(width*cosetSize*numCosetsInParallel);
-                for(size_t i=0; i< numShifts/numCosetsInParallel; i++){
+                for(uint64_t i=0; i< numShifts/numCosetsInParallel; i++){
                     TASK("Evaluating " + std::to_string(numCosetsInParallel) + " coset of " + std::to_string(numShifts));
                     
                     //init offsets for cosets
                     vector<FieldElement> shifts(numCosetsInParallel);
-                    for(size_t shiftIdx=0; shiftIdx < numCosetsInParallel; shiftIdx++){
+                    for(uint64_t shiftIdx=0; shiftIdx < numCosetsInParallel; shiftIdx++){
                         shifts[shiftIdx] = Algebra::getSpaceElementByIndex(shiftsBasis, basisPCPP.shift, i*numCosetsInParallel + shiftIdx);
                     }
                     
                     //evaluate and collect hashes
                     
-                    const unsigned int max_threads_machine = omp_get_max_threads();
+                    const unsigned int max_threads_machine = 1; // omp_get_max_threads();
                     if(numCosetsInParallel < max_threads_machine){
                         
                         //evaluate
                         fftInstance->FFT(shifts, &cosetEval[0], cosetSize*width);
 
-                        for(size_t shiftIdx=0; shiftIdx < numCosetsInParallel; shiftIdx++){
+                        for(uint64_t shiftIdx=0; shiftIdx < numCosetsInParallel; shiftIdx++){
                             FieldElement* currCoset = &cosetEval[shiftIdx*cosetSize*width];
 
                             //get coset Merkle root
@@ -253,7 +253,7 @@ namespace{
 
                     }
                     else{
-#pragma omp parallel for
+// #pragma omp parallel for
                         for(plooplongtype shiftIdx=0; shiftIdx < numCosetsInParallel; shiftIdx++){
                             FieldElement* currCoset = &cosetEval[shiftIdx*cosetSize*width];
 
@@ -276,8 +276,8 @@ namespace{
             public:
                 cachedPoly_t(
                         const dataWithCommitment& model,
-                        const size_t numColumns,
-                        const size_t columnIdx,
+                        const uint64_t numColumns,
+                        const uint64_t columnIdx,
                         const UnivariatePolynomialInterface& realModel,
                         const basisWithShift_t& basisPCPP,
                         const UnivariatePolynomialGeneral& vanishingPoly,
@@ -300,7 +300,7 @@ namespace{
                                 _COMMON_ASSERT(expected == basisPCPP_.basis[i],"proximity test space basis is not of expected form");
                             }
                             {
-                                const size_t lastElemIndex = basisPCPP_.basis.size()-1;
+                                const uint64_t lastElemIndex = basisPCPP_.basis.size()-1;
                                 const FieldElement expected = Algebra::mapIntegerToFieldElement(lastElemIndex,2,3);
                                 _COMMON_ASSERT(expected == basisPCPP_.basis[lastElemIndex],"proximity test space basis is not of expected form");
                             }
@@ -316,8 +316,8 @@ namespace{
 
                 FieldElement eval(const FieldElement& x)const{
                     const FieldElement shifted_x = x-basisPCPP_.shift;
-                    const size_t index = mapFieldElementToInteger(0,basisPCPP_.basis.size(),shifted_x);
-                    const size_t inModelIndex = index*numColumns_ + columnIdx_;
+                    const uint64_t index = mapFieldElementToInteger(0,basisPCPP_.basis.size(),shifted_x);
+                    const uint64_t inModelIndex = index*numColumns_ + columnIdx_;
 
                     if(!hasBoundary_){
                         return model_.getElement(inModelIndex);
@@ -347,8 +347,8 @@ namespace{
             private:
                 const dataWithCommitment& model_;
                 const UnivariatePolynomialInterface& realModel_;
-                const size_t numColumns_;
-                const size_t columnIdx_;
+                const uint64_t numColumns_;
+                const uint64_t columnIdx_;
                 const basisWithShift_t basisPCPP_;
                 const UnivariatePolynomialGeneral vanishingPoly_;
                 const UnivariatePolynomialGeneral boundValsPoly_;
@@ -359,7 +359,7 @@ namespace{
             const auto PCPP_space = Ali::details::PCP_common::basisForWitness(instance);
 
             vector<unique_ptr<const UnivariatePolynomialInterface>> res(witness.assignmentPolys().size());
-            for(size_t i=0; i< witness.assignmentPolys().size(); i++){
+            for(uint64_t i=0; i< witness.assignmentPolys().size(); i++){
 
                 //get the neighbors values for the consistency test
                 UnivariatePolynomialGeneral vanishingPoly(Algebra::one());
@@ -421,9 +421,9 @@ namespace{
 
     unique_ptr<UniEvalWithCommitment> ZK_Composition_PolyEvaluation(const AcspInstance& acspInstance){
         TASK("Generating mask poly for Composition RS proximity ZK");
-        const size_t degBound = PolynomialDegree::integral_t(Ali::details::PCP_common::composition_div_ZH_degreeBound(acspInstance));
+        const uint64_t degBound = PolynomialDegree::integral_t(Ali::details::PCP_common::composition_div_ZH_degreeBound(acspInstance));
         UnivariatePolynomialGeneral ZK_poly;
-        for(size_t i=0; i <= degBound; i++){
+        for(uint64_t i=0; i <= degBound; i++){
             ZK_poly.setCoefficient(i, Algebra::generateRandom());
         }
 
@@ -442,34 +442,34 @@ namespace{
         //Construct ordered bases for proofs
         //
         const auto basisPCPP = Ali::details::PCP_common::basisForWitness(acspInstance);
-        const size_t numColumns = POW2(ceil(Log2(1 + acspInstance.witnessDegreeBound().size()))); //+1 for ZK mask poly
+        const uint64_t numColumns = POW2(ceil(Log2(1 + acspInstance.witnessDegreeBound().size()))); //+1 for ZK mask poly
         
-        const size_t degBound = PolynomialDegree::integral_t(acspInstance.witnessDegreeBound()[0]);
+        const uint64_t degBound = PolynomialDegree::integral_t(acspInstance.witnessDegreeBound()[0]);
         const unsigned short witnessDegLog = ceil(Log2(degBound));
         const vector<FieldElement> cosetBasis(basisPCPP.basis.begin(),basisPCPP.basis.begin()+witnessDegLog);
-        const size_t cosetSize = POW2(cosetBasis.size());
+        const uint64_t cosetSize = POW2(cosetBasis.size());
 
         vector<FieldElement> evaluation(cosetSize*numColumns);
         fftInstance.FFT({Algebra::zero()},&evaluation[0],0);
 
         vector<FieldElement> cosetVals(cosetSize);
-        const size_t zkMaskIdx = acspInstance.boundaryConstraints().size() + rsCombId;
+        const uint64_t zkMaskIdx = acspInstance.boundaryConstraints().size() + rsCombId;
 
         const unsigned short logBlockLen = std::min(10,int(cosetBasis.size()));
-        const size_t blockLen = POW2(logBlockLen);
-        const size_t numBlocks = POW2(cosetBasis.size() - logBlockLen);
-#pragma omp parallel for
+        const uint64_t blockLen = POW2(logBlockLen);
+        const uint64_t numBlocks = POW2(cosetBasis.size() - logBlockLen);
+// #pragma omp parallel for
         for (plooplongtype blockIdx =0; blockIdx < numBlocks; blockIdx++){
             for (unsigned long long inBlockIdx = 0; inBlockIdx < blockLen; inBlockIdx++){
 
-                const size_t xIdx = blockIdx*blockLen + inBlockIdx;
+                const uint64_t xIdx = blockIdx*blockLen + inBlockIdx;
                 const FieldElement x = getSpaceElementByIndex(cosetBasis,Algebra::zero(),xIdx);
 
                 //the ZK mask poly
                 cosetVals[xIdx] = evaluation[xIdx*numColumns + zkMaskIdx];
 
                 //witnesses
-                for(size_t wIndex =0; wIndex <acspInstance.boundaryConstraints().size(); wIndex++){
+                for(uint64_t wIndex =0; wIndex <acspInstance.boundaryConstraints().size(); wIndex++){
                     cosetVals[xIdx] += evaluation[xIdx*numColumns +wIndex]*
                         (
                          randCoeffs.boundary[wIndex].coeffUnshifted[rsCombId]
@@ -487,7 +487,7 @@ namespace{
             const novelFFT fftCol(cosetBasis, std::move(cosetVals));
             vector<FieldElement> cosetShiftsBasis(basisPCPP.basis.begin()+witnessDegLog, basisPCPP.basis.end());
             vector<FieldElement> cosetShifts(POW2(cosetShiftsBasis.size()));
-            for(size_t i=0; i< cosetShifts.size(); i++){
+            for(uint64_t i=0; i< cosetShifts.size(); i++){
                 cosetShifts[i] = getSpaceElementByIndex(cosetShiftsBasis,basisPCPP.shift, i);
             }
             
@@ -510,10 +510,10 @@ namespace{
         //Construct ordered basises for proofs
         //
         const auto basisPCPP = Ali::details::PCP_common::basisForConsistency(acspInstance);
-        const size_t spaceSize = POW2(basisPCPP.basis.size());
+        const uint64_t spaceSize = POW2(basisPCPP.basis.size());
 
         vector<FieldElement> evaluation = compositionPolysEvaluation(acspInstance,acspWitness, basisPCPP.basis, basisPCPP.shift, *uniEvals.boundaryPolysMatrix, entireWitnessKept, numZkMasks);
-#pragma omp parallel for
+// #pragma omp parallel for
 		  for (plooplongtype xIdx = 0; xIdx < spaceSize; xIdx++){
             
             //the ZK mask poly
@@ -544,57 +544,57 @@ namespace{
         //
         const auto basisPCPP = Ali::details::PCP_common::basisForWitness(instance);
 
-        const size_t degBound = PolynomialDegree::integral_t(instance.witnessDegreeBound()[0]);
+        const uint64_t degBound = PolynomialDegree::integral_t(instance.witnessDegreeBound()[0]);
         const unsigned short witnessDegLog = ceil(Log2(degBound));
         const vector<FieldElement> cosetBasis(basisPCPP.basis.begin(),basisPCPP.basis.begin()+witnessDegLog);
         const vector<FieldElement> shiftsBasis(basisPCPP.basis.begin()+witnessDegLog, basisPCPP.basis.end());
-        const size_t numShifts = POW2(shiftsBasis.size());
-        const size_t cosetSize = POW2(cosetBasis.size());
+        const uint64_t numShifts = POW2(shiftsBasis.size());
+        const uint64_t cosetSize = POW2(cosetBasis.size());
         const unsigned short widthLog = boundaryPolysMatrix_logWidth(instance, numZkMasks);
         const unsigned short heightLog = basisPCPP.basis.size();
-        const size_t width = POW2(widthLog);
+        const uint64_t width = POW2(widthLog);
 
         const unsigned short cosetShiftSize = cosetBasis.size()+widthLog;
-        const size_t cosetMask = (1UL<<cosetShiftSize) - 1UL;
+        const uint64_t cosetMask = (1UL<<cosetShiftSize) - 1UL;
 
-        vector<vector<size_t>> queriesByCoset(numShifts);
-        vector<size_t> cosetsWithQueries;
+        vector<vector<uint64_t>> queriesByCoset(numShifts);
+        vector<uint64_t> cosetsWithQueries;
         {
-            set<size_t> cosetsWithQueriesSet;
-            for(const size_t& blockPairIndex : rawQueries.boundaryPolysMatrix){
-                const size_t blockIndex = blockPairIndex<<1;
-                const size_t FElemIndex = CryptoCommitment::getElementIndex(blockIndex);
+            set<uint64_t> cosetsWithQueriesSet;
+            for(const uint64_t& blockPairIndex : rawQueries.boundaryPolysMatrix){
+                const uint64_t blockIndex = blockPairIndex<<1;
+                const uint64_t FElemIndex = CryptoCommitment::getElementIndex(blockIndex);
                 
-                const size_t FElemCosetIndex = FElemIndex>>cosetShiftSize;
-                const size_t FElemLocalIndex = FElemIndex & cosetMask;
-                const size_t blockLocalIndex = CryptoCommitment::getBlockIndex(FElemLocalIndex);
-                const size_t blockLocalPairIndex = blockLocalIndex>>1;
+                const uint64_t FElemCosetIndex = FElemIndex>>cosetShiftSize;
+                const uint64_t FElemLocalIndex = FElemIndex & cosetMask;
+                const uint64_t blockLocalIndex = CryptoCommitment::getBlockIndex(FElemLocalIndex);
+                const uint64_t blockLocalPairIndex = blockLocalIndex>>1;
                 
                 queriesByCoset[FElemCosetIndex].push_back(blockLocalPairIndex);
                 cosetsWithQueriesSet.insert(FElemCosetIndex);
             }
             cosetsWithQueries.insert(cosetsWithQueries.end(),cosetsWithQueriesSet.begin(), cosetsWithQueriesSet.end());
         }
-        const size_t numCosetsToEvaluate = cosetsWithQueries.size();
+        const uint64_t numCosetsToEvaluate = cosetsWithQueries.size();
         
         //    
         //Calculate number of cosets in parallel for performance
         //
-        size_t NumCosetsInParallel;
+        uint64_t NumCosetsInParallel;
         {
             unsigned short logRAM;
             //compute RAM amount on current machine
             {
-#if __GNUG__
-                struct sysinfo info;
-                sysinfo(&info);
-                logRAM = Log2(std::round(info.totalram));
-#else
+// #if __GNUG__
+//                 struct sysinfo info;
+//                 sysinfo(&info);
+//                 logRAM = Log2(std::round(info.totalram));
+// #else
                 logRAM = 33;
-#endif
+// #endif
             }
             logRAM = std::max(logRAM, (unsigned short)(widthLog + cosetBasis.size() + Log2(sizeof(FieldElement)) + 1));
-            NumCosetsInParallel = std::min(numCosetsToEvaluate, (size_t)POW2(size_t(logRAM-(widthLog + cosetBasis.size() + Log2(sizeof(FieldElement))))));
+            NumCosetsInParallel = std::min(numCosetsToEvaluate, (uint64_t)POW2(uint64_t(logRAM-(widthLog + cosetBasis.size() + Log2(sizeof(FieldElement))))));
         }
     
         //
@@ -603,26 +603,26 @@ namespace{
         CryptoCommitment::SparceMerkleTree resultsTree(widthLog + heightLog + Log2(sizeof(FieldElement)));
         vector<FieldElement> cosetsEval(NumCosetsInParallel*cosetSize*width);
         
-        for(size_t blockIdx=0; blockIdx < numCosetsToEvaluate; blockIdx+= NumCosetsInParallel){
-            const size_t currBlockSize = std::min(numCosetsToEvaluate-blockIdx,NumCosetsInParallel);
+        for(uint64_t blockIdx=0; blockIdx < numCosetsToEvaluate; blockIdx+= NumCosetsInParallel){
+            const uint64_t currBlockSize = std::min(numCosetsToEvaluate-blockIdx,NumCosetsInParallel);
             TASK("Evaluating " + std::to_string(currBlockSize) + " cosets of total " + std::to_string(numCosetsToEvaluate));
 
             //construct affine shifts
             vector<FieldElement> shifts(currBlockSize);
-            for(size_t i=0; i<currBlockSize; i++){
+            for(uint64_t i=0; i<currBlockSize; i++){
                 shifts[i] = Algebra::getSpaceElementByIndex(shiftsBasis, basisPCPP.shift, cosetsWithQueries[blockIdx+i]);
             }
 
             //evaluate the cosets
             
-            const unsigned int max_threads_machine = omp_get_max_threads();
+            const unsigned int max_threads_machine = 1; //omp_get_max_threads();
             //answer to queries of each coset seperatly
             if(currBlockSize < max_threads_machine){
                 fftInstance.FFT(shifts, &cosetsEval[0], cosetSize*width);
                 
                 for(unsigned long long i=0; i<currBlockSize; i++){
                     FieldElement* cosetEval = &cosetsEval[i*cosetSize*width];
-                    const size_t shiftIdx = cosetsWithQueries[blockIdx+i];
+                    const uint64_t shiftIdx = cosetsWithQueries[blockIdx+i];
                     const auto& queries = queriesByCoset[shiftIdx];
 
                     //
@@ -633,10 +633,10 @@ namespace{
                     {
                         hashDigest_t rootOfPairCoset;
                         FieldElement* asElemVec = (FieldElement*)&rootOfPairCoset;
-                        size_t start = CryptoCommitment::getElementIndex(shiftIdx^1UL);
-                        size_t end = CryptoCommitment::getElementIndex(1UL+(shiftIdx^1UL));
-                        size_t len = end-start;
-                        for(size_t i=0; i<len; i++){
+                        uint64_t start = CryptoCommitment::getElementIndex(shiftIdx^1UL);
+                        uint64_t end = CryptoCommitment::getElementIndex(1UL+(shiftIdx^1UL));
+                        uint64_t len = end-start;
+                        for(uint64_t i=0; i<len; i++){
                             asElemVec[i] = merkleTop.getElement(start+i);
                         }
 
@@ -645,13 +645,13 @@ namespace{
 
                     //collect data for queries
                     typedef std::pair<std::array<hashDigest_t,2>,CryptoCommitment::path_t> pathPair_t;
-                    const size_t numQueries = queries.size();
+                    const uint64_t numQueries = queries.size();
                     vector<pathPair_t> paths(numQueries);
                     {
                         for(unsigned int q=0; q< numQueries; q++){
-                            const size_t blockLocalPairIndex = queries[q];
-                            const size_t blockLocalIndex = blockLocalPairIndex<<1;
-                            const size_t FElemLocalIndex = CryptoCommitment::getElementIndex(blockLocalIndex);
+                            const uint64_t blockLocalPairIndex = queries[q];
+                            const uint64_t blockLocalIndex = blockLocalPairIndex<<1;
+                            const uint64_t FElemLocalIndex = CryptoCommitment::getElementIndex(blockLocalIndex);
 
                             memcpy(&paths[q].first[0],  &cosetEval[FElemLocalIndex], 2*sizeof(hashDigest_t));
                         }
@@ -661,13 +661,13 @@ namespace{
                     const unsigned short treeLogLen = Log2(cosetSize*width*sizeof(FieldElement));
                     const auto queryPaths = CryptoCommitment::getPathToBlocksInPlace(&cosetEval[0], treeLogLen, queries);
                     for(unsigned int q=0; q< numQueries; q++){
-                        const size_t blockLocalPairIndex = queries[q];
-                        const size_t blockLocalIndex = blockLocalPairIndex<<1;
-                        const size_t FElemLocalIndex = CryptoCommitment::getElementIndex(blockLocalIndex);
+                        const uint64_t blockLocalPairIndex = queries[q];
+                        const uint64_t blockLocalIndex = blockLocalPairIndex<<1;
+                        const uint64_t FElemLocalIndex = CryptoCommitment::getElementIndex(blockLocalIndex);
 
-                        const size_t FElemIndex = FElemLocalIndex | (shiftIdx<<cosetShiftSize);
-                        const size_t blockIndex = CryptoCommitment::getBlockIndex(FElemIndex);
-                        const size_t blockPairIndex = blockIndex>>1;
+                        const uint64_t FElemIndex = FElemLocalIndex | (shiftIdx<<cosetShiftSize);
+                        const uint64_t blockIndex = CryptoCommitment::getBlockIndex(FElemIndex);
+                        const uint64_t blockPairIndex = blockIndex>>1;
 
                         paths[q].second = queryPaths[q];
 
@@ -680,10 +680,10 @@ namespace{
                 }
             }
             else{
-#pragma omp parallel for
+// #pragma omp parallel for
                 for(plooplongtype i=0; i<currBlockSize; i++){
                     FieldElement* cosetEval = &cosetsEval[i*cosetSize*width];
-                    const size_t shiftIdx = cosetsWithQueries[blockIdx+i];
+                    const uint64_t shiftIdx = cosetsWithQueries[blockIdx+i];
                     {
                         fftInstance.FFT({shifts[i]}, &cosetEval[0], cosetSize*width);
                     }
@@ -697,10 +697,10 @@ namespace{
                     {
                         hashDigest_t rootOfPairCoset;
                         FieldElement* asElemVec = (FieldElement*)&rootOfPairCoset;
-                        size_t start = CryptoCommitment::getElementIndex(shiftIdx^1UL);
-                        size_t end = CryptoCommitment::getElementIndex(1UL+(shiftIdx^1UL));
-                        size_t len = end-start;
-                        for(size_t i=0; i<len; i++){
+                        uint64_t start = CryptoCommitment::getElementIndex(shiftIdx^1UL);
+                        uint64_t end = CryptoCommitment::getElementIndex(1UL+(shiftIdx^1UL));
+                        uint64_t len = end-start;
+                        for(uint64_t i=0; i<len; i++){
                             asElemVec[i] = merkleTop.getElement(start+i);
                         }
 
@@ -709,13 +709,13 @@ namespace{
 
                     //collect data for queries
                     typedef std::pair<std::array<hashDigest_t,2>,CryptoCommitment::path_t> pathPair_t;
-                    const size_t numQueries = queries.size();
+                    const uint64_t numQueries = queries.size();
                     vector<pathPair_t> paths(numQueries);
                     {
                         for(unsigned int q=0; q< numQueries; q++){
-                            const size_t blockLocalPairIndex = queries[q];
-                            const size_t blockLocalIndex = blockLocalPairIndex<<1;
-                            const size_t FElemLocalIndex = CryptoCommitment::getElementIndex(blockLocalIndex);
+                            const uint64_t blockLocalPairIndex = queries[q];
+                            const uint64_t blockLocalIndex = blockLocalPairIndex<<1;
+                            const uint64_t FElemLocalIndex = CryptoCommitment::getElementIndex(blockLocalIndex);
 
                             memcpy(&paths[q].first[0],  &cosetEval[FElemLocalIndex], 2*sizeof(hashDigest_t));
                         }
@@ -725,19 +725,19 @@ namespace{
                     const unsigned short treeLogLen = Log2(cosetSize*width*sizeof(FieldElement));
                     const auto queryPaths = CryptoCommitment::getPathToBlocksInPlace(&cosetEval[0], treeLogLen, queries);
                     for(unsigned int q=0; q< numQueries; q++){
-                        const size_t blockLocalPairIndex = queries[q];
-                        const size_t blockLocalIndex = blockLocalPairIndex<<1;
-                        const size_t FElemLocalIndex = CryptoCommitment::getElementIndex(blockLocalIndex);
+                        const uint64_t blockLocalPairIndex = queries[q];
+                        const uint64_t blockLocalIndex = blockLocalPairIndex<<1;
+                        const uint64_t FElemLocalIndex = CryptoCommitment::getElementIndex(blockLocalIndex);
 
-                        const size_t FElemIndex = FElemLocalIndex | (shiftIdx<<cosetShiftSize);
-                        const size_t blockIndex = CryptoCommitment::getBlockIndex(FElemIndex);
-                        const size_t blockPairIndex = blockIndex>>1;
+                        const uint64_t FElemIndex = FElemLocalIndex | (shiftIdx<<cosetShiftSize);
+                        const uint64_t blockIndex = CryptoCommitment::getBlockIndex(FElemIndex);
+                        const uint64_t blockPairIndex = blockIndex>>1;
 
                         paths[q].second = queryPaths[q];
 
                         paths[q].second.insert(paths[q].second.end(),merkleTopPath.begin(),merkleTopPath.end());
 
-#pragma omp critical
+// #pragma omp critical
                         {
                             resultsTree.addPath(paths[q].first, paths[q].second, blockPairIndex);
                         }

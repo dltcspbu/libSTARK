@@ -40,7 +40,7 @@ private:
 	std::vector<Algebra::Variable> translation_;
     
 	std::vector<std::vector<Algebra::FieldElement>> traceAssignmentTable_;
-    std::map<size_t,size_t> memoryPermutation_;
+    std::map<uint64_t,uint64_t> memoryPermutation_;
 
 	// Help Functions
 	void initInitialVars();
@@ -71,8 +71,8 @@ public:
 
 	const std::vector<std::vector<Algebra::FieldElement>>& getTraceAssignmet()const { return traceAssignmentTable_; }
 	std::vector<Variable> getTranslationVector() const { return pb_->getTranslationVector(); }
-	const std::map<size_t, size_t>& getMemoryPermutation()const { return memoryPermutation_; }
-	size_t varsAmount() const; // Number of Variables in one traceLine
+	const std::map<uint64_t, uint64_t>& getMemoryPermutation()const { return memoryPermutation_; }
+	uint64_t varsAmount() const; // Number of Variables in one traceLine
     libstark::BairInstance::boundaryConstraints_t getBoundaryConstraints() const; 
 }; // cs2Bair
 
@@ -88,11 +88,11 @@ public:
 class cs2BairConstraints :public libstark::ConstraintSys {
 private:
 	polySet_t constraints_;
-    const size_t numVars_;
+    const uint64_t numVars_;
 public:
 	cs2BairConstraints(const cs2Bair& cs2bair);
-	cs2BairConstraints(const polySet_t& constraints, const size_t numVars);
-	size_t numVars() const; // amount of variables in 1 traceline (including aux variables)
+	cs2BairConstraints(const polySet_t& constraints, const uint64_t numVars);
+	uint64_t numVars() const; // amount of variables in 1 traceline (including aux variables)
 	const polySet_t& constraints() const;
     cs2BairConstraints* clone() const;
 };
@@ -123,12 +123,12 @@ public:
 /*************************************************************************************************/
 
 // For now - stub. We don't use memory permutation
-class cs2BairMemory : public libstark::Sequence<size_t>{
+class cs2BairMemory : public libstark::Sequence<uint64_t>{
 private:
-	const std::map<size_t, size_t> memoryPermutation_;
+	const std::map<uint64_t, uint64_t> memoryPermutation_;
 public:
 	cs2BairMemory(const cs2Bair& cs2bair);
-	size_t getElementByIndex(index_t index) const;
+	uint64_t getElementByIndex(index_t index) const;
 
 };
 
@@ -144,12 +144,12 @@ public:
 class cs2BairMemoryCS : public libstark::ConstraintSys {
 private:
 	polySet_t constraints_;
-	const size_t numVars_;
+	const uint64_t numVars_;
 	
 public:
 	cs2BairMemoryCS(const cs2Bair& cs2bair);
-	cs2BairMemoryCS(const polySet_t& constraints, const size_t numVars);
-	size_t numVars() const;
+	cs2BairMemoryCS(const polySet_t& constraints, const uint64_t numVars);
+	uint64_t numVars() const;
 	const polySet_t& constraints() const;
     cs2BairMemoryCS* clone()const;
 };

@@ -109,7 +109,7 @@ void testProg(const TinyRAMProgram & prog, std::function<void(gadgetlib::Protobo
 	unique_ptr<cs2BairConstraints> cs2bairConstraints_(new cs2BairConstraints(cs2bair_instance));
     unique_ptr<cs2BairMemoryCS> cs2bairMemoryCS_(new cs2BairMemoryCS(cs2bair_instance));
     //std::cout << "Number of Vars: " << pb_instance->getTranslationVector().size() << std::endl;
-    size_t numVars = (cs2bairConstraints_->numVars() / 2);
+    uint64_t numVars = (cs2bairConstraints_->numVars() / 2);
     // Reduction
     const libstark::BairInstance instance(
             numVars,

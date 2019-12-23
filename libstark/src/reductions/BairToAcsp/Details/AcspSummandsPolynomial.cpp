@@ -59,7 +59,7 @@ typedef AcspSummandsPolynomial::polyID polyID;
             return evalOnSet({a})[0];
 	}
 
-    size_t AcspSummandsPolynomial::numVars()const {
+    uint64_t AcspSummandsPolynomial::numVars()const {
         _COMMON_FATAL("Not implemented");
     }
     
@@ -67,7 +67,7 @@ typedef AcspSummandsPolynomial::polyID polyID;
 		
         try{
             vector<FieldElement> res = evalDividedByZH(x_set,true);
-            for(size_t i=0; i<x_set.size(); i++){
+            for(uint64_t i=0; i<x_set.size(); i++){
                 res[i] *= Z_H.eval(x_set[i][0]);
             }
             return res;
@@ -102,7 +102,7 @@ typedef AcspSummandsPolynomial::polyID polyID;
 		//as each such value appears in many summands
 		vector<vector<FieldElement>> subspaceValues(a_set.size());
 
-        for (size_t j =0; j< a_set.size(); j++){
+        for (uint64_t j =0; j< a_set.size(); j++){
             subspaceValues[j].resize(subspacePolys.size());
             for (polyID i = 0; i < subspacePolys.size(); i++){
                 subspaceValues[j][i] = subspacePolys[i].eval(a_set[j][0]);
@@ -112,9 +112,9 @@ typedef AcspSummandsPolynomial::polyID polyID;
         //it pays of to do all the needed inversions together
         vector<FieldElement> valsToInverse(denomsVec_.size()*a_set.size());
         
-        for (size_t j =0; j< a_set.size(); j++){
+        for (uint64_t j =0; j< a_set.size(); j++){
             for (polyID i=0; i<denomsVec_.size(); i++){
-                const size_t valToInv_index = j*denomsVec_.size()+i;
+                const uint64_t valToInv_index = j*denomsVec_.size()+i;
                 valsToInverse[valToInv_index] = subspaceValues[j][denomsVec_[i].first] - denomsVec_[i].second;
                 
                 if (allowEvalIn_H && valsToInverse[valToInv_index] == ZERO){
@@ -128,10 +128,10 @@ typedef AcspSummandsPolynomial::polyID polyID;
         const vector<FieldElement> invRes = Algebra::invertPointwise(valsToInverse);
         vector<vector<FieldElement>> denomsVals(a_set.size());
 
-        for (size_t j =0; j< a_set.size(); j++){
+        for (uint64_t j =0; j< a_set.size(); j++){
             denomsVals[j].resize(denomsVec_.size());
             for (polyID i=0; i<denomsVec_.size(); i++){
-                const size_t valToInv_index = j*denomsVec_.size()+i;
+                const uint64_t valToInv_index = j*denomsVec_.size()+i;
                 denomsVals[j][i] = invRes[valToInv_index];
                 
                 if (allowEvalIn_H && subspaceValues[j][denomsVec_[i].first] == denomsVec_[i].second){
@@ -144,7 +144,7 @@ typedef AcspSummandsPolynomial::polyID polyID;
 		vector<FieldElement> res(a_set.size(),ZERO);
 
 		for (unsigned int i = 0;i<  summands.size(); i++){
-            for( size_t j=0; j< a_set.size(); j++){
+            for( uint64_t j=0; j< a_set.size(); j++){
                 res[j] += summands[i].eval(a_set[j], subspaceValues[j], denomsVals[j]);
             }
         }

@@ -16,40 +16,40 @@ namespace BairToAcsp{
 
 class AcspNeighbors{
 public:
-    typedef size_t polynomialIndicator_t;
+    typedef uint64_t polynomialIndicator_t;
 
     AcspNeighbors(const BairInstance& bairInstance,const common& commonDef, const instanceMappings& instanceMapping, const CS_testLocations& testLocations);
     std::vector<std::vector<std::unique_ptr<const Algebra::UnivariatePolynomialInterface> > > getNeighborPolynomials()const;
-    size_t polynomialsNum()const;
+    uint64_t polynomialsNum()const;
 
-    size_t locationOfId(const size_t layerId)const;
-    size_t locationOfTwinLayer(const size_t layerId)const;
-    size_t locationOfDeBruijn(const short dbNeighborId, const short affineCosetId ,const size_t layerId)const;
-    size_t locationOfRoutingBit(const size_t layerId)const;
-    size_t locationOfPermCS(polynomialIndicator_t poly, const size_t varId)const;
-    bool   existsPermCS(polynomialIndicator_t poly, const size_t varId)const;
-    size_t locationOfAssignmentCS(polynomialIndicator_t poly, const size_t varId, const size_t neighborVersion)const;
-    bool   existsAssignmentCS(polynomialIndicator_t poly, const size_t varId)const;
+    uint64_t locationOfId(const uint64_t layerId)const;
+    uint64_t locationOfTwinLayer(const uint64_t layerId)const;
+    uint64_t locationOfDeBruijn(const short dbNeighborId, const short affineCosetId ,const uint64_t layerId)const;
+    uint64_t locationOfRoutingBit(const uint64_t layerId)const;
+    uint64_t locationOfPermCS(polynomialIndicator_t poly, const uint64_t varId)const;
+    bool   existsPermCS(polynomialIndicator_t poly, const uint64_t varId)const;
+    uint64_t locationOfAssignmentCS(polynomialIndicator_t poly, const uint64_t varId, const uint64_t neighborVersion)const;
+    bool   existsAssignmentCS(polynomialIndicator_t poly, const uint64_t varId)const;
 
     
 private:
 
     struct NeighborLocation_stc{
         bool exists;
-        size_t layer;
-        size_t index;
+        uint64_t layer;
+        uint64_t index;
 
         NeighborLocation_stc(): exists(false), layer(0), index(0){};
-        NeighborLocation_stc(size_t index_): exists(true), layer(0), index(index_){};
-        NeighborLocation_stc(size_t layer_, size_t index_): exists(true), layer(layer_), index(index_){};
+        NeighborLocation_stc(uint64_t index_): exists(true), layer(0), index(index_){};
+        NeighborLocation_stc(uint64_t layer_, uint64_t index_): exists(true), layer(layer_), index(index_){};
     };
 
     struct PolyAndLayer_stc{
         Algebra::LinearPolynomial poly;
-        size_t layer;
+        uint64_t layer;
 
         PolyAndLayer_stc(const Algebra::LinearPolynomial& poly_):poly(poly_), layer(0){};
-        PolyAndLayer_stc(const Algebra::LinearPolynomial& poly_, size_t layer_):poly(poly_), layer(layer_){};
+        PolyAndLayer_stc(const Algebra::LinearPolynomial& poly_, uint64_t layer_):poly(poly_), layer(layer_){};
         PolyAndLayer_stc compose(const Algebra::LinearPolynomial& p_)const{
             return PolyAndLayer_stc(poly.compose(p_),layer);
         }
@@ -69,7 +69,7 @@ private:
     //
 
     std::vector<std::vector<Algebra::LinearPolynomial>> neighbors_;
-    std::vector<size_t> neighbors_witnessOffsets_;
+    std::vector<uint64_t> neighbors_witnessOffsets_;
 
 
     /******************************************
@@ -106,12 +106,12 @@ private:
     * private methods
     *********************************************/
 
-    static std::vector<size_t> initOffsets(const std::vector<std::vector<Algebra::LinearPolynomial>>& src);
+    static std::vector<uint64_t> initOffsets(const std::vector<std::vector<Algebra::LinearPolynomial>>& src);
     struct NeighborLocation_stc addNeighbor(const struct PolyAndLayer_stc& neighbor);
-    size_t retLocation(const struct NeighborLocation_stc& loc)const;
+    uint64_t retLocation(const struct NeighborLocation_stc& loc)const;
     void initRoutingNetworkNeighbors();
     Algebra::FieldElement getGenerator()const;
-    static std::map<polynomialIndicator_t , std::vector<bool>> getCsUsageVector(const std::vector<std::unique_ptr<Algebra::PolynomialInterface>>& cs, size_t varsAmount);
+    static std::map<polynomialIndicator_t , std::vector<bool>> getCsUsageVector(const std::vector<std::unique_ptr<Algebra::PolynomialInterface>>& cs, uint64_t varsAmount);
 
     //neighbors constructors
     static Algebra::LinearPolynomial constructIdNeighbor();
@@ -124,16 +124,16 @@ private:
     void constructAssignmentCS();
     
     //neighbors constructor helper functions
-    Algebra::LinearPolynomial applyShiftedLinearOperation(const size_t layer_id, const Algebra::LinearPolynomial operation)const;
+    Algebra::LinearPolynomial applyShiftedLinearOperation(const uint64_t layer_id, const Algebra::LinearPolynomial operation)const;
     Algebra::LinearPolynomial constructLinearDeBruijn_N0()const;
     Algebra::LinearPolynomial constructLinearDeBruijn_N1()const;
     Algebra::FieldElement DeBruijn_fixRowIdCarry()const;
     Algebra::FieldElement DeBruijn_fixColumnIdCarry()const;
     Algebra::FieldElement DeBruijn_getFixByCoset(const short cosetId)const;
-    PolyAndLayer_stc constructPermCS(const size_t nonPermElemId, const size_t varId)const;
-    PolyAndLayer_stc constructAssignmentCS(const size_t nonPermElemId, const size_t varId, const bool withCarry)const;
-    Algebra::LinearPolynomial moveFromPointToVarId(const Algebra::FieldElement src, const size_t varId)const;
-    PolyAndLayer_stc moveFromPointToVarId_withLayer(const Algebra::FieldElement src, const size_t varId)const;
+    PolyAndLayer_stc constructPermCS(const uint64_t nonPermElemId, const uint64_t varId)const;
+    PolyAndLayer_stc constructAssignmentCS(const uint64_t nonPermElemId, const uint64_t varId, const bool withCarry)const;
+    Algebra::LinearPolynomial moveFromPointToVarId(const Algebra::FieldElement src, const uint64_t varId)const;
+    PolyAndLayer_stc moveFromPointToVarId_withLayer(const Algebra::FieldElement src, const uint64_t varId)const;
 };
 
 

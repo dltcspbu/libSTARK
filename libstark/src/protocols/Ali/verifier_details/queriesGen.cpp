@@ -28,7 +28,7 @@ void linearCombinationValue::addAnswerPtr(FieldElement* answerPtr){
 void linearCombinationValue::calculate_witness(const Protocols::Ali::details::randomCoeffsSet_t& coeffs)const{
     FieldElement res = ZK_mask_res;
 
-    for(size_t i=0; i< coeffs.boundary.size(); i++){
+    for(uint64_t i=0; i< coeffs.boundary.size(); i++){
         res += (coeffs.boundary[i].coeffUnshifted[combId_] + (power(x_, coeffs.boundary[i].degShift) * coeffs.boundary[i].coeffShifted[combId_])) * boundaryEval_res[i];
     }
 
@@ -50,13 +50,13 @@ void compositionWithZK_Value::init(const AcspInstance& instance, const FieldElem
     consistencyPoint_ = consistencyPoint;
     combId_ = combId;
    
-    const size_t numWitnesses = instance.neighborPolys().size();
+    const uint64_t numWitnesses = instance.neighborPolys().size();
 
     boundaryPoly_res.resize(numWitnesses);
     boundaryVanishingVals_.resize(numWitnesses);
     boundaryPolyVals_.resize(numWitnesses);
     
-    for(size_t wIdx=0; wIdx < numWitnesses ; wIdx++){
+    for(uint64_t wIdx=0; wIdx < numWitnesses ; wIdx++){
         
         auto& currNeighbors = instance_->neighborPolys()[wIdx];
         auto& currResults = boundaryPoly_res[wIdx];
@@ -98,9 +98,9 @@ FieldElement compositionWithZK_Value::calculateCompositionValue()const{
     vector<FieldElement> inputValuesVector;
     inputValuesVector.push_back(consistencyPoint_);
 
-    const size_t numWitnesses = instance_->neighborPolys().size();
+    const uint64_t numWitnesses = instance_->neighborPolys().size();
     
-    for(size_t wIdx=0; wIdx < numWitnesses ; wIdx++){
+    for(uint64_t wIdx=0; wIdx < numWitnesses ; wIdx++){
         
         auto& currNeighbors = instance_->neighborPolys()[wIdx];
         auto& currResults = boundaryPoly_res[wIdx];

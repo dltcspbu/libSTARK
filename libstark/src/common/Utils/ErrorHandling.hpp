@@ -4,9 +4,9 @@
 #include <string>
 #include <sstream>
 
-#ifdef __GLIBC__
-#include <execinfo.h> // backtraces
-#endif
+// #ifdef __GLIBC__
+// #include <execinfo.h> // backtraces
+// #endif
 
 namespace libstark {
 

@@ -32,12 +32,12 @@ namespace{
  * because any instance of this class dies before the "rout" method ends
  * and the Sequence "src" is a parameter to this function
  */
-class shiftRight : public Sequence<size_t>{
+class shiftRight : public Sequence<uint64_t>{
 public:
-	shiftRight(const Sequence<size_t>& src, const layerID_t& numBits)
+	shiftRight(const Sequence<uint64_t>& src, const layerID_t& numBits)
 	:src_(src),numBits_(numBits){};
 	
-	size_t getElementByIndex(index_t index)const {
+	uint64_t getElementByIndex(index_t index)const {
         const labelID_t mask = (1<<numBits_)-1; // the mask is least segnificant $k$ bits set
 	    const auto shifted_index = ((index<<1) | (index>>(numBits_-1))) & mask;
         const auto origVal = src_.getElementByIndex(shifted_index);
@@ -46,14 +46,14 @@ public:
         return shifted_data;
     }
 private:
-    const Sequence<size_t>& src_;
-    const size_t numBits_;
+    const Sequence<uint64_t>& src_;
+    const uint64_t numBits_;
 };
 
 }
 
 dataID_t DeBruijnPermutationNet::getDataID(const layerID_t& l, const labelID_t& w) const{
-	const size_t shift_size = (l+k_-1)%k_;
+	const uint64_t shift_size = (l+k_-1)%k_;
 	const labelID_t mask = (1<<k_)-1; // the mask is least segnificant $k$ bits set
 	
 	//cyclic shift left of least segnificant $k$ bits, $shift_size$ steps

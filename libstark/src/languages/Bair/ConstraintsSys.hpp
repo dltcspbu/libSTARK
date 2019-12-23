@@ -35,9 +35,9 @@ public:
 	virtual ~ConstraintSys(){};
 	
     /// the amount of inputs each polynomial expects
-    virtual size_t numVars() const = 0;
+    virtual uint64_t numVars() const = 0;
 
-    size_t numMappings()const;
+    uint64_t numMappings()const;
     virtual std::vector<Algebra::FieldElement> eval(const std::vector<Algebra::FieldElement>& assignment)const;
     ConstraintSys* clone()const = 0;
 
@@ -47,7 +47,7 @@ public:
 	virtual const polySet_t& constraints() const = 0;
 
     /// return false only if the variable with given ID does not affect any constraint polynomial
-	virtual bool varUsed(const size_t varId) const;
+	virtual bool varUsed(const uint64_t varId) const;
 
     /// verifies if the constraint system is satisfied by given assignment
 	bool verify(const std::vector<Algebra::FieldElement>& assignment)const;

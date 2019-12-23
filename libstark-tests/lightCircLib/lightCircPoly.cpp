@@ -95,7 +95,7 @@ unique_ptr<PolynomialInterface> lightCircPoly::clone()const{
  *
  * It requires a mapping from the original inputs indexes to new inputs indexes
  */
-lightCircPoly::lightCircPoly(const lightCircPoly& src, const size_t totalInputs ,const vector<size_t>& originalInputsLocation):
+lightCircPoly::lightCircPoly(const lightCircPoly& src, const uint64_t totalInputs ,const vector<uint64_t>& originalInputsLocation):
     model_(new lightCircuit(totalInputs,1)){
 
     //get the output gate
@@ -103,7 +103,7 @@ lightCircPoly::lightCircPoly(const lightCircPoly& src, const size_t totalInputs 
 
     //initialize embedding inputs
     vector<lightCircGate*> embInputs(originalInputsLocation.size());
-    for(size_t i=0; i<originalInputsLocation.size(); i++){
+    for(uint64_t i=0; i<originalInputsLocation.size(); i++){
         embInputs[i] = &(model_->getInputGates()[originalInputsLocation[i]]);
     }
 
@@ -119,7 +119,7 @@ lightCircPoly::elementT lightCircPoly::eval(const vector<lightCircPoly::elementT
     return model_->evaluateCircuitSingleOutput_threadSafe(x);
 }
 
-size_t lightCircPoly::numVars()const{
+uint64_t lightCircPoly::numVars()const{
     return model_->getInputsNum();
 }
 
@@ -149,13 +149,13 @@ void lightCircPoly::mergeDistinctInputs(const lightCircPoly& other, lightCircGat
 
     // construct the inputs for current poly
     vector<lightCircGate*> embInputs1;
-    for(size_t i=0; i< model_->getInputsNum(); i++){
+    for(uint64_t i=0; i< model_->getInputsNum(); i++){
         embInputs1.push_back(&(newCirc->getInputGates()[i]));
     }
 
     // construct the inputs for other poly
     vector<lightCircGate*> embInputs2;
-    for(size_t i=0; i< other.model_->getInputsNum(); i++){
+    for(uint64_t i=0; i< other.model_->getInputsNum(); i++){
         embInputs2.push_back(&(newCirc->getInputGates()[i + model_->getInputsNum()]));
     }
 
@@ -181,13 +181,13 @@ void lightCircPoly::mergeSameInputs(const lightCircPoly& other, lightCircGate* m
 
     // construct the inputs for current poly
     vector<lightCircGate*> embInputs1;
-    for(size_t i=0; i< model_->getInputsNum(); i++){
+    for(uint64_t i=0; i< model_->getInputsNum(); i++){
         embInputs1.push_back(&(newCirc->getInputGates()[i]));
     }
 
     // construct the inputs for other poly
     vector<lightCircGate*> embInputs2;
-    for(size_t i=0; i< other.model_->getInputsNum(); i++){
+    for(uint64_t i=0; i< other.model_->getInputsNum(); i++){
         embInputs2.push_back(&(newCirc->getInputGates()[i]));
     }
 
@@ -205,7 +205,7 @@ PolynomialDegree lightCircPoly::getDegreeBound(const vector< PolynomialDegree>& 
 
 PolynomialDegree lightCircPoly::getDegree()const {
 	vector< PolynomialDegree> degBounds;
-	for (size_t i=0; i< model_->getInputsNum(); i++){
+	for (uint64_t i=0; i< model_->getInputsNum(); i++){
 		degBounds.push_back(PolynomialDegree(1));
 	}
 	return getDegreeBound(degBounds);
@@ -216,7 +216,7 @@ PolynomialDegree lightCircPoly::getDegree()const {
  * it returns false only if the result
  * can not be affected by the specified input
  */
-bool lightCircPoly::isEffectiveInput(const size_t inputIndex)const{
+bool lightCircPoly::isEffectiveInput(const uint64_t inputIndex)const{
     return model_->isInputEffective(inputIndex);
 }
 

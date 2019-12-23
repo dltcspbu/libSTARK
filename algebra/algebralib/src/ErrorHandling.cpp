@@ -20,9 +20,9 @@ Common functionality needed by many components.
 #include <unistd.h>
 #include <cstdio>
 #endif
-#ifdef __GLIBC__
-#include <execinfo.h> // backtraces
-#endif
+// #ifdef __GLIBC__
+// #include <execinfo.h> // backtraces
+// #endif
 
 namespace Algebra{
 
@@ -31,7 +31,7 @@ namespace Algebra{
 	/********************************************************/
 
 #ifdef DEBUG
-	const static size_t MAX_FMT = 256;
+	const static uint64_t MAX_FMT = 256;
 	::std::string ALGEBRALIB_FMT(const char* format, ...) {
 		char buf[MAX_FMT];
 		va_list args;
@@ -79,18 +79,18 @@ namespace Algebra{
 	}
 
 	void ErrorHandling::printStacktrace() {
-#ifdef __GNUC__
-		std::cerr << "Stack trace (pipe through c++filt to demangle identifiers):" << std::endl;
-		const int maxFrames = 100;
-		void* frames[maxFrames];
-		// Fill array with pointers to stack frames
-		int numFrames = backtrace(frames, maxFrames);
-		// Decode frames and print them to stderr
-		backtrace_symbols_fd(frames, numFrames, STDERR_FILENO);
-#else
+// #ifdef __GNUC__
+// 		std::cerr << "Stack trace (pipe through c++filt to demangle identifiers):" << std::endl;
+// 		const int maxFrames = 100;
+// 		void* frames[maxFrames];
+// 		// Fill array with pointers to stack frames
+// 		int numFrames = backtrace(frames, maxFrames);
+// 		// Decode frames and print them to stderr
+// 		backtrace_symbols_fd(frames, numFrames, STDERR_FILENO);
+// #else
 		//TODO make this available for Windows
 		std::cerr << "  (stack trace not available on this platform)" << std::endl;
-#endif // __GNUC__
+// #endif // __GNUC__
 	}
 
 } // namespace Algebra

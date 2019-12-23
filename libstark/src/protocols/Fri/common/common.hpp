@@ -16,7 +16,7 @@ namespace common{
 std::vector<Algebra::FieldElement> getL0Basis(const std::vector<Algebra::FieldElement>& L, const bool L0isMSB);
 std::vector<Algebra::FieldElement> getL1Basis(const std::vector<Algebra::FieldElement>& L, const bool L0isMSB);
 std::vector<Algebra::FieldElement> getColumnBasis(const std::vector<Algebra::FieldElement>& L, const bool L0isMSB);
-size_t getBasisLIndex_byL0L1indices(const std::vector<Algebra::FieldElement>& BasisL, const size_t idxL0, const size_t idxL1, const bool L0isMSB);
+uint64_t getBasisLIndex_byL0L1indices(const std::vector<Algebra::FieldElement>& BasisL, const uint64_t idxL0, const uint64_t idxL1, const bool L0isMSB);
 unsigned short dimOfColumn(const unsigned short dimOfL);
 
 namespace SoundnessParameters{

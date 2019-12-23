@@ -50,9 +50,9 @@ public:
 	Variable::set getUsedVariables() const;
 	void setNewIndices(std::map<VarIndex_t, VarIndex_t>& old2New);
 	PolynomialDegree getDegreeBound(const std::vector<PolynomialDegree>& inputDegrees) const;
-	bool isEffectiveInput(const size_t varId) const; 
+	bool isEffectiveInput(const uint64_t varId) const; 
 	std::unique_ptr<PolynomialInterface> clone() const { return std::unique_ptr<PolynomialInterface>(new CircuitPolynomial(*this)); }
-	size_t numVars()const;
+	uint64_t numVars()const;
     ~CircuitPolynomial(){};	
 };
 

@@ -11,8 +11,8 @@ class AcspRationalSystem : public RationalConstraintSys{
 public:
     virtual ~AcspRationalSystem(){};
 private:
-    typedef size_t polyId_t;
-    typedef std::vector<size_t> translationTable_t;
+    typedef uint64_t polyId_t;
+    typedef std::vector<uint64_t> translationTable_t;
     
 
     const std::unique_ptr<ConstraintSys> csTime_;

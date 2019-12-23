@@ -26,7 +26,7 @@ namespace BairToAcsp{
 
 class PermutationRoutingNet : public RoutingNetwork {
 public:
-	typedef Sequence<size_t> permutation_t;
+	typedef Sequence<uint64_t> permutation_t;
 	
 	PermutationRoutingNet(const labelID_t numElements):numElements_(numElements){;}
 	virtual void rout(const permutation_t& permutation) = 0;

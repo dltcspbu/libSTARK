@@ -77,47 +77,47 @@ vector<vector<unique_ptr<const UnivariatePolynomialInterface> > > AcspNeighbors:
     return move(res);
 }
 
-size_t AcspNeighbors::polynomialsNum()const{
+uint64_t AcspNeighbors::polynomialsNum()const{
     return  neighbors_witnessOffsets_[neighbors_.size()-1] + neighbors_[neighbors_.size()-1].size();
 }
 
-size_t AcspNeighbors::locationOfId(const size_t layerId)const{
+uint64_t AcspNeighbors::locationOfId(const uint64_t layerId)const{
     return retLocation(locationOfId_[layerId]);
 }
 
-size_t AcspNeighbors::locationOfTwinLayer(const size_t layerId)const{
+uint64_t AcspNeighbors::locationOfTwinLayer(const uint64_t layerId)const{
     return retLocation(locationOfTwinLayer_[layerId]);
 }
 
-size_t AcspNeighbors::locationOfDeBruijn(const short dbNeighborId, const short affineCosetId ,const size_t layerId)const{
+uint64_t AcspNeighbors::locationOfDeBruijn(const short dbNeighborId, const short affineCosetId ,const uint64_t layerId)const{
     return retLocation(locationOfDeBruijn_[dbNeighborId][affineCosetId][layerId]);
 }
 
-size_t AcspNeighbors::locationOfRoutingBit(const size_t layerId)const{
+uint64_t AcspNeighbors::locationOfRoutingBit(const uint64_t layerId)const{
     return retLocation(locationOfRoutingBit_[layerId]);
 }
 
-size_t AcspNeighbors::locationOfPermCS(polynomialIndicator_t poly, const size_t varId)const{
+uint64_t AcspNeighbors::locationOfPermCS(polynomialIndicator_t poly, const uint64_t varId)const{
     return retLocation(locationOfPermCS_.at(poly)[varId]);
 }
 
-bool   AcspNeighbors::existsPermCS(polynomialIndicator_t poly, const size_t varId)const{
+bool   AcspNeighbors::existsPermCS(polynomialIndicator_t poly, const uint64_t varId)const{
     return locationOfPermCS_.at(poly)[varId].exists;
 }
 
-size_t AcspNeighbors::locationOfAssignmentCS(polynomialIndicator_t poly, const size_t varId, const size_t neighborVersion)const{
+uint64_t AcspNeighbors::locationOfAssignmentCS(polynomialIndicator_t poly, const uint64_t varId, const uint64_t neighborVersion)const{
     _COMMON_ASSERT((neighborVersion == 0)||(neighborVersion == 1),"neighbor version must be 0 or 1");
-    const size_t res =  retLocation(locationOfAssignmentCS_.at(poly)[varId][neighborVersion]);
+    const uint64_t res =  retLocation(locationOfAssignmentCS_.at(poly)[varId][neighborVersion]);
     return res;
 }
 
-bool   AcspNeighbors::existsAssignmentCS(polynomialIndicator_t poly, const size_t varId)const{
+bool   AcspNeighbors::existsAssignmentCS(polynomialIndicator_t poly, const uint64_t varId)const{
     return locationOfAssignmentCS_.at(poly)[varId][0].exists;
 }
 
-vector<size_t> AcspNeighbors::initOffsets(const vector<vector<LinearPolynomial>>& src){
-    vector<size_t> res;
-    size_t currOffset = 0;
+vector<uint64_t> AcspNeighbors::initOffsets(const vector<vector<LinearPolynomial>>& src){
+    vector<uint64_t> res;
+    uint64_t currOffset = 0;
     for(const auto& v : src){
         res.push_back(currOffset);
         currOffset += v.size();
@@ -146,7 +146,7 @@ Algebra::FieldElement AcspNeighbors::getGenerator()const{
     return Algebra::xFE();
 }
 
-size_t AcspNeighbors::retLocation(const struct NeighborLocation_stc& loc)const{
+uint64_t AcspNeighbors::retLocation(const struct NeighborLocation_stc& loc)const{
     if(!loc.exists) _COMMON_FATAL("Neighbor does not exist");
     return loc.index + neighbors_witnessOffsets_[loc.layer];
 }
@@ -174,15 +174,15 @@ LinearPolynomial AcspNeighbors::constructLinearDeBruijn_N1()const{
     return N0.compose(bitXor);
 }
 
-LinearPolynomial AcspNeighbors::applyShiftedLinearOperation(const size_t layer_id, const LinearPolynomial operation)const{
+LinearPolynomial AcspNeighbors::applyShiftedLinearOperation(const uint64_t layer_id, const LinearPolynomial operation)const{
     const LinearPolynomial moveToLayer(instanceMapping_.mapPermutationLayerId_spaceElement(layer_id),one());
     return operation.compose(moveToLayer);
 }
 
 FieldElement AcspNeighbors::DeBruijn_fixRowIdCarry()const{
-    const size_t numBits = commonDef_.heightSpaceDimension();
-    const size_t shift = 0;
-    size_t fixAsInt = 1 + (1<<numBits);
+    const uint64_t numBits = commonDef_.heightSpaceDimension();
+    const uint64_t shift = 0;
+    uint64_t fixAsInt = 1 + (1<<numBits);
 
     const FieldElement constShift = mapIntegerToFieldElement(shift,numBits+1,fixAsInt);
 
@@ -190,7 +190,7 @@ FieldElement AcspNeighbors::DeBruijn_fixRowIdCarry()const{
 }
 
 FieldElement AcspNeighbors::DeBruijn_fixColumnIdCarry()const{
-    const size_t shift = commonDef_.heightSpaceDimension();
+    const uint64_t shift = commonDef_.heightSpaceDimension();
     const FieldElement modulus(mapIntegerToFieldElement(0,Algebra::ExtensionDegree,commonDef_.columnsModulus()));
 
     const FieldElement constShift = modulus*mapIntegerToFieldElement(shift,1,1);
@@ -210,12 +210,12 @@ FieldElement AcspNeighbors::DeBruijn_getFixByCoset(const short cosetId)const{
 
 void AcspNeighbors::constructDeBruijn(){
     //some constants
-    const size_t layersNum = commonDef_.variablesPerm().size()*2;
+    const uint64_t layersNum = commonDef_.variablesPerm().size()*2;
 
     const LinearPolynomial N0 = constructLinearDeBruijn_N0();
     const LinearPolynomial N1 = constructLinearDeBruijn_N1();
 
-    for(size_t layerId=0; layerId <layersNum ; layerId++){
+    for(uint64_t layerId=0; layerId <layersNum ; layerId++){
         
         const LinearPolynomial N0_shifted = applyShiftedLinearOperation(layerId, N0);
         const LinearPolynomial N1_shifted = applyShiftedLinearOperation(layerId, N1);
@@ -231,14 +231,14 @@ void AcspNeighbors::constructDeBruijn(){
 
 void AcspNeighbors::constructId(){
     //some constants
-    const size_t layersNum = 2*(commonDef_.variablesPerm().size()+1);
+    const uint64_t layersNum = 2*(commonDef_.variablesPerm().size()+1);
     const FieldElement zeroLayerLocation = instanceMapping_.mapPermutationLayerId_spaceElement(0);
 
     //initialization
     locationOfId_.resize(layersNum);
 
     //fill neighbors
-    for (size_t layerId=0; layerId < layersNum; layerId++){
+    for (uint64_t layerId=0; layerId < layersNum; layerId++){
         const FieldElement currLocation = instanceMapping_.mapPermutationLayerId_spaceElement(layerId);
         const FieldElement shift = zeroLayerLocation - currLocation;
         LinearPolynomial moveToZeroLayer(shift,one());
@@ -249,14 +249,14 @@ void AcspNeighbors::constructId(){
 
 void AcspNeighbors::constructTwinLayer(){
     //some constants
-    const size_t layersNum = 2*commonDef_.variablesPerm().size();
+    const uint64_t layersNum = 2*commonDef_.variablesPerm().size();
     const FieldElement zeroLayerLocation = instanceMapping_.mapPermutationLayerId_spaceElement(0);
 
     //initialization
     locationOfTwinLayer_.resize(layersNum);
 
     //fill neighbors
-    for (size_t layerId=0; layerId < layersNum; layerId++){
+    for (uint64_t layerId=0; layerId < layersNum; layerId++){
         const FieldElement currLocation = instanceMapping_.mapPermutationLayerId_spaceElement(layerId);
         const FieldElement shift = zeroLayerLocation - currLocation;
         LinearPolynomial moveToZeroLayer(shift,one());
@@ -267,15 +267,15 @@ void AcspNeighbors::constructTwinLayer(){
 
 void AcspNeighbors::constructRoutingBitAccess(){
     //some constants
-    const size_t layersNum = 2*commonDef_.variablesPerm().size();
-    const size_t firstBitsLayer = layersNum;
+    const uint64_t layersNum = 2*commonDef_.variablesPerm().size();
+    const uint64_t firstBitsLayer = layersNum;
     const FieldElement zeroLayerLocation = instanceMapping_.mapPermutationLayerId_spaceElement(0);
 
     //initialization
     locationOfRoutingBit_.resize(layersNum);
 
     //fill neighbors
-    for (size_t layerId=0; layerId < layersNum; layerId++){
+    for (uint64_t layerId=0; layerId < layersNum; layerId++){
         const FieldElement currLocation = instanceMapping_.mapPermutationLayerId_spaceElement(layerId);
         const FieldElement shift = zeroLayerLocation - currLocation;
         LinearPolynomial moveToZeroLayer(shift,one());
@@ -289,11 +289,11 @@ void AcspNeighbors::constructPermCS(){
     for (const auto& currPair : permutationCS_usageVector_){
         const auto& currPoly = currPair.first;
         const auto& currUsageVector = currPair.second;
-        const size_t testLocation = testLocations_.indexOfConstraint_Permuation(currPoly);
-        const size_t varsNum = currUsageVector.size();
+        const uint64_t testLocation = testLocations_.indexOfConstraint_Permuation(currPoly);
+        const uint64_t varsNum = currUsageVector.size();
         locationOfPermCS_[currPoly].resize(varsNum);
 
-        for(size_t varId=0; varId < varsNum; varId++){
+        for(uint64_t varId=0; varId < varsNum; varId++){
             if(currUsageVector[varId] == true){
                 locationOfPermCS_[currPoly][varId] = addNeighbor(constructPermCS(testLocation, varId));
             }
@@ -301,9 +301,9 @@ void AcspNeighbors::constructPermCS(){
     }
 }
 
-AcspNeighbors::PolyAndLayer_stc AcspNeighbors::constructPermCS(const size_t nonPermElemId, const size_t varId)const{
+AcspNeighbors::PolyAndLayer_stc AcspNeighbors::constructPermCS(const uint64_t nonPermElemId, const uint64_t varId)const{
     const FieldElement testLocation = instanceMapping_.mapNonPermutationElement(nonPermElemId);
-    const size_t varsInRow = commonDef_.variablesPerm().size() + commonDef_.variablesNonPerm().size();
+    const uint64_t varsInRow = commonDef_.variablesPerm().size() + commonDef_.variablesNonPerm().size();
     
     //if the variable is from current row get it from current row
     if(varId < varsInRow){
@@ -326,11 +326,11 @@ void AcspNeighbors::constructAssignmentCS(){
     for (const auto& currPair : assignmentCS_usageVector_){
         const auto& currPoly = currPair.first;
         const auto& currUsageVector = currPair.second;
-        const size_t testLocation = testLocations_.indexOfConstraint_Assignment(currPoly);
-        const size_t varsNum = currUsageVector.size();
+        const uint64_t testLocation = testLocations_.indexOfConstraint_Assignment(currPoly);
+        const uint64_t varsNum = currUsageVector.size();
         locationOfAssignmentCS_[currPoly].resize(varsNum);
 
-        for(size_t varId=0; varId < varsNum ;varId++){
+        for(uint64_t varId=0; varId < varsNum ;varId++){
             if(currUsageVector[varId] == true){
                 locationOfAssignmentCS_[currPoly][varId][0] = addNeighbor(constructAssignmentCS(testLocation, varId, false));
                 locationOfAssignmentCS_[currPoly][varId][1] = addNeighbor(constructAssignmentCS(testLocation, varId, true));
@@ -339,9 +339,9 @@ void AcspNeighbors::constructAssignmentCS(){
     }
 }
 
-AcspNeighbors::PolyAndLayer_stc AcspNeighbors::constructAssignmentCS(const size_t nonPermElemId, const size_t varId, const bool withCarry)const{
+AcspNeighbors::PolyAndLayer_stc AcspNeighbors::constructAssignmentCS(const uint64_t nonPermElemId, const uint64_t varId, const bool withCarry)const{
     const FieldElement testLocation = instanceMapping_.mapNonPermutationElement(nonPermElemId);
-    const size_t varsInRow = commonDef_.variablesPerm().size() + commonDef_.variablesNonPerm().size();
+    const uint64_t varsInRow = commonDef_.variablesPerm().size() + commonDef_.variablesNonPerm().size();
     
     //if the variable is from current row get it from current row
     if(varId < varsInRow){
@@ -360,12 +360,12 @@ AcspNeighbors::PolyAndLayer_stc AcspNeighbors::constructAssignmentCS(const size_
     }
 }
 
-map<polynomialIndicator_t , vector<bool>> AcspNeighbors::getCsUsageVector(const vector<unique_ptr<PolynomialInterface>>& cs,const size_t numVars){
+map<polynomialIndicator_t , vector<bool>> AcspNeighbors::getCsUsageVector(const vector<unique_ptr<PolynomialInterface>>& cs,const uint64_t numVars){
     map<polynomialIndicator_t , vector<bool>> usageVector;
 
-    for(size_t poly_indx=0; poly_indx < cs.size(); poly_indx++){
+    for(uint64_t poly_indx=0; poly_indx < cs.size(); poly_indx++){
         vector<bool> currPolyUsage;
-        for(size_t varId=0; varId< numVars; varId++){
+        for(uint64_t varId=0; varId< numVars; varId++){
             if(cs[poly_indx]->isEffectiveInput(varId)){
                 currPolyUsage.push_back(true);
             }
@@ -381,7 +381,7 @@ map<polynomialIndicator_t , vector<bool>> AcspNeighbors::getCsUsageVector(const 
     return usageVector;
 }
 
-LinearPolynomial AcspNeighbors::moveFromPointToVarId(const FieldElement src, const size_t varId)const{
+LinearPolynomial AcspNeighbors::moveFromPointToVarId(const FieldElement src, const uint64_t varId)const{
     const FieldElement destination = instanceMapping_.mapVariable(varId);
 
     const FieldElement delta = destination - src;
@@ -389,7 +389,7 @@ LinearPolynomial AcspNeighbors::moveFromPointToVarId(const FieldElement src, con
     return LinearPolynomial(delta,one());
 }
 
-AcspNeighbors::PolyAndLayer_stc AcspNeighbors::moveFromPointToVarId_withLayer(const FieldElement src, const size_t varId)const{
+AcspNeighbors::PolyAndLayer_stc AcspNeighbors::moveFromPointToVarId_withLayer(const FieldElement src, const uint64_t varId)const{
     const auto destination = instanceMapping_.mapVariable_witnessElement(varId);
 
     const FieldElement delta = destination.second - src;

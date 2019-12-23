@@ -7,7 +7,6 @@
 #include "FFT.h"
 #include "GPU_FFT.cuh"
 #include <cstdlib>
-#include <omp.h>
 #include <cstring>
 #include <iostream>
 namespace FFF {
@@ -17,6 +16,9 @@ namespace FFF {
 /*
  * This function generates basis G from basis B according to the Gao & Mateer's FFT algorithm.
  */
+
+//remove all openmp
+
 void GFromB(Element* G, Element* B, len_t g_l, Element& g_shift, Element& b_shift)
 {
 	Element::c_inv(B[g_l],B[g_l]);
@@ -73,7 +75,7 @@ FFT::FFT(Basis& b, const fft_operation_t operation) :
 		,gpu_subspace((Chunk**)malloc(sizeof(Chunk*)*(b.getSize()-1)))
 #endif	// #ifdef __GPU
 {
-	omp_set_num_threads(omp_max_threads);
+	// omp_set_num_threads(omp_max_threads);
 	Element* D = (Element*)malloc(sizeof(Element)*b.getSize());
 	Element* G = (Element*)malloc(sizeof(Element)*b.getSize());
 #ifdef __GPU
@@ -106,7 +108,7 @@ FFT::FFT(Basis& b, const fft_operation_t operation) :
         }
 #ifdef __GPU
 		if(j+1 <= Chunk::log_elements_in_chunk){
-			for(size_t i = 0 ; i < (1UL<<(Chunk::log_elements_in_chunk-(j+1))); ++i){
+			for(uint64_t i = 0 ; i < (1UL<<(Chunk::log_elements_in_chunk-(j+1))); ++i){
 				memcpy(&(E.e[i<<(j+1)]),exps[b_size-j-1],sizeof(Element)*(1UL<<(j+1)));
 			}
 			Chunk::normalToChunk(&E,gpu_exp[b_size-j-1],1,true);
@@ -116,7 +118,7 @@ FFT::FFT(Basis& b, const fft_operation_t operation) :
 #endif	// #ifdef __GPU
 #ifdef __GPU
 		if(j+1 <= Chunk::log_elements_in_chunk){
-			for(size_t i = 0 ; i < (1UL<<(Chunk::log_elements_in_chunk-(j+1))); ++i){
+			for(uint64_t i = 0 ; i < (1UL<<(Chunk::log_elements_in_chunk-(j+1))); ++i){
 				memcpy(&(E.e[i<<(j+1)]),i_exps[b_size-j-1],sizeof(Element)*(1UL<<(j+1)));
 			}
 			Chunk::normalToChunk(&E,gpu_i_exp[b_size-j-1],1,true);
@@ -132,8 +134,8 @@ FFT::FFT(Basis& b, const fft_operation_t operation) :
 			Chunk::normalToChunk((Elements_Chunk*)subspaces[b_size-1-j],gpu_subspace[b_size-1-j],1UL<<(j-Chunk::log_elements_in_chunk),true);
 		else
 		{
-			for(size_t i =0  ; i < 1UL<<(j) ; ++i)
-				for(size_t k = 0 ; k < (Chunk::elements_in_chunk>>(j));++k){
+			for(uint64_t i =0  ; i < 1UL<<(j) ; ++i)
+				for(uint64_t k = 0 ; k < (Chunk::elements_in_chunk>>(j));++k){
 					if(!(k&1))
 						Element::c_setZero(E.e[(k<<(j))+i]);
 					else
@@ -149,14 +151,14 @@ FFT::FFT(Basis& b, const fft_operation_t operation) :
 	Element::c_inv(lastD,i_lastD);
 	this->lastShift = d_shift;
 #ifdef __GPU
-	for(size_t i = 0 ; i < (Chunk::elements_in_chunk) ; i+=2){
+	for(uint64_t i = 0 ; i < (Chunk::elements_in_chunk) ; i+=2){
 		E.e[i] = lastShift;
 		Element::c_add(lastShift,lastD,E.e[i+1]);
 	}
 	Chunk::normalToChunk(&E,&linear_mul,1,true);
 	E.e[1]=i_lastD;
 	Element::c_mul(E.e[1],lastShift,E.e[0]);
-	for(size_t i = 2 ; i < (Chunk::elements_in_chunk) ; i+=2){
+	for(uint64_t i = 2 ; i < (Chunk::elements_in_chunk) ; i+=2){
 		E.e[i]=E.e[0];
 		E.e[i+1]=E.e[1];
 	}
@@ -246,7 +248,7 @@ void FFT::AlgIFFT(Element* P){
 	void FFT::generateSubspaceElements_cpu(const Element* b,const Element& s,const len_t b_len,Element* const res){
 		Element::assign(res[0],s);
 		for(int i = b_len-1 ; i >=0 ; --i){
-#pragma omp parallel for
+// #pragma omp parallel for
 			for(idx_t j=0 ; j < (1UL<<b_len) ; j+= 1UL<<(i+1)){
 				Element::c_add(res[j],b[i],res[j+(1UL<<i)]);
 			}
@@ -255,28 +257,29 @@ void FFT::AlgIFFT(Element* P){
 	void FFT::updateShiftSubspaceElements_cpu(const Element& s,const len_t b_len,Element* const res){
 		Element delta;
         Element::c_add(res[0],s,delta);
-#pragma omp parallel for
+// #pragma omp parallel for
         for(idx_t j=0 ; j < (1UL<<b_len) ; j++){
             Element::c_add(res[j],delta,res[j]);
         }
 	}
 	void FFT::multiExponentiate_cpu(Element& e, len_t t,Element* res){
-		if((t)< omp_max_threads)
-			omp_set_num_threads(t);
+		// if((t)< omp_max_threads)
+		// 	omp_set_num_threads(t);
 
-#pragma omp parallel
+// #pragma omp parallel
 		{
-		idx_t idx = (unsigned int)omp_get_thread_num();
-		idx_t low = (t*idx)/omp_get_num_threads();
-		idx_t high = (t*(idx+1))/omp_get_num_threads();
+		idx_t idx = 0; //(unsigned int)omp_get_thread_num();
+		idx_t low = (t*idx); // /omp_get_num_threads();
+		idx_t high = (t*(idx+1)); // /omp_get_num_threads();
+		// std::cout << idx << ' ' << low << ' ' << high << std::endl;
 		high = high < t ? high : t;
 		Element::c_exp(e,low,res[low]);
 		for(idx_t i = low ; i < high-1 ; ++i){
 			Element::c_mul(res[i],e,res[i+1]);
 		}
 	}
-		if((t)< omp_max_threads)
-			omp_set_num_threads(omp_max_threads);
+		// if((t)< omp_max_threads)
+		// 	omp_set_num_threads(omp_max_threads);
 	}
 	void FFT::iGPartition_cpu(Element* G, len_t log_g_len,Element* res){
 		len_t g_len = 1<<log_g_len;
@@ -294,7 +297,7 @@ void FFT::AlgIFFT(Element* P){
 	}
 	void FFT::iGPartition_cpuOMP(Element* G, len_t log_g_len,Element* res){
 		len_t g_len = 1<<log_g_len;
-#pragma omp parallel for
+// #pragma omp parallel for
 		for(idx_t i =0  ; i < g_len ; i+=2){
 			G[i]=res[i>>1];
 			G[i+1]=res[(g_len>>1)+(i>>1)];
@@ -302,7 +305,7 @@ void FFT::AlgIFFT(Element* P){
 	}
 	void FFT::GPartition_cpuOMP(Element* G, len_t log_g_len,Element* res)const{
 		len_t g_len = 1<<log_g_len;
-#pragma omp parallel for schedule(static)
+// #pragma omp parallel for schedule(static)
 		for(idx_t i =  0; i < g_len ; i+=2){
 			res[i>>1]=G[i];
 			res[(g_len>>1)+(i>>1)]=G[i+1];
@@ -314,7 +317,7 @@ void FFT::AlgIFFT(Element* P){
 		len_t half_g_len = 1UL<<(log_g_len-1);
 		for(idx_t j = 0; j<(1UL<<size) ; j+=(1UL<<log_g_len)){
 			G=&P[j];
-			for(size_t i = 0 ; i < half_g_len ; ++i)
+			for(uint64_t i = 0 ; i < half_g_len ; ++i)
 			{
 				Element::c_add(G[i],G[i+half_g_len],G[i+half_g_len]);
 				Element::c_mulXor(G[i+half_g_len],t[i],G[i]);
@@ -327,11 +330,11 @@ void FFT::AlgIFFT(Element* P){
 		len_t half_g_len = 1UL<<(log_g_len-1);
 		if(1UL<<(size-log_g_len)>= omp_max_threads)
 		{
-#pragma omp parallel for private(G,tid)
+// #pragma omp parallel for private(G,tid)
 			for(idx_t j = 0; j<(1UL<<size) ; j+=(1UL<<log_g_len)){
-				tid = omp_get_thread_num();
+				tid = 0; // omp_get_thread_num();
 				G=&P[j];
-				for(size_t i = 0 ; i < half_g_len ; ++i)
+				for(uint64_t i = 0 ; i < half_g_len ; ++i)
 				{
 					Element::c_add(G[i],G[i+half_g_len],G[i+half_g_len]);
 					Element::c_mulXor(G[i+half_g_len],subspaces[size-log_g_len][i],G[i]);
@@ -343,21 +346,21 @@ void FFT::AlgIFFT(Element* P){
 			for(idx_t j = 0; j<(1UL<<size) ; j+=(1UL<<log_g_len))
 			{
 				G=&P[j];
-				if(half_g_len < omp_max_threads)
-					omp_set_num_threads(half_g_len);
-#pragma omp parallel private(tid,low,high)
+				// if(half_g_len < omp_max_threads)
+				// 	omp_set_num_threads(half_g_len);
+// #pragma omp parallel private(tid,low,high)
 				{
-					tid = omp_get_thread_num();
-					low = (half_g_len*tid) /omp_get_num_threads();
-					high = (half_g_len*(tid+1))/omp_get_num_threads();
-					for(size_t i = low ; i < high ; ++i)
+					tid = 0; // omp_get_thread_num();
+					low = (half_g_len*tid); // /omp_get_num_threads();
+					high = (half_g_len*(tid+1)); // /omp_get_num_threads();
+					for(uint64_t i = low ; i < high ; ++i)
 					{
 						Element::c_add(P[j+i],P[j+i+half_g_len],P[j+i+half_g_len]);
 						Element::c_mulXor(P[j+i+half_g_len],subspaces[size-log_g_len][i],P[j+i]);
 					}
 				}
-				if(half_g_len < omp_max_threads)
-					omp_set_num_threads(omp_max_threads);
+				// if(half_g_len < omp_max_threads)
+				// 	omp_set_num_threads(omp_max_threads);
 			}
 		}
 	}
@@ -367,7 +370,7 @@ void FFT::AlgIFFT(Element* P){
 		len_t half_g_len = 1UL<<(log_g_len-1);
 		for(idx_t j = 0; j<(1UL<<size) ; j+=(1UL<<log_g_len)){
 			G=&P[j];
-			for(size_t i = 0 ; i < half_g_len ; ++i)
+			for(uint64_t i = 0 ; i < half_g_len ; ++i)
 			{
 				Element::c_mulXor(G[i+half_g_len],t[i],G[i]);
 				Element::c_add(G[i],G[i+half_g_len],G[i+half_g_len]);
@@ -380,11 +383,11 @@ void FFT::AlgIFFT(Element* P){
 		len_t half_g_len = 1UL<<(log_g_len-1);
 		if(1UL<<(size-log_g_len)>= omp_max_threads)
 		{
-#pragma omp parallel for private(G,tid) schedule(static,1)
+// #pragma omp parallel for private(G,tid) schedule(static,1)
 			for(idx_t j = 0; j<(1UL<<size) ; j+=(1UL<<log_g_len)){
-				tid = omp_get_thread_num();
+				tid = 0; // omp_get_thread_num();
 				G=&P[j];
-				for(size_t i = 0 ; i < half_g_len ; ++i)
+				for(uint64_t i = 0 ; i < half_g_len ; ++i)
 				{
 					Element::c_mulXor(G[i+half_g_len],subspaces[size-log_g_len][i],G[i]);
 					Element::c_add(G[i],G[i+half_g_len],G[i+half_g_len]);
@@ -396,21 +399,21 @@ void FFT::AlgIFFT(Element* P){
 			for(idx_t j = 0; j<(1UL<<size) ; j+=(1UL<<log_g_len))
 			{
 				G=&P[j];
-				if(half_g_len < omp_max_threads)
-					omp_set_num_threads(half_g_len);
-#pragma omp parallel private(tid,low,high)
+				// if(half_g_len < omp_max_threads)
+				// 	omp_set_num_threads(half_g_len);
+// #pragma omp parallel private(tid,low,high)
 				{
-					tid = omp_get_thread_num();
-					low = (half_g_len*tid) /omp_get_num_threads();
-					high = (half_g_len*(tid+1))/omp_get_num_threads();
+					tid = 0; // omp_get_thread_num();
+					low = (half_g_len*tid); // /omp_get_num_threads();
+					high = (half_g_len*(tid+1)); // /omp_get_num_threads();
 					for(unsigned int i = low ; i < high ; ++i)
 					{
 						Element::c_mulXor(P[j+i+half_g_len],subspaces[size-log_g_len][i],P[j+i]);
 						Element::c_add(P[j+i],P[j+i+half_g_len],P[j+i+half_g_len]);
 					}
 				}
-				if(half_g_len < omp_max_threads)
-					omp_set_num_threads(omp_max_threads);
+				// if(half_g_len < omp_max_threads)
+				// 	omp_set_num_threads(omp_max_threads);
 			}
 		}
 	}
@@ -436,7 +439,7 @@ void FFT::AlgIFFT(Element* P){
 				it=c_p_cpy;
 				p_cpy=P;
 			}
-			for( size_t j = 0; j < (1UL<<(size-i)) ; ++j)
+			for( uint64_t j = 0; j < (1UL<<(size-i)) ; ++j)
 			{
 				private_it = it+ j*(1UL<<i);
 				iGPartition_cpu(private_it,i,p_cpy+(j<<i));
@@ -454,12 +457,12 @@ void FFT::AlgIFFT(Element* P){
 		Element* p_cpy = NULL;
 		Element* it;
 		const unsigned int min_log_general_level = MIN(log_omp_max_threads,size-1);
-		omp_set_num_threads(omp_max_threads);
+		// omp_set_num_threads(omp_max_threads);
 		for(idx_t i = size ; i>= size - min_log_general_level+1 ; --i){
 			UVFromW_cpu(P,i,size);
 		}
 		if(min_log_general_level > size-1){ // Can be deleted
-#pragma omp parallel for schedule(static,1) //MAX
+// #pragma omp parallel for schedule(static,1) //MAX
 			for(idx_t i  = 1 ; i < (1UL<<size); i+=2){
 				Element::c_add(P[i],P[i-1],P[i]);
 				Element::c_mul(P[i],i_lastD,P[i]);
@@ -467,9 +470,9 @@ void FFT::AlgIFFT(Element* P){
 			}
 		}
 		if(min_log_general_level <= size-1){
-            const size_t step = 1UL << (size - min_log_general_level);
-            const size_t bound = 1UL<<size;
-#pragma omp parallel for
+            const uint64_t step = 1UL << (size - min_log_general_level);
+            const uint64_t bound = 1UL<<size;
+// #pragma omp parallel for
 			for (plooplongtype i = 0; i < bound; i+=step){
 				FFT::ifft_serial(P+i,size-min_log_general_level,c_p_cpy_local+i);
 			}
@@ -489,24 +492,24 @@ void FFT::AlgIFFT(Element* P){
 				Polynomials::i_taylorExpansionOMP(it,i);
 			}
 			it-=(1UL<<size);
-#pragma omp parallel for schedule(guided)
+// #pragma omp parallel for schedule(guided)
 			for(idx_t k = 0 ; k < (1UL<<size) ; ++k){
 				Element::c_mul(exps[size-i][k & mask],it[k],it[k]);
 			}
 		}
 		if(p_cpy==P)
 		{
-			if(omp_max_threads > (1UL<<size))
-				omp_set_num_threads(1UL<<size);
-#pragma omp parallel
+			// if(omp_max_threads > (1UL<<size))
+			// 	omp_set_num_threads(1UL<<size);
+// #pragma omp parallel
 			{
-				unsigned int tid = omp_get_thread_num();
-				unsigned int low = (tid*(1UL<<size))/omp_get_num_threads();
-				unsigned int high = ((tid+1)*(1UL<<size))/omp_get_num_threads();
+				unsigned int tid = 0; // omp_get_thread_num();
+				unsigned int low = (tid*(1UL<<size)); // /omp_get_num_threads();
+				unsigned int high = ((tid+1)*(1UL<<size)); ///omp_get_num_threads();
                 memcpy(&(P[low]),&(c_p_cpy_local[low]),sizeof(Element)*(high-low));
 			}
-			if(omp_max_threads > (1UL<<size))
-				omp_set_num_threads(omp_max_threads);
+			// if(omp_max_threads > (1UL<<size))
+			// 	omp_set_num_threads(omp_max_threads);
 		}
         
         free(c_p_cpy_local);
@@ -525,7 +528,7 @@ void FFT::AlgIFFT(Element* P){
 				it=P;
 				p_cpy=c_p_cpy;
 			}
-			for( size_t j = 0; j < (1UL<<(size-i)) ; ++j)
+			for( uint64_t j = 0; j < (1UL<<(size-i)) ; ++j)
 			{
 				private_it = it+ j*(1UL<<i);
 				Element::c_vecMul(exps[orig_size-i],private_it,private_it,1UL<<i);
@@ -536,7 +539,7 @@ void FFT::AlgIFFT(Element* P){
 		if(p_cpy!=P) {
 			memcpy(P,p_cpy,sizeof(Element)*(1UL<<size));
 		}
-		for(size_t i = 1 ; i <= (1UL<<size); i+=2){
+		for(uint64_t i = 1 ; i <= (1UL<<size); i+=2){
 			Element::c_mulXor(P[i],lastShift,P[i-1]);
 			Element::c_mul(P[i],lastD,P[i]);
 			Element::c_add(P[i],P[i-1],P[i]);
@@ -551,7 +554,7 @@ void FFT::AlgIFFT(Element* P){
 		Element* p_cpy = P;
 		Element* it = c_p_cpy_local;
 		const unsigned int min_log_general_levels = MIN(log_omp_max_threads,size-1);
-		omp_set_num_threads(omp_max_threads);
+		// omp_set_num_threads(omp_max_threads);
         for(idx_t i =size; i>size-min_log_general_levels ; --i){
 			if((size-i)&1){
 				it=c_p_cpy_local;
@@ -561,7 +564,7 @@ void FFT::AlgIFFT(Element* P){
 				p_cpy=c_p_cpy_local;
 			}
 			idx_t mask = andMask(i);
-#pragma omp parallel for schedule(guided)
+// #pragma omp parallel for schedule(guided)
 				for(idx_t k = 0 ; k < (1UL<<size) ; ++k){
 					Element::c_mul(exps[size-i][k & mask],it[k],it[k]);
 				}
@@ -573,30 +576,30 @@ void FFT::AlgIFFT(Element* P){
 		it-=(1UL<<size);
 		}
 		if(min_log_general_levels <= size-1){
-            const size_t step = 1UL << (size - min_log_general_levels);
-            const size_t bound = 1UL<<size;
-#pragma omp parallel for
+            const uint64_t step = 1UL << (size - min_log_general_levels);
+            const uint64_t bound = 1UL<<size;
+// #pragma omp parallel for
 			for (plooplongtype i = 0; i < bound; i += step){
 				FFT::fft_serial(p_cpy+i,size-min_log_general_levels,it+i);
 			}
 		}
 		if(p_cpy!=P)
 		{
-			if(1UL<<size < omp_max_threads)
-				omp_set_num_threads(1UL<<size);
-#pragma omp parallel
+			// if(1UL<<size < omp_max_threads)
+			// 	omp_set_num_threads(1UL<<size);
+// #pragma omp parallel
 			{
-				unsigned int tid = omp_get_thread_num();
-				long long low = (tid*(1UL << size)) / omp_get_num_threads();
-				long long high = ((tid + 1)*(1UL << size)) / omp_get_num_threads();
+				unsigned int tid = 0; // omp_get_thread_num();
+				long long low = (tid*(1UL << size)); //  / omp_get_num_threads();
+				long long high = ((tid + 1)*(1UL << size)); // / omp_get_num_threads();
 			memcpy(&(P[low]),&(p_cpy[low]),sizeof(Element)*(high-low));
 			}
-			if(1UL<<size < omp_max_threads)
-				omp_set_num_threads(omp_max_threads);
+			// if(1UL<<size < omp_max_threads)
+			// 	omp_set_num_threads(omp_max_threads);
 		}
         free(c_p_cpy_local);
 		if(min_log_general_levels > size-1){
-#pragma omp parallel for schedule(static,(1UL<<(size-1))/omp_max_threads)//MAX
+// #pragma omp parallel for schedule(static,(1UL<<(size-1))/omp_max_threads)//MAX
 			for (plooplongtype i = 1; i <= (1UL << size); i += 2){
 				Element::c_mulXor(P[i],lastShift,P[i-1]);
 				Element::c_mul(P[i],lastD,P[i]);

@@ -33,13 +33,13 @@ void IFFT_inplace(FieldElement* polyEvaluation, const vector<FieldElement>& orde
 
 namespace{
     //assumes x > 0
-    short correct_ceilLog2(const size_t x){
+    short correct_ceilLog2(const uint64_t x){
         //just for disabling an infinite loop
         if (x == 0){
             return 0;
         }
         short log=0;
-        size_t y = x;
+        uint64_t y = x;
         while (y != 1){
             log++;
             y >>= 1;
@@ -55,7 +55,7 @@ namespace{
 
 vector<FieldElement> FFT(const vector<FieldElement>& poly, const vector<FieldElement>& orderedBasis, const FieldElement& shift){
     
-    const size_t evaluationSapceSize = (1L<<orderedBasis.size());
+    const uint64_t evaluationSapceSize = (1L<<orderedBasis.size());
 
     ALGEBRALIB_ASSERT(poly.size() <= evaluationSapceSize, "FFT is supported only for evaluation spaces of size at least as the polynomial degree");
 
@@ -69,14 +69,14 @@ vector<FieldElement> FFT(const vector<FieldElement>& poly, const vector<FieldEle
     return vals_vec;
 }
 
-void FFT_inplace(FieldElement* poly, const vector<FieldElement>& orderedBasis, const FieldElement& shift, const size_t polyDeg_ceilLog){
-    const size_t evaluationSapceSize = (1L<<polyDeg_ceilLog);
+void FFT_inplace(FieldElement* poly, const vector<FieldElement>& orderedBasis, const FieldElement& shift, const uint64_t polyDeg_ceilLog){
+    const uint64_t evaluationSapceSize = (1L<<polyDeg_ceilLog);
     FFF::Element* basis_vec = (FFF::Element*)(&(orderedBasis[0]));
     const vector<FieldElement> shiftsBasis(orderedBasis.begin()+polyDeg_ceilLog,orderedBasis.end());
-    const size_t numShifts = 1L<<shiftsBasis.size();
+    const uint64_t numShifts = 1L<<shiftsBasis.size();
 
     //evaluate coset after coset, for cosets of minimal size possible (at least the poly degree)
-    for (size_t i=0; i< numShifts; i++){
+    for (uint64_t i=0; i< numShifts; i++){
         //before destroing the poly, copy it to next evaluation if needed
         if( i+1 < numShifts){
             memcpy(poly + evaluationSapceSize, poly, evaluationSapceSize*sizeof(FieldElement));
@@ -98,7 +98,7 @@ vector<FieldElement> LDE(const vector<FieldElement>& polyEvaluation, const vecto
     ALGEBRALIB_ASSERT(orderedBasis_src.size() <= orderedBasis_dst.size(), "LDE is supported only for destination evaluation spaces of size at least as the source evaluation space");
     ALGEBRALIB_ASSERT(polyEvaluation.size() == (1UL<<orderedBasis_src.size()), "LDE is supported only for evaluation exactly of the size of the evaluation source space");
     
-    const size_t evaluationSapceSize = (1L<<orderedBasis_dst.size());
+    const uint64_t evaluationSapceSize = (1L<<orderedBasis_dst.size());
 
     vector<FieldElement> vals_vec(polyEvaluation);
     //enlarge if needed to hold result

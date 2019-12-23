@@ -245,12 +245,12 @@ class HashDifficultyEnforcer_Gadget : public Gadget {
 public:
     static GadgetPtr create(ProtoboardPtr pb,
                             const MultiPackedWord& hashValue,
-                            const size_t difficultyBits);
+                            const uint64_t difficultyBits);
     void generateConstraints();
     void generateWitness();
 private:
-    const size_t hashSizeInBits_;
-    const size_t difficultyBits_;
+    const uint64_t hashSizeInBits_;
+    const uint64_t difficultyBits_;
     DualWord hashValue_;
     // This GadgetPtr will be a gadget to unpack hashValue_ from packed representation to bit
     // representation. Recall 'DualWord' holds both values, but only the packed version will be
@@ -259,7 +259,7 @@ private:
 
     HashDifficultyEnforcer_Gadget(ProtoboardPtr pb,
                                   const MultiPackedWord& hashValue,
-                                  const size_t difficultyBits);
+                                  const uint64_t difficultyBits);
     void init();
     DISALLOW_COPY_AND_ASSIGN(HashDifficultyEnforcer_Gadget);
 };
@@ -267,7 +267,7 @@ private:
 // IMPLEMENTATION
 HashDifficultyEnforcer_Gadget::HashDifficultyEnforcer_Gadget(ProtoboardPtr pb,
                                                              const MultiPackedWord& hashValue,
-                                                             const size_t difficultyBits)
+                                                             const uint64_t difficultyBits)
     : Gadget(pb), hashSizeInBits_(64), difficultyBits_(difficultyBits),
       hashValue_(hashValue, UnpackedWord(64, "hashValue_u"))
 {
@@ -286,7 +286,7 @@ void HashDifficultyEnforcer_Gadget::init() {
 
 GadgetPtr HashDifficultyEnforcer_Gadget::create(ProtoboardPtr pb,
                                                 const MultiPackedWord& hashValue,
-                                                const size_t difficultyBits) {
+                                                const uint64_t difficultyBits) {
     GadgetPtr pGadget(new HashDifficultyEnforcer_Gadget(pb, hashValue, difficultyBits));
     pGadget->init();
     return pGadget;
@@ -297,7 +297,7 @@ void HashDifficultyEnforcer_Gadget::generateConstraints() {
     hashValueUnpacker_->generateConstraints();
     // add constraints asserting that the first 'difficultyBits' bits of 'hashValue' equal 0. Note
     // endianness, unpacked()[0] is LSB and unpacked()[63] is MSB
-    for (size_t i = 0; i < difficultyBits_; ++i) {
+    for (uint64_t i = 0; i < difficultyBits_; ++i) {
         addUnaryConstraint(hashValue_.unpacked()[63 - i], GADGETLIB2_FMT("hashValue[%u] == 0", 63 - i));
     }
 }
@@ -321,7 +321,7 @@ TEST(Examples, HashDifficultyEnforcer_Gadget) {
     initPublicParamsFromDefaultPp();
     auto pb = Protoboard::create(R1P);
     const MultiPackedWord hashValue(64, R1P, "hashValue");
-    const size_t difficulty = 10;
+    const uint64_t difficulty = 10;
     auto difficultyEnforcer = HashDifficultyEnforcer_Gadget::create(pb, hashValue, difficulty);
     difficultyEnforcer->generateConstraints();
     // constraints are created but no assignment yet. Will throw error on evaluation

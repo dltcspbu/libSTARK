@@ -20,7 +20,7 @@ namespace Algebra {
 	std::string FieldElement::asString() const{
 		::std::stringstream s;
 		s << "[";
-        size_t elem=element_.c[0];
+        uint64_t elem=element_.c[0];
         bool first = true;
         while(elem != 0){
             if(!first){
@@ -59,8 +59,8 @@ FieldElement generateRandom(){
 	return mapIntegerToFieldElement(0,64,rng());
 }
 
-FieldElement getSpaceElementByIndex(const std::vector<FieldElement>& orderedBasis, const FieldElement& affineShift, const size_t index){
-    size_t iter = index;
+FieldElement getSpaceElementByIndex(const std::vector<FieldElement>& orderedBasis, const FieldElement& affineShift, const uint64_t index){
+    uint64_t iter = index;
     FieldElement res = zero();
 
     for(const auto& b : orderedBasis){
@@ -71,7 +71,7 @@ FieldElement getSpaceElementByIndex(const std::vector<FieldElement>& orderedBasi
     return affineShift + res;
 }
 
-size_t getSpaceIndexOfElement(const std::vector<FieldElement>& orderedBasis, const FieldElement& affineShift, const FieldElement& e){
+uint64_t getSpaceIndexOfElement(const std::vector<FieldElement>& orderedBasis, const FieldElement& affineShift, const FieldElement& e){
     FieldElement elemInSpan = e - affineShift;
     
     vector<FieldElement> partialBasis = orderedBasis;
@@ -92,7 +92,7 @@ size_t getSpaceIndexOfElement(const std::vector<FieldElement>& orderedBasis, con
     //if so, the coefficient of it in the representation is zero
     //otherwise is one
 
-    size_t elementIndex = 0;
+    uint64_t elementIndex = 0;
     lastElemLoc--;
     for(;firstElemLoc <= lastElemLoc; lastElemLoc--){
         elementIndex<<=1;
@@ -120,11 +120,11 @@ vector<FieldElement> invertPointwise(const vector<FieldElement>& elems){
         return elems;
     }
 
-    std::stack<size_t> layersEnd;
+    std::stack<uint64_t> layersEnd;
     
     vector<FieldElement> treeOfElems(elems);
     layersEnd.push(treeOfElems.size());
-    size_t currLocation = 0;
+    uint64_t currLocation = 0;
 
     
     //this loop builds a binary tree
@@ -134,7 +134,7 @@ vector<FieldElement> invertPointwise(const vector<FieldElement>& elems){
     //one of the elements (the last one) is a single child of its
     //father in the higher layer
     while(true){
-        const size_t currLayerEnd = layersEnd.top();
+        const uint64_t currLayerEnd = layersEnd.top();
         while(currLocation < currLayerEnd){
             
             //handling the case of a single child
@@ -167,15 +167,15 @@ vector<FieldElement> invertPointwise(const vector<FieldElement>& elems){
 
     //calculated the inverse of each subtree node
     while(!layersEnd.empty()){
-        const size_t currLayerEnd = layersEnd.top();
+        const uint64_t currLayerEnd = layersEnd.top();
         layersEnd.pop();
-        size_t currLayerStart = 0;
+        uint64_t currLayerStart = 0;
         if(!layersEnd.empty()){
             currLayerStart = layersEnd.top();
         }
 
-        size_t parentIndex = currLayerEnd;
-        size_t childIndex = currLayerStart;
+        uint64_t parentIndex = currLayerEnd;
+        uint64_t childIndex = currLayerStart;
         while (childIndex < currLayerEnd){
             //handling the case of a single child
             //because current layer contains odd number of nodes

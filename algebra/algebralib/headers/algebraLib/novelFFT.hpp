@@ -39,21 +39,21 @@ class novelFFT{
 public:
     
     //Initialize with formal sums
-    novelFFT(const std::vector<FieldElement>& orderedBasis, std::vector<std::vector<FieldElement>>&& polysCoeffs, const size_t width, const FieldElement& pad_value);
+    novelFFT(const std::vector<FieldElement>& orderedBasis, std::vector<std::vector<FieldElement>>&& polysCoeffs, const uint64_t width, const FieldElement& pad_value);
     
     //Initialize with evaluations for LDE - implemented for a single poly only because of laziness
     novelFFT(const std::vector<FieldElement>& orderedBasis, std::vector<FieldElement>&& srcEval); 
 
-    void FFT(const std::vector<FieldElement>& affineShift, FieldElement* dst, const size_t diff_coset)const;
+    void FFT(const std::vector<FieldElement>& affineShift, FieldElement* dst, const uint64_t diff_coset)const;
 private:
     const std::vector<SubspacePolynomial> X_exp_;
     const std::vector<FieldElement> polys_;
     const std::vector<FieldElement> orderedBasis_;
-    const size_t numPolys_;
-    const size_t width_;
+    const uint64_t numPolys_;
+    const uint64_t width_;
    
     //For initialization with formal sums
-    novelFFT(const std::vector<FieldElement>& orderedBasis, const std::vector<SubspacePolynomial> X_exp, std::vector<std::vector<FieldElement>>&& polysCoeffs, const size_t width, const FieldElement& pad_value);
+    novelFFT(const std::vector<FieldElement>& orderedBasis, const std::vector<SubspacePolynomial> X_exp, std::vector<std::vector<FieldElement>>&& polysCoeffs, const uint64_t width, const FieldElement& pad_value);
     
     //Initialize with evaluations for LDE - implemented for a single poly only because of laziness
     novelFFT(const std::vector<FieldElement>& orderedBasis, const std::vector<SubspacePolynomial> X_exp, std::vector<FieldElement>&& polyVals);

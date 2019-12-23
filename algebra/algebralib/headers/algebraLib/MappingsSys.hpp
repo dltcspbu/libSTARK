@@ -9,7 +9,7 @@ namespace Algebra{
 class multivarFunc{
 public:
     virtual ~multivarFunc(){};
-    virtual size_t numVars() const = 0;   
+    virtual uint64_t numVars() const = 0;   
     virtual Algebra::FieldElement eval(const std::vector<FieldElement>& assignment) const = 0;
 };
 
@@ -18,8 +18,8 @@ public:
     virtual ~MappingsSys(){};
     virtual MappingsSys* clone() const = 0;
 
-    virtual size_t numVars() const = 0;   
-    virtual size_t numMappings() const = 0;
+    virtual uint64_t numVars() const = 0;   
+    virtual uint64_t numMappings() const = 0;
 
     // assignment length expected is numVars
     virtual std::vector<FieldElement> eval(const std::vector<FieldElement>& assignment) const = 0;

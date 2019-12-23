@@ -53,7 +53,7 @@ void ConstraintSystem::addConstraint(Polynomial c, std::string name) {
 
 bool ConstraintSystem::isSatisfied(const Algebra::VariableAssignment& assignment,
                                    const PrintOptions& printOnFail) const {
-    for(size_t i = 0; i < constraintsPtrs_.size(); ++i) {
+    for(uint64_t i = 0; i < constraintsPtrs_.size(); ++i) {
 		if (!(constraintsPtrs_[i].constraint().isSatisfied(assignment))){
 		#ifdef _DEBUG
 			std::cout << "Wrong: " << constraintsPtrs_[i].asString() << std::endl;

@@ -9,7 +9,7 @@ instanceMappings::instanceMappings(const common& commonInfo):
     commonMappings(commonInfo),
     commonInfo_(commonInfo){};
 
-FieldElement instanceMappings::mapVariable(const size_t varId)const{
+FieldElement instanceMappings::mapVariable(const uint64_t varId)const{
     const auto location = commonInfo_.getVarLocation(varId);
     FieldElement res;
 
@@ -23,7 +23,7 @@ FieldElement instanceMappings::mapVariable(const size_t varId)const{
     return res;
 }
 
-commonMappings::witnessElement_t instanceMappings::mapVariable_witnessElement(const size_t varId)const{
+commonMappings::witnessElement_t instanceMappings::mapVariable_witnessElement(const uint64_t varId)const{
     const auto location = commonInfo_.getVarLocation(varId);
     witnessElement_t res;
 
@@ -37,11 +37,11 @@ commonMappings::witnessElement_t instanceMappings::mapVariable_witnessElement(co
     return res;
 }
 
-FieldElement instanceMappings::mapNonPermutation_zeroRow(const size_t elementId)const{
+FieldElement instanceMappings::mapNonPermutation_zeroRow(const uint64_t elementId)const{
     return mapNonPermutationElement(elementId);
 }
 
-FieldElement instanceMappings::mapNonPermutation_lastRow(const size_t elementId)const{
+FieldElement instanceMappings::mapNonPermutation_lastRow(const uint64_t elementId)const{
     return mapNonPermutationElement (elementId) + getLastRowIndicator();
 }
 

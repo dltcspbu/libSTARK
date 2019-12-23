@@ -74,10 +74,10 @@ TEST(Algebra,spacesIndexing){
     const vector<FieldElement> orderedBasis(basis.begin(),basis.end());
     const FieldElement affineShift = generateRandom();
 
-    const size_t spaceSize = (1<<basisSize);
-    for(size_t i=0; i<spaceSize; i++){
+    const uint64_t spaceSize = (1<<basisSize);
+    for(uint64_t i=0; i<spaceSize; i++){
         const FieldElement e = getSpaceElementByIndex(orderedBasis,affineShift,i);
-        const size_t index = getSpaceIndexOfElement(orderedBasis,affineShift,e);
+        const uint64_t index = getSpaceIndexOfElement(orderedBasis,affineShift,e);
         EXPECT_EQ(i,index);
     }
 }
@@ -86,7 +86,7 @@ TEST(Algebra,spacesIndexing){
  * function works
  */
 TEST(Algebra,elementInvertVector){
-	const size_t numElemsBound = 1000;
+	const uint64_t numElemsBound = 1000;
 
     //Generate roots
 	vector<FieldElement> elements;
@@ -99,7 +99,7 @@ TEST(Algebra,elementInvertVector){
 
     const auto inv_vals = invertPointwise(elements);
 
-    for(size_t i=0; i< elements.size(); i++){
+    for(uint64_t i=0; i< elements.size(); i++){
         EXPECT_EQ(one(),elements[i]*inv_vals[i]);
     }
 }

@@ -87,12 +87,12 @@ namespace libstark{
 class BairInstance {
 public:
 	typedef std::unique_ptr<ConstraintSys> constraintsPtr_t;
-	typedef std::pair<size_t,size_t> point_t;
+	typedef std::pair<uint64_t,uint64_t> point_t;
     typedef std::map<point_t,Algebra::FieldElement> boundaryConstraints_t;
-    typedef Sequence<size_t> permutation_t;
+    typedef Sequence<uint64_t> permutation_t;
 
 	BairInstance(
-		const size_t vectorsLen,
+		const uint64_t vectorsLen,
 		const short domainSizeIndicator,
 		constraintsPtr_t&& constraints_assignment,
 		constraintsPtr_t&& constraints_permutation,
@@ -110,7 +110,7 @@ public:
 	
     BairInstance(const BairInstance& src) = delete;
 	
-	inline const size_t& vectorsLen()const {
+	inline const uint64_t& vectorsLen()const {
 		return vectorsLen_;
 	}
 	
@@ -118,7 +118,7 @@ public:
 		return domainSizeIndicator_;
 	}
 	
-	inline const size_t domainSize()const {
+	inline const uint64_t domainSize()const {
 		return Infrastructure::POW2(domainSizeIndicator_)-1;
 	}
 	
@@ -139,7 +139,7 @@ public:
     }
 
 private:
-	size_t vectorsLen_;
+	uint64_t vectorsLen_;
 	short domainSizeIndicator_;
 
     //Constraints system to verify only the coloring (also known as C_time)

@@ -13,7 +13,7 @@ uniEvalView_t::uniEvalView_t() : view(10), logSizeBytes(1){};
 
 void uniEvalView_t::fetchResults()const{
     for(const auto& q : queries){
-        const size_t blockIdx = q.first;
+        const uint64_t blockIdx = q.first;
         const auto& blockData = view.readData(blockIdx);
         const FieldElement* dataAsVec = (FieldElement*)(&blockData);
         
@@ -32,8 +32,8 @@ void uniEvalView_t::fetchResults()const{
 rawQuery_t uniEvalView_t::getRawQuery()const{
     rawQuery_t res;
     for(const auto& q : queries){
-        const size_t blockIndex = q.first;
-        const size_t blockPairIndex = blockIndex>>1;
+        const uint64_t blockIndex = q.first;
+        const uint64_t blockPairIndex = blockIndex>>1;
         res.insert(blockPairIndex);
     }
 
@@ -68,7 +68,7 @@ void uniEvalView_t::digestResults(const rawResult_t& results){
         return;
     }
     
-    set<size_t> queriesIndices;
+    set<uint64_t> queriesIndices;
     for(const auto& p : queries){
         queriesIndices.insert(p.first);
     }
@@ -76,14 +76,14 @@ void uniEvalView_t::digestResults(const rawResult_t& results){
     view.DeSerialize(queriesIndices , results);
 }
 
-size_t uniEvalView_t::expectedResultsLenght()const{
+uint64_t uniEvalView_t::expectedResultsLenght()const{
    
     //If there are no queries to this buffer it is skipped
     if(queries.size() == 0){
         return 0;
     }
     
-    set<size_t> queriesIndices;
+    set<uint64_t> queriesIndices;
     for(const auto& p : queries){
         queriesIndices.insert(p.first);
     }
@@ -91,8 +91,8 @@ size_t uniEvalView_t::expectedResultsLenght()const{
     return view.getSerializationMapping(queriesIndices).size();
 }
 
-size_t uniEvalView_t::expectedQueriedFieldElementsNum()const{
-   size_t res = 0;
+uint64_t uniEvalView_t::expectedQueriedFieldElementsNum()const{
+   uint64_t res = 0;
    for(const auto& blockQueries : queries){
     res+= blockQueries.second.size();
    }

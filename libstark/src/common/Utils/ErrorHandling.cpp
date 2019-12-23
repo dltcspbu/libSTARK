@@ -53,18 +53,18 @@ void ErrorHandling::info(const stringstream& msg) {
 }
 
 void ErrorHandling::printStacktrace() {
-#ifdef __GNUC__
-	cerr << "Stack trace (pipe through c++filt to demangle identifiers):" << endl;
-	const int maxFrames = 100;
-	void* frames[maxFrames];
-	// Fill array with pointers to stack frames
-	int numFrames = backtrace(frames, maxFrames);
-	// Decode frames and print them to stderr
-	backtrace_symbols_fd(frames, numFrames, STDERR_FILENO);
-#else
+// #ifdef __GNUC__
+// 	cerr << "Stack trace (pipe through c++filt to demangle identifiers):" << endl;
+// 	const int maxFrames = 100;
+// 	void* frames[maxFrames];
+// 	// Fill array with pointers to stack frames
+// 	int numFrames = backtrace(frames, maxFrames);
+// 	// Decode frames and print them to stderr
+// 	backtrace_symbols_fd(frames, numFrames, STDERR_FILENO);
+// #else
     //TODO make this available for Windows
 	cerr << "  (stack trace not available on this platform)" << endl;
-#endif // __GNUC__
+// #endif // __GNUC__
 }
 
 

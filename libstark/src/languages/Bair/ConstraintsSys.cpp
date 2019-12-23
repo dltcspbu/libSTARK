@@ -16,14 +16,14 @@ public:
     FieldElement eval(const vector<FieldElement>& x)const{
         const vector<FieldElement> resList = cs_->eval(x);
         FieldElement res = zero();
-        for(size_t i=0; i< resList.size(); i++){
+        for(uint64_t i=0; i< resList.size(); i++){
             res += coeffs_[i] * resList[i];
         }
 
         return res;
     }
 
-    size_t numVars()const{
+    uint64_t numVars()const{
         return cs_->numVars();
     }
 
@@ -39,7 +39,7 @@ public:
         return unique_ptr<PolynomialInterface>(new linearCombPoly(*cs_,coeffs_));
     }
 
-    bool isEffectiveInput(const size_t varId)const{
+    bool isEffectiveInput(const uint64_t varId)const{
         return cs_->varUsed(varId);
     }
 
@@ -49,7 +49,7 @@ private:
 };
 }
 
-bool ConstraintSys::varUsed(const size_t varId) const{
+bool ConstraintSys::varUsed(const uint64_t varId) const{
     for(const auto& poly : constraints()){
         if(poly->isEffectiveInput(varId)){
             return true;
@@ -58,7 +58,7 @@ bool ConstraintSys::varUsed(const size_t varId) const{
     return false;
 }
 
-size_t ConstraintSys::numMappings()const{
+uint64_t ConstraintSys::numMappings()const{
     return constraints().size();
 }
 

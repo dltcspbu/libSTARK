@@ -25,7 +25,7 @@ public:
 };
 
 struct randomCoeefs{
-    size_t degShift;
+    uint64_t degShift;
     std::vector<Algebra::FieldElement> coeffUnshifted;
     std::vector<Algebra::FieldElement> coeffShifted;
     //multiplyes the polynomial by the polynomial:

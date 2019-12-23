@@ -12,7 +12,7 @@ namespace{
         linearCombFunc(const MappingsSys& mappings, const vector<FieldElement>& coeffs):
             mappings_(mappings.clone()), coeffs_(coeffs){};
         
-        size_t numVars() const{
+        uint64_t numVars() const{
             return mappings_->numVars();
         }
 

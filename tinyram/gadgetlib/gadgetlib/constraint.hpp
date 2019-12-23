@@ -93,7 +93,7 @@ public:
         return retset;
     }
 
-	size_t getNumberOfConstraints() { return constraintsPtrs_.size(); }
+	uint64_t getNumberOfConstraints() { return constraintsPtrs_.size(); }
 	void setNewIndices(std::map<Algebra::VarIndex_t, Algebra::VarIndex_t>& old2New);
     friend class GadgetLibAdapter;
 }; // class ConstraintSystem

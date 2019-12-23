@@ -16,11 +16,11 @@ class RS_result{
 public:
     std::vector<Algebra::FieldElement> results;
     
-    void init(const std::vector<Algebra::FieldElement>& basis, const size_t degBound);
+    void init(const std::vector<Algebra::FieldElement>& basis, const uint64_t degBound);
     bool verify()const;
 private:
     std::vector<Algebra::FieldElement> basis_;
-    size_t degBound_;
+    uint64_t degBound_;
 };
 
 class ConsistencyPath_result{
@@ -45,14 +45,14 @@ public:
 
 typedef std::vector<ConsistencyPath_result> Consistency_path_t;
 
-typedef common::state_t<std::map<size_t,ResultLocation>> RS_queriesTree;
+typedef common::state_t<std::map<uint64_t,ResultLocation>> RS_queriesTree;
 
 struct RS_queries{
     RS_queriesTree proof;
-    std::map<size_t,std::vector<Algebra::FieldElement*>> univariate;
+    std::map<uint64_t,std::vector<Algebra::FieldElement*>> univariate;
 };
 
-void addRandomComitmentPath(const short degBound_logCeil, const std::vector<Algebra::FieldElement>& evaluationBasis, RS_queries& queries, RS_result& results, const size_t depth, const bool L0isMSB);
+void addRandomComitmentPath(const short degBound_logCeil, const std::vector<Algebra::FieldElement>& evaluationBasis, RS_queries& queries, RS_result& results, const uint64_t depth, const bool L0isMSB);
 
 void addRandomQueryPath(RS_queries& queries, const std::vector<Algebra::FieldElement>& evaluationBasis, Consistency_path_t& results, const bool L0isMSB);
 

@@ -127,9 +127,9 @@ public:
 class BIGSIGMA_Gadget : public Gadget {
 private:
    BIGSIGMA_Gadget(ProtoboardPtr pb,
-      const size_t rot1,
-      const size_t rot2,
-      const size_t rot3,
+      const uint64_t rot1,
+      const uint64_t rot2,
+      const uint64_t rot3,
       const VariableArray& input,
       const VariableArray& result);
    virtual void init();
@@ -139,7 +139,7 @@ private:
    DISALLOW_COPY_AND_ASSIGN(BIGSIGMA_Gadget);
 public:
    static GadgetPtr create(ProtoboardPtr pb,
-      const size_t rot1, const size_t rot2, const size_t rot3,
+      const uint64_t rot1, const uint64_t rot2, const uint64_t rot3,
       const VariableArray& input, const VariableArray& result);
    void generateConstraints();
    void generateWitness();
@@ -148,9 +148,9 @@ public:
 class SMALLSIGMA_Gadget : public Gadget {
 private:
    SMALLSIGMA_Gadget(ProtoboardPtr pb,
-      const size_t rot1,
-      const size_t rot2,
-      const size_t shift,
+      const uint64_t rot1,
+      const uint64_t rot2,
+      const uint64_t shift,
       const VariableArray& input,
       const VariableArray& result);
    virtual void init();
@@ -160,7 +160,7 @@ private:
    DISALLOW_COPY_AND_ASSIGN(SMALLSIGMA_Gadget);
 public:
    static GadgetPtr create(ProtoboardPtr pb,
-      const size_t rot1, const size_t rot2, const size_t shift,
+      const uint64_t rot1, const uint64_t rot2, const uint64_t shift,
       const VariableArray& input, const VariableArray& result);
    void generateConstraints();
    void generateWitness();

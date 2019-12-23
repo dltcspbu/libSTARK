@@ -44,12 +44,12 @@ unique_ptr<AcspWitness> witnessReduction::reduceWitness( const BairInstance& ins
     return move(witness_ptr);
 }
 
-class exponentsPermutation : public Sequence<size_t>{
+class exponentsPermutation : public Sequence<uint64_t>{
 public:
     exponentsPermutation(const BairInstance& instance):instance_(instance),commonDef_(instance, vector<FieldElement>(instance.constraintsPermutation().numMappings(),one()), vector<FieldElement>(instance.constraintsAssignment().numMappings(),one())){};
 
-	size_t getElementByIndex(index_t index)const{
-        const size_t singeltonIndex = instance_.domainSize();
+	uint64_t getElementByIndex(index_t index)const{
+        const uint64_t singeltonIndex = instance_.domainSize();
            
         //singleton case 
         if(index == singeltonIndex) return 0;
@@ -62,14 +62,14 @@ private:
     const BairInstance& instance_;
     const common commonDef_;
 
-    size_t expModulu(const size_t exp)const{
+    uint64_t expModulu(const uint64_t exp)const{
         
         const int64_t modulus = commonDef_.rowsModulus();
-        const size_t modulus_deg = floor(Infrastructure::Log2(modulus));
-        const size_t overflow_mask = 1UL<<modulus_deg;
+        const uint64_t modulus_deg = floor(Infrastructure::Log2(modulus));
+        const uint64_t overflow_mask = 1UL<<modulus_deg;
 
-        size_t res = 1;
-        for(size_t i=1; i<= exp ; i++){
+        uint64_t res = 1;
+        for(uint64_t i=1; i<= exp ; i++){
             res <<= 1;
             if( res & overflow_mask){
                 res ^= modulus;
@@ -80,55 +80,55 @@ private:
     }
 };
 
-class inversePermutation : public Sequence<size_t>{
+class inversePermutation : public Sequence<uint64_t>{
     public :
-        inversePermutation(const Sequence<size_t>& src, const size_t numElements): seq_(numElements){
-            for(size_t val=0; val< numElements; val++){
-                const size_t index = src.getElementByIndex(val);
+        inversePermutation(const Sequence<uint64_t>& src, const uint64_t numElements): seq_(numElements){
+            for(uint64_t val=0; val< numElements; val++){
+                const uint64_t index = src.getElementByIndex(val);
                 seq_[index] = val;
             }
         }
-		size_t getElementByIndex(index_t index)const{
+		uint64_t getElementByIndex(index_t index)const{
             if (index < seq_.size()) return seq_[index];
             else {
                 _COMMON_FATAL("Access to such index is unexpected");
             }
         }
     private:
-        vector<size_t> seq_;
+        vector<uint64_t> seq_;
 };
 
 //represents the permutation \f$ g \circ h \circ g^{-1} \f$
-class conjugatePermutation : public Sequence<size_t>{
+class conjugatePermutation : public Sequence<uint64_t>{
     public:
-        conjugatePermutation(const Sequence<size_t>& g, const Sequence<size_t>& h, const size_t numElements):
+        conjugatePermutation(const Sequence<uint64_t>& g, const Sequence<uint64_t>& h, const uint64_t numElements):
             g_(g), h_(h), g_inv_(g,numElements){};
         
-		size_t getElementByIndex(index_t index)const{
-            const size_t v1 = g_inv_.getElementByIndex(index);
-            const size_t v2 = h_.getElementByIndex(v1);
-            const size_t v3 = g_.getElementByIndex(v2);
+		uint64_t getElementByIndex(index_t index)const{
+            const uint64_t v1 = g_inv_.getElementByIndex(index);
+            const uint64_t v2 = h_.getElementByIndex(v1);
+            const uint64_t v3 = g_.getElementByIndex(v2);
 
             return v3;
         } 
 
     private:
-        const Sequence<size_t>& g_;
-        const Sequence<size_t>& h_;
+        const Sequence<uint64_t>& g_;
+        const Sequence<uint64_t>& h_;
         const inversePermutation g_inv_;
 };
 
-class addSingeltonToPermutation : public Sequence<size_t>{
+class addSingeltonToPermutation : public Sequence<uint64_t>{
     public:
-        addSingeltonToPermutation(const Sequence<size_t>& orig, const size_t singletoneIndex): origPerm_(orig) ,singletoneIndex_(singletoneIndex){};
-        size_t getElementByIndex(index_t index)const{
+        addSingeltonToPermutation(const Sequence<uint64_t>& orig, const uint64_t singletoneIndex): origPerm_(orig) ,singletoneIndex_(singletoneIndex){};
+        uint64_t getElementByIndex(index_t index)const{
             if (index == singletoneIndex_) return singletoneIndex_;
             return origPerm_.getElementByIndex(index);
         }
     
     private:
-        const Sequence<size_t>& origPerm_;
-        const size_t singletoneIndex_;
+        const Sequence<uint64_t>& origPerm_;
+        const uint64_t singletoneIndex_;
 };
 
 void fillWithRandomVals(vector<vector<FieldElement>>& src){
@@ -144,7 +144,7 @@ vector<witnessReduction::evaluation_t> witnessReduction::getEmbeddingMapping( co
 
     //define the mapping on which the assignment polynomial will be interpolated on
     //This mapping is the arithmetization of the witness
-    const size_t mappingSize = Infrastructure::POW2(witnessMapping.getImageSpaceOrderedBasis().size());
+    const uint64_t mappingSize = Infrastructure::POW2(witnessMapping.getImageSpaceOrderedBasis().size());
     vector<evaluation_t> mappings(commonDef.witnessLayersAmount(), evaluation_t(mappingSize,Algebra::zero()));
 
     //fill with random values for ZK
@@ -163,9 +163,9 @@ vector<witnessReduction::evaluation_t> witnessReduction::getEmbeddingMapping( co
 }
 
 void witnessReduction::mapChi(const BairInstance& instance, const BairWitness& witness, vector<evaluation_t>& mappings, const common& commonDef, const witnessMappings& witnessMapping){
-    const size_t cyclicDomainSize = instance.domainSize();
+    const uint64_t cyclicDomainSize = instance.domainSize();
     
-    const vector<size_t> unroutedVars = commonDef.variablesNonPerm();
+    const vector<uint64_t> unroutedVars = commonDef.variablesNonPerm();
 
     //ordered basis for witness space
     const auto& basis = witnessMapping.getImageSpaceOrderedBasis();
@@ -173,10 +173,10 @@ void witnessReduction::mapChi(const BairInstance& instance, const BairWitness& w
     //Map the coloring of the circle
     {
     auto currRow_spaceIndex = witnessMapping.getFirstRow_spaceIndex();
-    for( size_t vecId =0; vecId < cyclicDomainSize; vecId++){
+    for( uint64_t vecId =0; vecId < cyclicDomainSize; vecId++){
         const auto& assignment = witness.get_color(vecId);
-        for (const size_t& varId :  unroutedVars){
-            const size_t varIndex = commonDef.getVarLocation(varId).index;
+        for (const uint64_t& varId :  unroutedVars){
+            const uint64_t varIndex = commonDef.getVarLocation(varId).index;
             const commonMappings::witnessIndex_t indicator = witnessMapping.mapIndexOfNonPermutationVariable_witnessIndex(currRow_spaceIndex,varIndex);
             mappings[indicator.first][indicator.second] = assignment[varId];
         }
@@ -215,10 +215,10 @@ void witnessReduction::mapNetwork(const BairInstance& instance, const BairWitnes
     permNetwork_t net(instance.domainSizeIndicator());
     net.rout(permToRout);
    
-    const vector<size_t> routedIndexes = commonDef.variablesPerm();
+    const vector<uint64_t> routedIndexes = commonDef.variablesPerm();
 
     //define the index for the additional vector
-    const size_t addedVecId = instance.domainSize();
+    const uint64_t addedVecId = instance.domainSize();
     
     //ordered basis for witness space
     const auto& basis = witnessMapping.getImageSpaceOrderedBasis();
@@ -226,16 +226,16 @@ void witnessReduction::mapNetwork(const BairInstance& instance, const BairWitnes
     //map the main routing network
     {
     
-    for (size_t rowId=0; rowId < net.height(); rowId++){
-        for(size_t columnId = 0; columnId < net.getWingWidth() ; columnId++){
+    for (uint64_t rowId=0; rowId < net.height(); rowId++){
+        for(uint64_t columnId = 0; columnId < net.getWingWidth() ; columnId++){
             for(short netPartId = 0; netPartId < 2; netPartId++){//loop over the two halves
 
                 const RoutingNetwork::dataID_t dataId = net.getDataID(netPartId, columnId, rowId);
-                const size_t vecId = logPerm.getElementByIndex(dataId);
+                const uint64_t vecId = logPerm.getElementByIndex(dataId);
                 const auto& coloring =  (vecId == addedVecId? instance.paddingPi() : witness.get_color(vecId));
                 
                 //map routing network
-                for (size_t packetId = 0; packetId < routedIndexes.size(); packetId++){
+                for (uint64_t packetId = 0; packetId < routedIndexes.size(); packetId++){
                     const auto currPacketIndex = routedIndexes[packetId];
                     const FieldElement val = coloring[currPacketIndex];
                     const auto indicator_index = witnessMapping.mapNetworkElement_witnessIndex(rowId,columnId,2*packetId + netPartId);

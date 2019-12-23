@@ -9,10 +9,10 @@ namespace BairToAcsp{
 class instanceMappings : public commonMappings{
 public:
     instanceMappings(const common& commonInfo);
-    Algebra::FieldElement mapVariable(const size_t varId)const;
-    witnessElement_t mapVariable_witnessElement(const size_t varId)const;
-    Algebra::FieldElement mapNonPermutation_zeroRow(const size_t elementId)const;
-    Algebra::FieldElement mapNonPermutation_lastRow(const size_t elementId)const;
+    Algebra::FieldElement mapVariable(const uint64_t varId)const;
+    witnessElement_t mapVariable_witnessElement(const uint64_t varId)const;
+    Algebra::FieldElement mapNonPermutation_zeroRow(const uint64_t elementId)const;
+    Algebra::FieldElement mapNonPermutation_lastRow(const uint64_t elementId)const;
 protected:
     const common& commonInfo_;
 

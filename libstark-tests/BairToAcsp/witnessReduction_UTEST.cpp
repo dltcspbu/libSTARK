@@ -66,22 +66,22 @@ void verifyIntegrity(const BairPair& bair_pair, const AcspWitness& acsp_witness)
     const auto& permutation = witness.permutation();
 
     //get amount of rows
-    const size_t cyclicDomainSize = instance.domainSize();
+    const uint64_t cyclicDomainSize = instance.domainSize();
     
     //get variables partition
-    const vector<size_t> unroutedVars = commonDef.variablesNonPerm();
-    const vector<size_t> routedVars = commonDef.variablesPerm();
+    const vector<uint64_t> unroutedVars = commonDef.variablesNonPerm();
+    const vector<uint64_t> routedVars = commonDef.variablesPerm();
 
     {
         //verify elements for circle
-        size_t vecId = 0;
+        uint64_t vecId = 0;
         FieldElement indicator = witnessMapping.mapNonPermutationElement_witness(vecId,0).second - commonMapping.mapNonPermutationElement_witness(0).second;
         for(unsigned int i=0; i<cyclicDomainSize; i++){
             const auto& coloring = witness.get_color(vecId);
             const auto& permColoring = witness.get_color(permutation.getElementByIndex(vecId));
 
             //verify assignment on variables not in permutation
-            for(size_t varLocation = 0; varLocation < unroutedVars.size(); varLocation++){
+            for(uint64_t varLocation = 0; varLocation < unroutedVars.size(); varLocation++){
                 const witnessMappings::witnessElement_t currDelta = commonMapping.mapNonPermutationElement_witness(varLocation);
 
                 //get the Acsp witness
@@ -94,7 +94,7 @@ void verifyIntegrity(const BairPair& bair_pair, const AcspWitness& acsp_witness)
             }
 
             //verify assignment & permutation on variables in permutation
-            for(size_t varLocation = 0; varLocation < routedVars.size(); varLocation++){
+            for(uint64_t varLocation = 0; varLocation < routedVars.size(); varLocation++){
 
                 //verify assignment
                 {
@@ -130,10 +130,10 @@ void verifyIntegrity(const BairPair& bair_pair, const AcspWitness& acsp_witness)
     }
 }
 
-size_t cyclicShift(const size_t src, const char bitsAmount){
+uint64_t cyclicShift(const uint64_t src, const char bitsAmount){
     
     //get mask for cyclic shift
-    const size_t mask = POW2(bitsAmount) - 1;
+    const uint64_t mask = POW2(bitsAmount) - 1;
 
     return ((src<<1)&mask) ^ (((src<<1)&(~mask)) >> bitsAmount);
 
@@ -150,23 +150,23 @@ void verifyRoutingNetwork(const BairPair& bair_pair, const AcspWitness& acsp_wit
     const BairInstance& instance = bair_pair.first;
 
     //get amount of layers
-    const size_t layersAmount = commonDef.variablesPerm().size()*2;
+    const uint64_t layersAmount = commonDef.variablesPerm().size()*2;
     
     //get amount of rows
-    const size_t amountOfRows = instance.domainSize()+1;
+    const uint64_t amountOfRows = instance.domainSize()+1;
     
     //get columns amount
-    const size_t columnsAmount = LongSymmetricDeBruijnNetwork(instance.domainSizeIndicator()).getWingWidth();
+    const uint64_t columnsAmount = LongSymmetricDeBruijnNetwork(instance.domainSizeIndicator()).getWingWidth();
 
     //get index of last column
-    const size_t lastColumn = columnsAmount-1;
+    const uint64_t lastColumn = columnsAmount-1;
 
     //bits for row Id
-    const size_t bitsForRowId = commonDef.heightSpaceDimension();
+    const uint64_t bitsForRowId = commonDef.heightSpaceDimension();
 
-    for(size_t layerId=0; layerId < layersAmount; layerId++){
-        for(size_t rowId=0; rowId < amountOfRows; rowId++){
-            for (size_t columnId=0; columnId < columnsAmount; columnId++){
+    for(uint64_t layerId=0; layerId < layersAmount; layerId++){
+        for(uint64_t rowId=0; rowId < amountOfRows; rowId++){
+            for (uint64_t columnId=0; columnId < columnsAmount; columnId++){
                 
                 //get the location of current point
                 const commonMappings::witnessElement_t currLocation = witnessMapping.map_spaceIndex_to_witnessElement(witnessMapping.mapNetworkElement_spaceIndex(rowId,columnId,layerId));
@@ -181,9 +181,9 @@ void verifyRoutingNetwork(const BairPair& bair_pair, const AcspWitness& acsp_wit
                 if(columnId != lastColumn){
                     
                     //get neighbors row ids
-                    const size_t DB_neighbor0_rowId = cyclicShift(rowId   , bitsForRowId);
+                    const uint64_t DB_neighbor0_rowId = cyclicShift(rowId   , bitsForRowId);
                     //because this is a reverse DeBruijn, the xor with "1" must be done before the cyclic shift
-                    const size_t DB_neighbor1_rowId = cyclicShift(rowId^1 , bitsForRowId);
+                    const uint64_t DB_neighbor1_rowId = cyclicShift(rowId^1 , bitsForRowId);
 
                     //get the value of the routing bit
                     const commonMappings::witnessElement_t routingBitLocation = witnessMapping.map_spaceIndex_to_witnessElement(witnessMapping.mapNetworkRoutingBit_spaceIndex(rowId,columnId,layerId));
@@ -250,9 +250,9 @@ void verifyPermutation_aditionalElement(const BairPair& bair_pair, const AcspWit
     const BairInstance& instance = bair_pair.first;
 
     //get the variables in permutation
-    const vector<size_t> routedVars = commonDef.variablesPerm();
+    const vector<uint64_t> routedVars = commonDef.variablesPerm();
     
-    for(size_t varIndex=0; varIndex < routedVars.size(); varIndex++){
+    for(uint64_t varIndex=0; varIndex < routedVars.size(); varIndex++){
                 
         //get the location of current point
         const auto currLocation = witnessMapping.map_spaceIndex_to_witnessElement(witnessMapping.mapNetworkElement_spaceIndex(0,0,2*varIndex));
